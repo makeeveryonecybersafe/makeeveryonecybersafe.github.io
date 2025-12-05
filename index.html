@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeEveryoneCyberSafe</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #000000;
+      color: #ffffff;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    .wrapper {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    /* Header */
+    .header {
+      background: #000000;
+      padding: 2rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 4px solid #FF0055;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 60%;
+      height: 4px;
+      background: #FF0055;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: color 0.2s ease;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: #FF0055;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: #FF0055;
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8rem 3rem 6rem 3rem;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 0, 85, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 900px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #FF0055;
+      color: #000000;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 5rem;
+      font-weight: 900;
+      margin: 0 0 2rem 0;
+      color: #ffffff;
+      line-height: 0.95;
+      text-transform: uppercase;
+      letter-spacing: -3px;
+    }
+
+    .hero h1 .highlight {
+      color: #FF0055;
+      display: block;
+    }
+
+    .hero p {
+      font-size: 1.4rem;
+      color: #cccccc;
+      max-width: 700px;
+      margin: 0 0 3rem 0;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 1.2rem 3rem;
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: #FF0055;
+      color: #000000;
+      box-shadow: 0 8px 0 #990033;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #990033;
+    }
+
+    .btn-primary:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #990033;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #ffffff;
+      border: 3px solid #ffffff;
+    }
+
+    .btn-secondary:hover {
+      background: #ffffff;
+      color: #000000;
+      transform: translateY(-2px);
+    }
+
+    /* Section Styling */
+    section {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 6rem 3rem;
+    }
+
+    .section-header {
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #FF0055;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+    }
+
+    section h2 {
+      font-size: 3.5rem;
+      color: #ffffff;
+      margin: 0 0 1rem 0;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: #999999;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    /* Stats Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #0a0a0a;
+      border: 3px solid #1a1a1a;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: #FF0055;
+      transform: translateY(-8px);
+    }
+
+    .stat-number {
+      font-size: 4rem;
+      font-weight: 900;
+      color: #FF0055;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffffff;
+    }
+
+    /* About Section */
+    .about {
+      background: #0a0a0a;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .about-card {
+      padding: 3rem;
+      border: 2px solid #1a1a1a;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .about-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background: #FF0055;
+      transition: width 0.3s ease;
+      opacity: 0.1;
+    }
+
+    .about-card:hover::before {
+      width: 100%;
+    }
+
+    .about-card:hover {
+      border-color: #FF0055;
+      transform: scale(1.05);
+      z-index: 10;
+    }
+
+    .about-icon {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-card h3 {
+      color: #ffffff;
+      font-size: 1.5rem;
+      margin: 0 0 1rem 0;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+
+    .about-card p {
+      color: #cccccc;
+      margin: 0;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    /* Initiatives Section */
+    .initiatives-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .initiative-card {
+      background: #0a0a0a;
+      border: 3px solid #1a1a1a;
+      padding: 3rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .initiative-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: #FF0055;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .initiative-card:hover::after {
+      transform: scaleX(1);
+    }
+
+    .initiative-card:hover {
+      border-color: #FF0055;
+      transform: translateY(-8px);
+    }
+
+    .initiative-number {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+    }
+
+    .initiative-card h3 {
+      color: #ffffff;
+      font-size: 1.8rem;
+      margin: 0 0 1.5rem 0;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+
+    .initiative-card p {
+      color: #999999;
+      margin: 0 0 2rem 0;
+      line-height: 1.7;
+    }
+
+    .initiative-link {
+      color: #FF0055;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: gap 0.3s ease;
+    }
+
+    .initiative-link:hover {
+      gap: 1rem;
+    }
+
+    /* CTA Banner */
+    .cta-banner {
+      background: linear-gradient(135deg, #FF0055 0%, #CC0044 100%);
+      padding: 5rem 3rem;
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    .cta-banner h3 {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #000000;
+      margin: 0 0 1.5rem 0;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+    }
+
+    .cta-banner p {
+      font-size: 1.3rem;
+      color: #000000;
+      margin: 0 0 2.5rem 0;
+      font-weight: 600;
+    }
+
+    /* Join Section */
+    .join {
+      background: #0a0a0a;
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .social-card {
+      background: #000000;
+      border: 3px solid #1a1a1a;
+      padding: 3rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+
+    .social-card:hover {
+      border-color: #FF0055;
+      transform: scale(1.05);
+    }
+
+    .social-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .social-card h4 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0 0 0.5rem 0;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+
+    .social-card p {
+      font-size: 1rem;
+      color: #999999;
+      margin: 0;
+    }
+
+    /* Footer */
+    footer {
+      background: #000000;
+      border-top: 4px solid #FF0055;
+      padding: 4rem 3rem 3rem 3rem;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-logo {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .footer-content p {
+      margin: 0.5rem 0;
+      color: #666666;
+      font-size: 0.95rem;
+    }
+
+    .footer-content p:first-of-type {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero h1 {
+        font-size: 3.5rem;
+      }
+
+      .stats-grid, .about-grid, .initiatives-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .social-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section h2 {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        gap: 1.5rem;
+        font-size: 0.85rem;
+      }
+
+      .hero {
+        padding: 4rem 2rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      section {
+        padding: 4rem 2rem;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="wrapper"><!-- Header -->
+   <header class="header">
+    <nav class="nav-container">
+     <div class="logo">
+      #MECS
+     </div>
+     <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#initiatives">Initiatives</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="#join">Join</a></li>
+     </ul>
+    </nav>
+   </header><!-- Hero Section -->
+   <section id="home" class="hero">
+    <div class="hero-content">
+     <div class="hero-badge">
+      CYBERSECURITY FOR ALL
+     </div>
+     <h1><span id="hero-title">MAKE<br>
+       EVERYONE<br><span class="highlight">CYBERSAFE</span></span></h1>
+     <p id="hero-subtitle">Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online.</p>
+     <div class="cta-buttons"><a href="#join" class="btn btn-primary">Join the Movement</a>
+     </div>
+    </div>
+   </section><!-- Stats Section -->
+   <section>
+    <div class="stats-grid">
+     <div class="stat-card">
+      <div class="stat-number">
+       1K+
+      </div>
+      <div class="stat-label">
+       People Protected
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-number">
+       5+
+      </div>
+      <div class="stat-label">
+       Myths Busted
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-number">
+       36
+      </div>
+      <div class="stat-label">
+       Community Members
+      </div>
+     </div>
+    </div>
+   </section><!-- About Section -->
+   <section id="about" class="about">
+    <div class="section-header">
+     <div class="section-label">
+      WHO WE ARE
+     </div>
+     <h2 id="about-title">ABOUT MECS</h2>
+     <p class="section-subtitle">A mission-driven awareness movement, not a company</p>
+    </div>
+    <div class="about-grid">
+     <div class="about-card">
+      <div class="about-icon">
+       🎯
+      </div>
+      <h3>Our Purpose</h3>
+      <p>MakeEveryoneCyberSafe exists to demystify cybersecurity for everyday people. We break down complex threats into practical, real-world guidance.</p>
+     </div>
+     <div class="about-card">
+      <div class="about-icon">
+       ⚡
+      </div>
+      <h3>What We Solve</h3>
+      <p>In a world where cyber threats grow daily, we bridge the gap between complex security concepts and practical protection for everyone.</p>
+     </div>
+     <div class="about-card">
+      <div class="about-icon">
+       🚀
+      </div>
+      <h3>Our Vision</h3>
+      <p>A future where cybersecurity is simple, understood, and practiced by everyone. Where people navigate the digital world with confidence.</p>
+     </div>
+    </div>
+   </section><!-- Initiatives Section -->
+   <section id="initiatives">
+    <div class="section-header">
+     <div class="section-label">
+      WHAT WE DO
+     </div>
+     <h2>OUR INITIATIVES</h2>
+     <p class="section-subtitle">Community-driven awareness programs that make a difference</p>
+    </div>
+    <div class="initiatives-grid">
+     <div class="initiative-card">
+      <div class="initiative-number">
+       01
+      </div>
+      <h3>Myth-Busting Monday</h3>
+      <p>Weekly breakdowns debunking common cybersecurity myths with facts, evidence, and practical takeaways that anyone can understand.</p><a href="#" class="initiative-link">Learn More →</a>
+     </div>
+     <div class="initiative-card">
+      <div class="initiative-number">
+       02
+      </div>
+      <h3>Case Files</h3>
+      <p>Real-world breakdowns of scams, breaches, and cyber incidents—showing exactly how they happened and how to prevent them.</p><a href="#" class="initiative-link">View Cases →</a>
+     </div>
+     <div class="initiative-card">
+      <div class="initiative-number">
+       03
+      </div>
+      <h3>Awareness Events</h3>
+      <p>Workshops, webinars, and community collaborations designed to spread cybersecurity awareness at scale worldwide.</p><a href="#" class="initiative-link">Join Event →</a>
+     </div>
+    </div>
+    <div class="cta-banner">
+     <h3>READY TO GET PROTECTED?</h3>
+     <p>Join thousands learning to stay safe online</p><a href="#initiatives" class="btn btn-primary">Explore Programs</a>
+    </div>
+   </section><!-- Join Section -->
+   <section id="join" class="join">
+    <div class="section-header">
+     <div class="section-label">
+      GET INVOLVED
+     </div>
+     <h2>JOIN THE MOVEMENT</h2>
+     <p class="section-subtitle">Follow our awareness programs and connect with our community</p>
+    </div>
+    <div class="social-grid"><a href="https://instagram.com/makeeveryonecybersafe" target="_blank" rel="noopener noreferrer" class="social-card"> <span class="social-icon">📸</span> <h4>Instagram</h4><p>Daily insights &amp; myth-busting content</p></a> <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" target="_blank" rel="noopener noreferrer" class="social-card"> <span class="social-icon">💼</span> <h4>LinkedIn</h4><p>Professional security guidance &amp; case studies</p></a>
+    </div>
+   </section><!-- Footer -->
+   <footer>
+    <div class="footer-content">
+     <div class="footer-logo">
+      #MECS
+     </div>
+     <p id="footer-text">© 2025 MakeEveryoneCyberSafe. A public awareness initiative.</p>
+     <p>A mission to make cybersecurity accessible to all.</p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: '#000000',
+      surface_color: '#0a0a0a',
+      text_color: '#ffffff',
+      primary_action_color: '#FF0055',
+      secondary_action_color: '#990033',
+      font_family: 'Space Grotesk',
+      font_size: 16,
+      hero_title: 'MAKE\nEVERYONE\nCYBERSAFE',
+      hero_subtitle: 'Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online.',
+      about_title: 'ABOUT MECS',
+      footer_text: '© 2025 MakeEveryoneCyberSafe. A public awareness initiative.'
+    };
+
+    async function onConfigChange(config) {
+      const baseFontSize = config.font_size || defaultConfig.font_size;
+      const customFont = config.font_family || defaultConfig.font_family;
+      const fontStack = `-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+      
+      // Apply colors
+      document.body.style.background = config.background_color || defaultConfig.background_color;
+      document.body.style.color = config.text_color || defaultConfig.text_color;
+      
+      const surfaces = document.querySelectorAll('.stat-card, .initiative-card, .about-card, .social-card, .about');
+      surfaces.forEach(surface => {
+        surface.style.background = config.surface_color || defaultConfig.surface_color;
+      });
+      
+      document.querySelectorAll('.btn-primary').forEach(btn => {
+        btn.style.background = config.primary_action_color || defaultConfig.primary_action_color;
+        btn.style.boxShadow = `0 8px 0 ${config.secondary_action_color || defaultConfig.secondary_action_color}`;
+      });
+
+      document.querySelector('.cta-banner').style.background = `linear-gradient(135deg, ${config.primary_action_color || defaultConfig.primary_action_color} 0%, ${config.secondary_action_color || defaultConfig.secondary_action_color} 100%)`;
+      
+      document.querySelector('.header').style.borderBottomColor = config.primary_action_color || defaultConfig.primary_action_color;
+      document.querySelector('footer').style.borderTopColor = config.primary_action_color || defaultConfig.primary_action_color;
+
+      const accentElements = document.querySelectorAll('.highlight, .stat-number, .initiative-link, .section-label, .hero-badge, .logo::after');
+      accentElements.forEach(el => {
+        el.style.color = config.primary_action_color || defaultConfig.primary_action_color;
+      });
+      
+      // Apply fonts
+      document.body.style.fontFamily = `${customFont}, ${fontStack}`;
+      
+      // Apply font sizes
+      document.querySelector('.hero h1').style.fontSize = `${baseFontSize * 3.1}px`;
+      document.querySelector('.hero p').style.fontSize = `${baseFontSize * 1.3}px`;
+      document.querySelectorAll('section h2').forEach(h2 => {
+        h2.style.fontSize = `${baseFontSize * 2.2}px`;
+      });
+      document.querySelectorAll('.initiative-card h3').forEach(h3 => {
+        h3.style.fontSize = `${baseFontSize * 1.1}px`;
+      });
+      document.body.style.fontSize = `${baseFontSize}px`;
+      
+      // Update text content with proper formatting
+      const heroTitle = document.getElementById('hero-title');
+      if (heroTitle) {
+        const titleText = config.hero_title || defaultConfig.hero_title;
+        const lines = titleText.split('\n');
+        heroTitle.innerHTML = lines.map((line, index) => {
+          if (index === lines.length - 1) {
+            return `<span class="highlight">${line}</span>`;
+          }
+          return line;
+        }).join('<br>');
+      }
+      
+      const heroSubtitle = document.getElementById('hero-subtitle');
+      if (heroSubtitle) heroSubtitle.textContent = config.hero_subtitle || defaultConfig.hero_subtitle;
+      
+      const aboutTitle = document.getElementById('about-title');
+      if (aboutTitle) aboutTitle.textContent = config.about_title || defaultConfig.about_title;
+      
+      const footerText = document.getElementById('footer-text');
+      if (footerText) footerText.textContent = config.footer_text || defaultConfig.footer_text;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              window.elementSdk.setConfig({ surface_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              config.primary_action_color = value;
+              window.elementSdk.setConfig({ primary_action_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+            set: (value) => {
+              config.secondary_action_color = value;
+              window.elementSdk.setConfig({ secondary_action_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['hero_title', config.hero_title || defaultConfig.hero_title],
+        ['hero_subtitle', config.hero_subtitle || defaultConfig.hero_subtitle],
+        ['about_title', config.about_title || defaultConfig.about_title],
+        ['footer_text', config.footer_text || defaultConfig.footer_text]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    // Smooth scroll for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8b889c034e17b7',t:'MTc2NDg1MzcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
