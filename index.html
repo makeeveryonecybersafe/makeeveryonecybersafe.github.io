@@ -43,6 +43,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
     }
 
     .logo {
@@ -100,6 +101,37 @@
 
     .nav-links a:hover::after {
       width: 100%;
+    }
+
+    /* Hamburger Menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      z-index: 1001;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background: #ffffff;
+      margin: 3px 0;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -5px);
     }
 
     /* Hero Section */
@@ -178,6 +210,10 @@
       transition: all 0.3s ease;
       text-decoration: none;
       display: inline-block;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-primary {
@@ -547,31 +583,127 @@
       }
     }
 
+    /* Enhanced Mobile (0-768px) */
     @media (max-width: 768px) {
+      .nav-container {
+        padding: 1rem 1.5rem;
+      }
+      
+      .hamburger {
+        display: flex;
+      }
+      
       .nav-links {
-        gap: 1.5rem;
-        font-size: 0.85rem;
+        position: fixed;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #000;
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        border-top: 1px solid #1a1a1a;
+        max-height: 0;
+        overflow: hidden;
+        z-index: 999;
       }
-
+      
+      .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        max-height: 500px;
+      }
+      
+      .nav-links li {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #1a1a1a;
+        width: 100%;
+      }
+      
       .hero {
-        padding: 4rem 2rem;
+        padding: 4rem 1.5rem 3rem;
       }
-
+      
       .hero h1 {
-        font-size: 2.5rem;
+        font-size: clamp(2rem, 8vw, 3rem);
+        line-height: 0.95;
       }
-
-      section {
-        padding: 4rem 2rem;
+      
+      .hero p {
+        font-size: clamp(1rem, 4vw, 1.2rem);
       }
-
+      
       .cta-buttons {
         flex-direction: column;
       }
-
-      .btn {
+      
+      .cta-buttons .btn {
         width: 100%;
-        text-align: center;
+        margin-bottom: 1rem;
+        min-height: 52px;
+      }
+      
+      section {
+        padding: 4rem 1.5rem;
+      }
+      
+      section h2 {
+        font-size: clamp(2rem, 7vw, 2.8rem);
+      }
+      
+      .stats-grid,
+      .about-grid,
+      .initiatives-grid,
+      .social-grid {
+        gap: 1.5rem;
+      }
+      
+      .stat-card,
+      .about-card,
+      .initiative-card,
+      .social-card {
+        padding: 2rem 1.5rem;
+      }
+      
+      .btn {
+        padding: 1rem 2rem;
+        min-height: 48px;
+      }
+      
+      .cta-banner {
+        padding: 3rem 1.5rem;
+      }
+      
+      .cta-banner h3 {
+        font-size: clamp(1.8rem, 6vw, 2.5rem);
+      }
+      
+      footer {
+        padding: 3rem 1.5rem 2rem;
+      }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 480px) {
+      .nav-container,
+      .hero,
+      section {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      
+      .stat-number {
+        font-size: clamp(2.5rem, 12vw, 3.5rem);
+      }
+      
+      .about-icon,
+      .social-icon {
+        font-size: 2.5rem;
       }
     }
   </style>
@@ -580,150 +712,147 @@
   <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
  </head>
  <body>
-  <div class="wrapper"><!-- Header -->
+  <div class="wrapper">
+   <!-- Header -->
    <header class="header">
     <nav class="nav-container">
-     <div class="logo">
-      #MECS
-     </div>
-     <ul class="nav-links">
+     <div class="logo">#MECS</div>
+     <ul class="nav-links" id="nav-links">
       <li><a href="#home">Home</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#initiatives">Initiatives</a></li>
       <li><a href="playground.html">Playground</a></li>
       <li><a href="#join">Join</a></li>
      </ul>
+     <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+     </div>
     </nav>
-   </header><!-- Hero Section -->
+   </header>
+
+   <!-- Hero Section -->
    <section id="home" class="hero">
     <div class="hero-content">
-     <div class="hero-badge">
-      CYBERSECURITY FOR ALL
-     </div>
-     <h1><span id="hero-title">MAKE<br>
-       EVERYONE<br><span class="highlight">CYBERSAFE</span></span></h1>
+     <div class="hero-badge">CYBERSECURITY FOR ALL</div>
+     <h1><span id="hero-title">MAKE<br>EVERYONE<br><span class="highlight">CYBERSAFE</span></span></h1>
      <p id="hero-subtitle">Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online.</p>
-     <div class="cta-buttons"><a href="#join" class="btn btn-primary">Join the Movement</a>
+     <div class="cta-buttons">
+      <a href="#join" class="btn btn-primary">Join the Movement</a>
      </div>
     </div>
-   </section><!-- Stats Section -->
+   </section>
+
+   <!-- Stats Section -->
    <section>
     <div class="stats-grid">
      <div class="stat-card">
-      <div class="stat-number">
-       1K+
-      </div>
-      <div class="stat-label">
-       People Protected
-      </div>
+      <div class="stat-number">1K+</div>
+      <div class="stat-label">People Protected</div>
      </div>
      <div class="stat-card">
-      <div class="stat-number">
-       5+
-      </div>
-      <div class="stat-label">
-       Myths Busted
-      </div>
+      <div class="stat-number">5+</div>
+      <div class="stat-label">Myths Busted</div>
      </div>
      <div class="stat-card">
-      <div class="stat-number">
-       36
-      </div>
-      <div class="stat-label">
-       Community Members
-      </div>
+      <div class="stat-number">36</div>
+      <div class="stat-label">Community Members</div>
      </div>
     </div>
-   </section><!-- About Section -->
+   </section>
+
+   <!-- About Section -->
    <section id="about" class="about">
     <div class="section-header">
-     <div class="section-label">
-      WHO WE ARE
-     </div>
+     <div class="section-label">WHO WE ARE</div>
      <h2 id="about-title">ABOUT MECS</h2>
      <p class="section-subtitle">A mission-driven awareness movement, not a company</p>
     </div>
     <div class="about-grid">
      <div class="about-card">
-      <div class="about-icon">
-       🎯
-      </div>
+      <div class="about-icon">🎯</div>
       <h3>Our Purpose</h3>
       <p>MakeEveryoneCyberSafe exists to demystify cybersecurity for everyday people. We break down complex threats into practical, real-world guidance.</p>
      </div>
      <div class="about-card">
-      <div class="about-icon">
-       ⚡
-      </div>
+      <div class="about-icon">⚡</div>
       <h3>What We Solve</h3>
       <p>In a world where cyber threats grow daily, we bridge the gap between complex security concepts and practical protection for everyone.</p>
      </div>
      <div class="about-card">
-      <div class="about-icon">
-       🚀
-      </div>
+      <div class="about-icon">🚀</div>
       <h3>Our Vision</h3>
       <p>A future where cybersecurity is simple, understood, and practiced by everyone. Where people navigate the digital world with confidence.</p>
      </div>
     </div>
-   </section><!-- Initiatives Section -->
+   </section>
+
+   <!-- Initiatives Section -->
    <section id="initiatives">
     <div class="section-header">
-     <div class="section-label">
-      WHAT WE DO
-     </div>
+     <div class="section-label">WHAT WE DO</div>
      <h2>OUR INITIATIVES</h2>
      <p class="section-subtitle">Community-driven awareness programs that make a difference</p>
     </div>
     <div class="initiatives-grid">
      <div class="initiative-card">
-      <div class="initiative-number">
-       01
-      </div>
+      <div class="initiative-number">01</div>
       <h3>Myth-Busting Monday</h3>
-      <p>Weekly breakdowns debunking common cybersecurity myths with facts, evidence, and practical takeaways that anyone can understand.</p><a href="#" class="initiative-link">Learn More →</a>
+      <p>Weekly breakdowns debunking common cybersecurity myths with facts, evidence, and practical takeaways that anyone can understand.</p>
+      <a href="#" class="initiative-link">Learn More →</a>
      </div>
      <div class="initiative-card">
-      <div class="initiative-number">
-       02
-      </div>
+      <div class="initiative-number">02</div>
       <h3>Case Files</h3>
-      <p>Real-world breakdowns of scams, breaches, and cyber incidents—showing exactly how they happened and how to prevent them.</p><a href="#" class="initiative-link">View Cases →</a>
+      <p>Real-world breakdowns of scams, breaches, and cyber incidents—showing exactly how they happened and how to prevent them.</p>
+      <a href="#" class="initiative-link">View Cases →</a>
      </div>
      <div class="initiative-card">
-      <div class="initiative-number">
-       03
-      </div>
+      <div class="initiative-number">03</div>
       <h3>Awareness Events</h3>
-      <p>Workshops, webinars, and community collaborations designed to spread cybersecurity awareness at scale worldwide.</p><a href="#" class="initiative-link">Join Event →</a>
+      <p>Workshops, webinars, and community collaborations designed to spread cybersecurity awareness at scale worldwide.</p>
+      <a href="#" class="initiative-link">Join Event →</a>
      </div>
     </div>
     <div class="cta-banner">
      <h3>READY TO GET PROTECTED?</h3>
-     <p>Join thousands learning to stay safe online</p><a href="#initiatives" class="btn btn-primary">Explore Programs</a>
+     <p>Join thousands learning to stay safe online</p>
+     <a href="#initiatives" class="btn btn-primary">Explore Programs</a>
     </div>
-   </section><!-- Join Section -->
+   </section>
+
+   <!-- Join Section -->
    <section id="join" class="join">
     <div class="section-header">
-     <div class="section-label">
-      GET INVOLVED
-     </div>
+     <div class="section-label">GET INVOLVED</div>
      <h2>JOIN THE MOVEMENT</h2>
      <p class="section-subtitle">Follow our awareness programs and connect with our community</p>
     </div>
-    <div class="social-grid"><a href="https://instagram.com/makeeveryonecybersafe" target="_blank" rel="noopener noreferrer" class="social-card"> <span class="social-icon">📸</span> <h4>Instagram</h4><p>Daily insights &amp; myth-busting content</p></a> <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" target="_blank" rel="noopener noreferrer" class="social-card"> <span class="social-icon">💼</span> <h4>LinkedIn</h4><p>Professional security guidance &amp; case studies</p></a>
+    <div class="social-grid">
+     <a href="https://instagram.com/makeeveryonecybersafe" target="_blank" rel="noopener noreferrer" class="social-card">
+      <span class="social-icon">📸</span>
+      <h4>Instagram</h4>
+      <p>Daily insights & myth-busting content</p>
+     </a>
+     <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" target="_blank" rel="noopener noreferrer" class="social-card">
+      <span class="social-icon">💼</span>
+      <h4>LinkedIn</h4>
+      <p>Professional security guidance & case studies</p>
+     </a>
     </div>
-   </section><!-- Footer -->
+   </section>
+
+   <!-- Footer -->
    <footer>
     <div class="footer-content">
-     <div class="footer-logo">
-      #MECS
-     </div>
+     <div class="footer-logo">#MECS</div>
      <p id="footer-text">© 2025 MakeEveryoneCyberSafe. A public awareness initiative.</p>
      <p>A mission to make cybersecurity accessible to all.</p>
     </div>
    </footer>
   </div>
+
   <script>
     const defaultConfig = {
       background_color: '#000000',
@@ -880,6 +1009,25 @@
       });
     }
 
+    // Mobile menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+
+    if (hamburger && navLinks) {
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('active');
+      });
+      
+      // Close on link click
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          hamburger.classList.remove('active');
+          navLinks.classList.remove('active');
+        });
+      });
+    }
+
     // Smooth scroll for navigation
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
@@ -891,5 +1039,6 @@
       });
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8b889c034e17b7',t:'MTc2NDg1MzcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8b889c034e17b7',t:'MTc2NDg1MzcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+ </body>
 </html>
