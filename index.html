@@ -659,14 +659,21 @@
         font-size: clamp(1rem, 4vw, 1.2rem);
       }
       
+      /* MODIFIED: Buttons side by side on mobile */
       .cta-buttons {
-        flex-direction: column;
+        flex-direction: row; /* Ensure row direction */
+        flex-wrap: nowrap; /* Prevent wrapping */
+        gap: 1rem; /* Adjust gap */
       }
       
       .cta-buttons .btn {
-        width: 100%;
-        margin-bottom: 1rem;
+        width: auto;
+        flex: 1; /* Make them share the space equally */
+        margin-bottom: 0; /* Remove vertical spacing */
         min-height: 52px;
+        padding: 1rem 0.5rem; /* Tighten padding to ensure text fits */
+        font-size: 0.9rem; /* Adjust font size slightly */
+        white-space: nowrap; /* Prevent text wrapping inside button if possible */
       }
       
       section {
@@ -691,10 +698,7 @@
         padding: 2rem 1.5rem;
       }
       
-      .btn {
-        padding: 1rem 2rem;
-        min-height: 48px;
-      }
+      /* We handle .btn adjustments inside .cta-buttons specific rule above now */
       
       .cta-banner {
         padding: 3rem 1.5rem;
@@ -734,7 +738,6 @@
  </head>
  <body>
   <div class="wrapper">
-   <!-- Header -->
    <header class="header">
     <nav class="nav-container">
      <div class="logo">#MECS</div>
@@ -753,7 +756,6 @@
     </nav>
    </header>
 
-   <!-- Hero Section -->
    <section id="home" class="hero">
     <div class="hero-content">
      <div class="hero-badge">CYBERSECURITY FOR ALL</div>
@@ -766,7 +768,6 @@
     </div>
    </section>
 
-   <!-- Stats Section -->
    <section>
     <div class="stats-grid">
      <div class="stat-card">
@@ -784,7 +785,6 @@
     </div>
    </section>
 
-   <!-- About Section -->
    <section id="about" class="about">
     <div class="section-header">
      <div class="section-label">WHO WE ARE</div>
@@ -810,7 +810,6 @@
     </div>
    </section>
 
-   <!-- Initiatives Section -->
    <section id="initiatives">
     <div class="section-header">
      <div class="section-label">WHAT WE DO</div>
@@ -844,7 +843,6 @@
     </div>
    </section>
 
-   <!-- Join Section -->
    <section id="join" class="join">
     <div class="section-header">
      <div class="section-label">GET INVOLVED</div>
@@ -865,7 +863,6 @@
     </div>
    </section>
 
-   <!-- Footer -->
    <footer>
     <div class="footer-content">
      <div class="footer-logo">#MECS</div>
@@ -1086,5 +1083,3 @@
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8b889c034e17b7',t:'MTc2NDg1MzcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
  </body>
 </html>
-
-
