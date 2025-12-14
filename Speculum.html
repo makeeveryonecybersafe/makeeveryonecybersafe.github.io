@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Speculum by MECS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    /* MECS Playground Color Palette */
+    :root {
+      --bg: #000000;
+      --panel: #0a0a0a; 
+      --fg: #ffffff; /* Text color (Foreground) */
+      --muted: #999999; /* Muted text */
+      --accent: #FF0055; /* Vibrant Pink/Red */
+      --secondary-accent: #990033;
+    }
+
+    * { 
+        box-sizing: border-box; 
+        /* Applying Space Grotesk */
+        font-family: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif; 
+    }
+
+    body {
+      margin: 0;
+      /* Subtle radial gradient using the black background */
+      background: radial-gradient(circle at center, var(--panel) 0%, var(--bg) 70%); 
+      color: var(--fg);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: none;
+    }
+
+    .app { 
+        width: 100%; 
+        max-width: 720px; 
+        padding: 40px; 
+        animation: fadeIn 1.2s ease; 
+    }
+    h1 { 
+        font-size: 3rem; 
+        letter-spacing: 2px; 
+        font-weight: 700;
+        color: var(--accent); /* Header stands out */
+        margin: 0 0 25px 0;
+    }
+    h2 { font-size: 2rem; margin: 0 0 20px 0; }
+    p { color: var(--muted); line-height: 1.8; margin: 0 0 20px 0; }
+    .center { text-align: center; }
+
+    /* Button Styling */
+    .btn { 
+        margin-top: 40px; 
+        padding: 14px 40px; 
+        border: 2px solid var(--accent); /* Border with accent color */
+        background: transparent; 
+        color: var(--accent); 
+        cursor: pointer; 
+        transition: all 0.3s ease; 
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    .btn:hover { 
+        background: var(--accent); 
+        color: var(--bg); /* Black text on pink/red hover */
+    }
+    .hidden { display: none; }
+    
+    /* Line animation styling */
+    .line { 
+        font-size: 1.25rem; 
+        margin: 26px 0; 
+        opacity: 0; 
+        animation: reveal 1.8s forwards, tremor 4s infinite; 
+        position: relative; 
+        font-weight: 300;
+    }
+    .line::after { 
+        content: ""; 
+        position: absolute; 
+        left: 0; 
+        bottom: -6px; 
+        width: 0; 
+        height: 2px; /* Thicker underline */
+        background: var(--accent); /* Use accent color for underline */
+        animation: underline 1.6s forwards; 
+    }
+    
+    /* Final Screen Styling */
+    .final { 
+        font-size: 1.4rem; 
+        text-align: center; 
+        line-height: 1.6; 
+    }
+    .final-line { opacity:0; color: var(--fg); font-weight: 500;} /* Ensure final lines are white */
+    
+    /* Countdown Styling */
+    .countdown { 
+        font-size: 8rem; 
+        font-weight: 900; 
+        color: var(--panel); /* Dark, barely visible number */
+        text-align: center; 
+        animation: reveal 1s forwards; 
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+
+    /* Keyframes */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes reveal { to { opacity: 1; } }
+    @keyframes underline { to { width: 100%; } }
+    @keyframes tremor { 0%,92% { transform: translateX(0); } 93% { transform: translateX(-2px); } 94% { transform: translateX(2px); } 95% { transform: translateX(-2px); } 96% { transform: translateX(2px); } 100% { transform: translateX(0); } }
+    @keyframes pulse { 0% { color: var(--fg); } 50% { color: var(--accent); } 100% { color: var(--fg); } }
+    @keyframes fadeInFinal { from { opacity: 0; } to { opacity: 1; } }
+
+    /* For the final pulse effect on the main line */
+    #mirror-lines h2 {
+        animation: fadeInFinal 2s 4s forwards, pulse 3s 8s infinite; 
+        color: var(--accent);
+    }
+
+    /* Mobile adjustments for readability */
+    @media (max-width: 600px) {
+        .app {
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2rem;
+        }
+        .line {
+            font-size: 1rem;
+            margin: 20px 0;
+        }
+        .countdown {
+            font-size: 5rem;
+        }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div id="screen-entry" class="center">
+    <h1>Speculum by MECS</h1>
+    <p class="line">This is not training.<br>This is your reflection.</p>
+    <p class="line">By the end, you may never feel safe online the same way again.</p>
+    <button class="btn" onclick="nextScreen('existence')">Enter The Grid</button>
+  </div>
+
+  <div id="screen-existence" class="hidden">
+    <p class="line">If you have Social Media, You are Being Observed.</p>
+  </div>
+
+  <div id="screen-watched" class="hidden"></div>
+
+  <div id="screen-inference" class="hidden"></div>
+
+  <div id="screen-moral" class="hidden"></div>
+
+  <div id="screen-mirror" class="hidden center">
+    <div id="countdown" class="countdown"></div>
+    <div id="mirror-lines" class="hidden">
+      <p class="line final-line" style="animation: fadeInFinal 2s forwards;">This is your fault.</p>
+      <p class="line final-line" style="animation: fadeInFinal 2s 1s forwards;">You put it online.</p>
+      <p class="line final-line" style="animation: fadeInFinal 2s 2s forwards;">No one broke in.</p>
+      <p class="line final-line" style="animation: fadeInFinal 2s 3s forwards;">They just watched.</p>
+      <h2 class="line final-line" style="animation: fadeInFinal 2s 4s forwards; color: var(--accent);">They will keep watching.</h2>
+      <div class="final">
+        <p class="line final-line" style="animation: fadeInFinal 2s 5s forwards;">Every post trains them.</p>
+        <p class="line final-line" style="animation: fadeInFinal 2s 6s forwards;">Every click exposes you.</p>
+        <p class="line final-line" style="animation: fadeInFinal 2s 7s forwards;">You are not private.</p>
+        <p class="line final-line" id="after-silence" style="opacity:0; animation: fadeInFinal 2s 8s forwards; color: var(--accent);">You never were.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function hideAll() { document.querySelectorAll('.app > div').forEach(d => d.classList.add('hidden')); }
+
+function nextScreen(screen) {
+    hideAll();
+    const s = document.getElementById('screen-' + screen);
+    s.classList.remove('hidden');
+
+    if(screen==='existence') setTimeout(()=>nextScreen('watched'),2000);
+    if(screen==='watched') runWatched();
+    if(screen==='inference') runInference();
+    if(screen==='moral') runMoral();
+    if(screen==='mirror') runMirror();
+}
+
+function runWatched(){
+  const lines=['Someone saw your face.','Someone judged your life silently.','Someone knows the places you go.','Someone tracked your friends, to find you.'];
+  revealLines('screen-watched',lines,()=>nextScreen('inference'));
+}
+
+function runInference(){
+  const lines=['Someone knows your habits better than your closest friend.','Small details reveal more than big confessions.','Patterns in your photos reveal more than the pictures themselves.','Exposure occurs even when you feel safe.'];
+  revealLines('screen-inference',lines,()=>nextScreen('moral'));
+}
+
+function runMoral(){
+  const lines=['Not everyone watches to harm.','Some watch simply because they can.','Some watch because no one stops them.','What’s public invites interpretation, not consent.'];
+  revealLines('screen-moral',lines,()=>nextScreen('mirror'));
+}
+
+function revealLines(screenId,lines,callback){
+  const el=document.getElementById(screenId);
+  el.innerHTML='';
+  let delay=0;
+  lines.forEach((text,i)=>{
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='line';
+      p.textContent=text;
+      el.appendChild(p);
+      if(i===lines.length-1) setTimeout(callback,2200);
+    },delay);
+    delay+=2000;
+  });
+}
+
+function runMirror(){
+  const cd=document.getElementById('countdown');
+  const lines=document.getElementById('mirror-lines');
+  let n=5;
+  cd.textContent=n;
+  const t=setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(t);
+      cd.classList.add('hidden');
+      lines.classList.remove('hidden');
+    } else { cd.textContent=n; }
+  },1000);
+}
+</script>
+
+</body>
+</html>
