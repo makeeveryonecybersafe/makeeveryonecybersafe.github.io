@@ -3,194 +3,376 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OSINT Training Simulator</title>
+  <title>MECS OSINT Awareness Simulation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
+    /* MECS Playground Color Palette */
+    :root {
+      --bg: #000000;
+      --panel: #0a0a0a; 
+      --surface-border: #1a1a1a;
+      --accent: #FF0055; /* Vibrant Pink/Red */
+      --secondary-accent: #990033; /* Darker accent for shadows */
+      --danger: #ff0055; /* Using main accent for danger to keep theme cohesive */
+      --success: #00ff77; /* Bright green for correct feedback */
+      --text: #ffffff;
+      --muted: #999999;
+    }
+
+    /* Base Styling & Font */
+    * { 
+      box-sizing: border-box; 
+    }
+
     body {
       margin: 0;
-      font-family: "Inter", sans-serif;
-      background: #0a0a0a;
-      color: #e5e5e5;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
 
-    /* HEADER */
-    .header {
-      background: radial-gradient(circle at top left, #c70039, #2b001c 60%);
-      padding: 48px 20px;
+    /* Header */
+    header {
+      padding: 2rem 2rem;
+      background: var(--panel);
+      border-bottom: 4px solid var(--accent);
+      box-shadow: 0 4px 10px rgba(255, 0, 85, 0.2);
       text-align: center;
-      color: #fff;
-      font-size: 2.4rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
     }
 
-    /* CARD */
-    .persona-card {
-      max-width: 1050px;
-      margin: 60px auto;
-      background: #141414;
-      border-radius: 22px;
-      padding: 40px;
-      box-shadow: 0 0 60px rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .profile-row {
-      display: flex;
-      gap: 32px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .profile-pic {
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      background-image: url('https://th.bing.com/th/id/OIP.zQSIDu-o_zzWpZef0UN-2AHaHZ?o=7&cb=ucfimg2&rm=3&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3');
-      background-size: cover;
-      background-position: center;
-      border: 3px solid #c70039;
-      box-shadow: 0 0 20px rgba(199, 0, 57, 0.4);
-    }
-
-    h2 {
+    header h1 {
       margin: 0;
-      font-size: 2.2rem;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
       font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .username {
-      margin-top: 4px;
-      opacity: 0.75;
-      font-size: 1.1rem;
-    }
-
-    /* SECTION TITLES */
-    .section-title {
-      margin-top: 48px;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #ff2a65;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+    }
+    
+    header h1 .highlight {
+        color: var(--accent);
     }
 
-    /* SECTION BOXES */
-    .section-box {
-      background: #0f0f0f;
-      padding: 24px;
-      border-radius: 14px;
-      margin-top: 14px;
-      line-height: 1.7;
-      border: 1px solid rgba(255, 255, 255, 0.07);
+    header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1.1rem;
+      font-weight: 500;
     }
 
-    /* GRID */
-    .grid {
+    /* Main Layout */
+    main {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 26px;
-      margin-top: 30px;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      padding: 30px 40px;
     }
 
-    /* POSTS */
-    .post-card {
-      background: #111;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    /* Card/Panel Base Styling */
+    .card-panel {
+      background: var(--panel);
+      border-radius: 5px; /* Subtle change from original */
+      padding: 25px;
+      border: 1px solid var(--surface-border);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Profile Section (Left) */
+    .profile h2 {
+      margin-top: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 15px;
     }
 
-    .post-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 0 20px rgba(255, 42, 101, 0.25);
-    }
-
-    .post-img {
-      width: 100%;
-      height: 230px;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .post-caption {
-      padding: 18px;
+    .bio {
       font-size: 1rem;
-      color: #d0d0d0;
+      color: var(--muted);
+      margin-bottom: 25px;
+      padding: 10px;
+      border-left: 3px solid var(--accent);
     }
 
-    /* FOOTER */
-    footer {
-      text-align: center;
-      margin: 70px 0 20px;
-      opacity: 0.45;
+    .post {
+      border-top: 1px dashed var(--surface-border);
+      padding: 18px 0;
+    }
+
+    .post:first-child { border-top: none; }
+
+    .post .meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    
+    .post p {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .post .comments {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--success); /* Using success color for comments to make them 'data points' */
+      font-style: italic;
+    }
+    
+    /* Lab Panel (Right) */
+    .lab-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .lab-panel h3 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: var(--text);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+
+    .question {
+      border-top: 1px solid var(--surface-border);
+      padding-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .question p {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Form Elements */
+    input, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+      border-radius: 3px;
+      padding: 10px;
       font-size: 0.95rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 0, 85, 0.3); 
+    }
+
+    button {
+      background: var(--accent);
+      border: none;
+      color: var(--bg);
+      padding: 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
       letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.3s;
+      margin-top: 10px;
+      box-shadow: 0 5px 0 var(--secondary-accent);
+    }
+
+    button:hover:not(:disabled) {
+      background: #ff3377;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 var(--secondary-accent);
+    }
+    
+    button:active:not(:disabled) {
+        transform: translateY(3px);
+        box-shadow: 0 2px 0 var(--secondary-accent);
+    }
+
+    button:disabled {
+      background: var(--surface-border);
+      color: var(--muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Feedback and Results */
+    .feedback {
+      font-size: 0.85rem;
+      margin-top: 4px;
+      padding-left: 5px;
+      font-weight: 500;
+    }
+
+    .correct { 
+        color: var(--success); 
+        border-left: 3px solid var(--success);
+        padding: 4px 0 4px 8px;
+    }
+    .wrong { 
+        color: var(--danger); 
+        border-left: 3px solid var(--danger);
+        padding: 4px 0 4px 8px;
+    }
+
+    .hidden { display: none; }
+
+    .consequences {
+      background: var(--bg);
+      border: 1px solid var(--danger);
+      padding: 20px;
+      border-radius: 5px;
+      font-size: 1rem;
+      color: var(--text);
+      /* Stronger glow to match the cyberpunk aesthetic */
+      box-shadow: 0 0 15px rgba(255, 0, 85, 0.7); 
+    }
+    
+    .consequences strong {
+        color: var(--danger);
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .consequences .lesson {
+        color: var(--success);
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        main {
+            grid-template-columns: 1fr;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+        }
+
+        .profile h2 {
+            font-size: 1.6rem;
+        }
     }
   </style>
 </head>
 <body>
-  <div class="header">OSINT Trainer Simulator</div>
 
-  <div class="persona-card">
-    <div class="profile-row">
-      <div class="profile-pic"></div>
-      <div>
-        <h2>John Doe</h2>
-        <div class="username">@john.doe</div>
-        <div style="margin-top: 8px; opacity: 0.75; font-size: 1.05rem;">Age 21 • (Live Location Shows Perur,Coimbatore)</div>
-      </div>
+<header>
+  <h1><span class="highlight">#MECS</span> OSINT Simulation</h1>
+  <p>Hands-on training: Social media over-sharing & real-world consequences</p>
+</header>
+
+<main>
+  <section class="card-panel profile">
+    <h2>🎯 Target Profile: Mavis Henry</h2>
+    <div class="bio">
+      Since 1997 | IT Support | Weekend cyclist 🚴 | "Early bird, always"<br>
+      Loves filter coffee & sunrise rides
     </div>
 
-    <div class="section-title">Bio</div>
-    <div class="section-box">
-      First cry on 03, Dec • @theweeknd <br/>
-      Final-year CS student at Example College. #FriendsForever <br/>
+    <div class="post">
+      <div class="meta">ACCESS LOG · Apr 12 · 06:04:15 UTC</div>
+      <p>Sunrise rides before office hit different ☀️🚴</p>
+      <div class="comments">Carl: Same café again? You never get bored 😄</div>
     </div>
 
-    <div class="section-title">Notes for the Investigator</div>
-    <div class="section-box">
-      • Example College - Navaindia, Coimbatore.<br>
-      • Story Highlights show that He conducts a lot of Educational Sessions.<br>
-      • Accepts follow requests instantly.<br>
-      • Replies to unknown DMs.<br>
+    <div class="post">
+      <div class="meta">ACCESS LOG · Apr 15 · 20:42:01 UTC</div>
+      <p>Finally booked tickets! One week break after project closure 🙌</p>
+      <div class="comments">Jennifer: Don’t forget to switch off your router this time 😂</div>
     </div>
 
-    <div class="section-title">Recent Posts</div>
-    <div class="grid">
-      <div class="post-card">
-        <div class="post-img" style="background-image:url('https://images.pexels.com/photos/4328231/pexels-photo-4328231.jpeg?cs=srgb&dl=pexels-marcelo-braga-luzzi-4328231.jpg&fm=jpg');"></div>
-        <div class="post-caption">"Coffee in Night >>> Heaven"   Location:Starbucks-Lakshmi mills,Coimbatore</div>
-      </div>
-
-      <div class="post-card">
-        <div class="post-img" style="background-image:url('https://www.bruisedpassports.com/wp-content/uploads/2016/07/Leh-Ladakh-Road-Trip-Itinerary-Map-1024x692.jpg');"></div>
-        <div class="post-caption">Save the Date: Dec 5    >>Industrial Vist 2k25<<</div>
-      </div>
-
-      <div class="post-card">
-        <div class="post-img" style="background-image:url('https://www.beautyofindia.in/wp-content/uploads/2020/05/coimbatore.jpg');"></div>
-        <div class="post-caption">He Knows Everything!, Ohm Namashivaya</div>
-      </div>
+    <div class="post">
+      <div class="meta">DATA POINT · "Daily" Routine Log</div>
+      <p>5:30 AM alarms, coffee at 6, ride by 6:15.</p>
     </div>
 
-    <div class="section-title">Tasks for Investigator</div>
-    <div class="section-box">
-      • Find his Location Preferences.<br>
-      • Identify His Year of Birth.<br>
-      • Identify When and Where they are going for IV.<br>
-      • Spot oversharing risks and weak points.<br>
-      • Deduce what an attacker can exploit.<br>
-      • Send all those findings to Us on Instagram.<br>
+    <div class="post">
+      <div class="meta">ACCESS LOG · Mar 30 · 21:12:55 UTC</div>
+      <p>Dad still using my old bike lock password idea 😅</p>
+      <div class="comments">Jonathanan: How he forgets your Year of Birth 😂</div>
     </div>
-  </div>
+  </section>
 
-  <footer>Make Everyone Cyber Safe • OSINT Trainer Simulation</footer>
+  <section class="card-panel lab-panel">
+    <h3>🔍 Investigation Tasks</h3>
+
+    <div class="question" data-answer="cycling">
+      <p>1. Identify a predictable daily routine window that increases physical risk.</p>
+      <input type="text" placeholder="" />
+      <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-answer="travel">
+      <p>2. What evidence suggests a long-term period when the house may be unattended?</p>
+      <input type="text" placeholder="" />
+      <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-answer="1997">
+      <p>3. Infer a weak password hinted by multiple posts.</p>
+      <input type="text" placeholder="" />
+      <div class="feedback"></div>
+    </div>
+
+    <button id="submitBtn">Evaluate Findings</button>
+
+    <div id="result" class="hidden"></div>
+  </section>
+</main>
+
+<script>
+  const submitBtn = document.getElementById('submitBtn');
+  const questions = document.querySelectorAll('.question');
+  const result = document.getElementById('result');
+
+  submitBtn.onclick = () => {
+    let correct = 0;
+
+    questions.forEach(q => {
+      const input = q.querySelector('input');
+      const feedback = q.querySelector('.feedback');
+      const answer = q.dataset.answer;
+
+      // Basic check: See if the first word of the correct answer is included in the user's input
+      if (input.value.toLowerCase().includes(answer.split(' ')[0])) {
+        feedback.textContent = 'Correct: Data points connected. Threat vector identified.';
+        feedback.className = 'feedback correct';
+        correct++;
+      } else {
+        feedback.textContent = 'Incorrect: You failed to connect related data points. Review all posts.';
+        feedback.className = 'feedback wrong';
+      }
+    });
+
+    if (correct === questions.length) {
+      result.classList.remove('hidden');
+      result.innerHTML = `
+        <div class="consequences">
+          <strong>🚨 TARGET COMPROMISED: Breach Confirmed! 🚨</strong><br>
+          Based on your findings, an attacker has successfully compiled a threat profile:
+          <ul>
+            <li>Timing: Predictable early-morning absence identified.</li>
+            <li>Opportunity: Confirmed week-long travel window (Unattended House).</li>
+            <li>Entry: Guessable authentication secret (Password Weakness).</li>
+          </ul>
+          <br>
+          <span class="lesson">💡 Key Lesson: OSINT is pattern recognition. Innocent posts, when combined, create high-value intelligence.</span>
+        </div>
+      `;
+    }
+  };
+</script>
+
 </body>
 </html>
-
-
-
