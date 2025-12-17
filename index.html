@@ -6,13 +6,27 @@
   <title>MakeEveryoneCyberSafe</title>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
+    /* --- CORE VARIABLES & RESET --- */
+    :root {
+      --bg-color: #000000;
+      --surface-color: #0a0a0a;
+      --text-color: #ffffff;
+      --primary: #FF0055;
+      --primary-dark: #990033;
+      --grid-color: #151515;
+    }
+
     body {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #000000;
-      color: #ffffff;
+      background-color: var(--bg-color);
+      /* Cyber Grid Background Pattern */
+      background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: var(--text-color);
       line-height: 1.6;
       overflow-x: hidden;
     }
@@ -21,31 +35,44 @@
       box-sizing: border-box;
     }
 
-    .wrapper {
-      width: 100%;
-      min-height: 100%;
+    html {
+      scroll-behavior: smooth;
     }
 
-    /* Header */
+    /* --- ANIMATION UTILITIES --- */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      will-change: opacity, visibility;
+    }
+    
+    .fade-in-section.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* --- HEADER --- */
     .header {
-      background: #000000;
-      padding: 2rem 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem 0;
       position: sticky;
       top: 0;
       z-index: 1000;
-      border-bottom: 4px solid #FF0055;
+      border-bottom: 2px solid var(--primary);
     }
 
     .nav-container {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 3rem;
+      padding: 0 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: relative;
     }
 
+    /* Glitch Logo Effect */
     .logo {
       font-size: 2rem;
       font-weight: 900;
@@ -53,16 +80,21 @@
       letter-spacing: -2px;
       text-transform: uppercase;
       position: relative;
+      cursor: pointer;
+    }
+    
+    .logo:hover {
+      animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+      color: var(--primary);
     }
 
-    .logo::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 0;
-      width: 60%;
-      height: 4px;
-      background: #FF0055;
+    @keyframes glitch {
+      0% { transform: translate(0) }
+      20% { transform: translate(-2px, 2px) }
+      40% { transform: translate(-2px, -2px) }
+      60% { transform: translate(2px, 2px) }
+      80% { transform: translate(2px, -2px) }
+      100% { transform: translate(0) }
     }
 
     .nav-links {
@@ -76,7 +108,7 @@
     .nav-links a {
       color: #ffffff;
       text-decoration: none;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -84,104 +116,53 @@
       position: relative;
     }
 
-    .nav-links a:hover {
-      color: #FF0055;
-    }
-
-    .nav-links a::after {
+    .nav-links a::before {
       content: '';
       position: absolute;
-      bottom: -6px;
-      left: 0;
       width: 0;
-      height: 3px;
-      background: #FF0055;
+      height: 2px;
+      bottom: -4px;
+      left: 0;
+      background-color: var(--primary);
       transition: width 0.3s ease;
     }
 
-    .nav-links a:hover::after {
+    .nav-links a:hover::before {
       width: 100%;
     }
 
-    /* Hamburger Menu - FIXED */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      cursor: pointer;
-      z-index: 1002;
-      padding: 4px;
-      width: 30px;
+    .nav-links a:hover {
+      color: var(--primary);
     }
 
-    .hamburger span {
-      display: block;
-      width: 100%;
-      height: 3px;
-      background: #ffffff;
-      margin: 3px 0;
-      transition: all 0.3s ease;
-      border-radius: 2px;
-      transform-origin: center;
-    }
-
-    .hamburger.active span:nth-child(1) {
-      transform: rotate(45deg) translate(6px, 6px);
-    }
-
-    .hamburger.active span:nth-child(2) {
-      opacity: 0;
-      transform: scale(0);
-    }
-
-    .hamburger.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(7px, -5px);
-    }
-
-    /* Mobile Menu Overlay */
-    .mobile-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .mobile-overlay.active {
-      display: block;
-      opacity: 1;
-    }
-
-    /* Hero Section */
+    /* --- HERO --- */
     .hero {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 8rem 3rem 6rem 3rem;
+      padding: 8rem 2rem 4rem 2rem;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 80vh;
     }
 
-    .hero::before {
+    /* Decorative background shape */
+    .hero::after {
       content: '';
       position: absolute;
-      top: 0;
-      right: 0;
-      width: 50%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(255, 0, 85, 0.1) 0%, transparent 70%);
+      top: 10%;
+      right: 5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,0,85,0.15) 0%, rgba(0,0,0,0) 70%);
       pointer-events: none;
-    }
-
-    .hero-content {
-      max-width: 900px;
+      z-index: -1;
     }
 
     .hero-badge {
       display: inline-block;
-      background: #FF0055;
+      background: var(--primary);
       color: #000000;
       padding: 0.6rem 1.5rem;
       font-size: 0.85rem;
@@ -189,32 +170,47 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 2rem;
+      clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
     }
 
     .hero h1 {
-      font-size: 5rem;
+      font-size: clamp(3rem, 10vw, 6rem);
       font-weight: 900;
-      margin: 0 0 2rem 0;
+      margin: 0 0 1.5rem 0;
       color: #ffffff;
-      line-height: 0.95;
+      line-height: 0.9;
       text-transform: uppercase;
       letter-spacing: -3px;
     }
 
     .hero h1 .highlight {
-      color: #FF0055;
-      display: block;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--primary);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .hero h1 .highlight::before {
+      content: 'CYBERSAFE';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      color: var(--primary);
+      opacity: 0.5;
+      z-index: -1;
     }
 
     .hero p {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       color: #cccccc;
-      max-width: 700px;
+      max-width: 600px;
       margin: 0 0 3rem 0;
-      font-weight: 500;
-      line-height: 1.6;
+      font-weight: 400;
+      border-left: 4px solid var(--primary);
+      padding-left: 1.5rem;
     }
 
+    /* Buttons */
     .cta-buttons {
       display: flex;
       gap: 1.5rem;
@@ -222,866 +218,530 @@
     }
 
     .btn {
-      padding: 1.2rem 3rem;
+      padding: 1rem 2.5rem;
       font-size: 1rem;
-      font-weight: 900;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 1px;
       border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
+      position: relative;
+      transition: all 0.2s ease;
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
     }
 
     .btn-primary {
-      background: #FF0055;
+      background: var(--primary);
       color: #000000;
-      box-shadow: 0 8px 0 #990033;
     }
 
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 0 #990033;
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 var(--text-color);
     }
-
+    
     .btn-primary:active {
-      transform: translateY(4px);
-      box-shadow: 0 4px 0 #990033;
+      transform: translate(0, 0);
+      box-shadow: none;
     }
 
-    .btn-secondary {
-      background: transparent;
-      color: #ffffff;
-      border: 3px solid #ffffff;
+    /* --- NEW MARQUEE SECTION --- */
+    .marquee-container {
+      background: var(--primary);
+      color: #000;
+      padding: 1rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+      transform: rotate(-1deg) scale(1.05);
+      border-top: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      margin: 2rem 0 4rem 0;
     }
 
-    .btn-secondary:hover {
-      background: #ffffff;
-      color: #000000;
-      transform: translateY(-2px);
+    .marquee-content {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+      font-weight: 900;
+      font-size: 1.5rem;
+      text-transform: uppercase;
     }
 
-    /* Section Styling */
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* --- STATS SECTION --- */
+    .stats-section {
+      padding: 4rem 2rem;
+      background: #000;
+      border-top: 1px solid #222;
+      border-bottom: 1px solid #222;
+    }
+
+    .stats-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(10, 10, 10, 0.5);
+      border: 1px solid #333;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--primary);
+    }
+
+    .stat-number {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      font-variant-numeric: tabular-nums; /* Prevents jitter when counting */
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #888;
+    }
+
+    /* --- GENERAL SECTIONS --- */
     section {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 6rem 3rem;
+      padding: 6rem 2rem;
     }
 
     .section-header {
       margin-bottom: 4rem;
+      position: relative;
     }
 
     .section-label {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 900;
-      color: #FF0055;
+      color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 3px;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--primary);
     }
 
     section h2 {
       font-size: 3.5rem;
       color: #ffffff;
-      margin: 0 0 1rem 0;
+      margin: 0;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: -2px;
-      line-height: 1;
     }
 
     .section-subtitle {
       font-size: 1.2rem;
-      color: #999999;
-      margin: 0;
-      font-weight: 500;
+      color: #888;
+      margin-top: 1rem;
     }
 
-    /* Stats Section */
-    .stats-grid {
+    /* --- CARDS (About & Initiatives) --- */
+    .grid-3 {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 3rem;
-      margin-top: 3rem;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
     }
 
-    .stat-card {
-      text-align: center;
-      padding: 3rem 2rem;
+    .info-card {
       background: #0a0a0a;
-      border: 3px solid #1a1a1a;
+      border: 2px solid #222;
+      padding: 2.5rem;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+    }
+
+    .info-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px -10px rgba(255, 0, 85, 0.15);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      background: #1a1a1a;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 2px solid transparent;
       transition: all 0.3s ease;
     }
-
-    .stat-card:hover {
-      border-color: #FF0055;
-      transform: translateY(-8px);
+    
+    .info-card:hover .card-icon {
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
-    .stat-number {
+    .info-card h3 {
+      color: #ffffff;
+      font-size: 1.8rem;
+      margin: 0 0 1rem 0;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .info-card p {
+      color: #aaaaaa;
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    /* Initiative specific styles */
+    .initiative-number {
       font-size: 4rem;
       font-weight: 900;
-      color: #FF0055;
-      line-height: 1;
-      margin-bottom: 1rem;
+      color: #1a1a1a;
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      opacity: 0.5;
+      transition: color 0.3s;
+    }
+    
+    .info-card:hover .initiative-number {
+      color: #2a2a2a;
     }
 
-    .stat-label {
-      font-size: 1.1rem;
+    .text-link {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 2rem;
+      color: var(--primary);
+      text-decoration: none;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #ffffff;
-    }
-
-    /* About Section */
-    .about {
-      background: #0a0a0a;
-    }
-
-    .about-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-    }
-
-    .about-card {
-      padding: 3rem;
-      border: 2px solid #1a1a1a;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .about-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 0;
-      height: 100%;
-      background: #FF0055;
-      transition: width 0.3s ease;
-      opacity: 0.1;
-    }
-
-    .about-card:hover::before {
-      width: 100%;
-    }
-
-    .about-card:hover {
-      border-color: #FF0055;
-      transform: scale(1.05);
-      z-index: 10;
-    }
-
-    .about-icon {
-      font-size: 3rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .about-card h3 {
-      color: #ffffff;
-      font-size: 1.5rem;
-      margin: 0 0 1rem 0;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -1px;
-    }
-
-    .about-card p {
-      color: #cccccc;
-      margin: 0;
-      line-height: 1.7;
-      font-size: 0.95rem;
-    }
-
-    /* Initiatives Section */
-    .initiatives-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .initiative-card {
-      background: #0a0a0a;
-      border: 3px solid #1a1a1a;
-      padding: 3rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .initiative-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 6px;
-      background: #FF0055;
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.3s ease;
-    }
-
-    .initiative-card:hover::after {
-      transform: scaleX(1);
-    }
-
-    .initiative-card:hover {
-      border-color: #FF0055;
-      transform: translateY(-8px);
-    }
-
-    .initiative-number {
-      font-size: 3rem;
-      font-weight: 900;
-      color: #1a1a1a;
-      margin-bottom: 1rem;
-    }
-
-    .initiative-card h3 {
-      color: #ffffff;
-      font-size: 1.8rem;
-      margin: 0 0 1.5rem 0;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -1px;
-    }
-
-    .initiative-card p {
-      color: #999999;
-      margin: 0 0 2rem 0;
-      line-height: 1.7;
-    }
-
-    .initiative-link {
-      color: #FF0055;
-      text-decoration: none;
-      font-weight: 900;
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      display: inline-flex;
-      align-items: center;
       gap: 0.5rem;
-      transition: gap 0.3s ease;
+      transition: gap 0.3s;
     }
-
-    .initiative-link:hover {
+    
+    .text-link:hover {
       gap: 1rem;
+      text-decoration: underline;
     }
 
-    /* CTA Banner */
-    .cta-banner {
-      background: linear-gradient(135deg, #FF0055 0%, #CC0044 100%);
-      padding: 5rem 3rem;
-      text-align: center;
-      margin-top: 4rem;
-    }
-
-    .cta-banner h3 {
-      font-size: 3rem;
-      font-weight: 900;
-      color: #000000;
-      margin: 0 0 1.5rem 0;
-      text-transform: uppercase;
-      letter-spacing: -2px;
-    }
-
-    .cta-banner p {
-      font-size: 1.3rem;
-      color: #000000;
-      margin: 0 0 2.5rem 0;
-      font-weight: 600;
-    }
-
-    /* Join Section */
-    .join {
-      background: #0a0a0a;
-    }
-
+    /* --- JOIN SECTION --- */
     .social-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 2rem;
-      margin-top: 3rem;
     }
 
     .social-card {
-      background: #000000;
-      border: 3px solid #1a1a1a;
-      padding: 3rem;
+      background: linear-gradient(135deg, #0a0a0a 0%, #000 100%);
+      border: 1px solid #333;
+      padding: 4rem 2rem;
       text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
       text-decoration: none;
-      display: block;
+      transition: all 0.3s ease;
     }
 
     .social-card:hover {
-      border-color: #FF0055;
-      transform: scale(1.05);
-    }
-
-    .social-icon {
-      font-size: 4rem;
-      margin-bottom: 1.5rem;
-      display: block;
+      border-color: var(--primary);
+      background: linear-gradient(135deg, #150005 0%, #000 100%);
     }
 
     .social-card h4 {
       font-size: 2rem;
-      font-weight: 900;
-      color: #ffffff;
-      margin: 0 0 0.5rem 0;
+      color: #fff;
+      margin: 1rem 0;
       text-transform: uppercase;
-      letter-spacing: -1px;
     }
 
-    .social-card p {
-      font-size: 1rem;
-      color: #999999;
-      margin: 0;
-    }
-
-    /* Footer */
+    /* --- FOOTER --- */
     footer {
-      background: #000000;
-      border-top: 4px solid #FF0055;
-      padding: 4rem 3rem 3rem 3rem;
+      background: #000;
+      border-top: 4px solid var(--primary);
+      padding: 5rem 2rem;
       text-align: center;
     }
 
-    .footer-content {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
     .footer-logo {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 900;
-      color: #ffffff;
-      letter-spacing: -2px;
-      text-transform: uppercase;
-      margin-bottom: 2rem;
+      color: #fff;
+      margin-bottom: 1rem;
+      display: inline-block;
     }
 
-    .footer-content p {
-      margin: 0.5rem 0;
-      color: #666666;
-      font-size: 0.95rem;
-    }
-
-    .footer-content p:first-of-type {
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    /* Responsive */
+    /* --- MOBILE RESPONSIVE --- */
     @media (max-width: 1024px) {
-      .hero h1 {
-        font-size: 3.5rem;
-      }
-
-      .stats-grid, .about-grid, .initiatives-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .social-grid {
-        grid-template-columns: 1fr;
-      }
-
-      section h2 {
-        font-size: 2.5rem;
-      }
+      .hero h1 { font-size: 3.5rem; }
+      .stats-grid { grid-template-columns: 1fr; gap: 1rem;}
+      .grid-3, .social-grid { grid-template-columns: 1fr; }
     }
 
-    /* Enhanced Mobile (0-768px) */
+    /* Hamburger Menu Logic */
+    .hamburger { display: none; flex-direction: column; cursor: pointer; padding: 5px; }
+    .hamburger span { display: block; width: 30px; height: 3px; background: #fff; margin: 3px 0; transition: 0.3s; }
+    
     @media (max-width: 768px) {
-      .nav-container {
-        padding: 1rem 1.5rem;
-      }
-      
-      .hamburger {
-        display: flex;
-      }
-      
+      .hamburger { display: flex; }
       .nav-links {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100vh;
-        background: #000;
-        flex-direction: column;
-        justify-content: center;
-        gap: 2rem;
-        padding: 2rem;
-        transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        z-index: 1001;
-        overflow-y: auto;
+        position: fixed; top: 0; left: -100%; width: 100%; height: 100vh;
+        background: #000; flex-direction: column; justify-content: center; align-items: center;
+        transition: 0.3s; z-index: 999;
       }
-      
-      .nav-links.active {
-        left: 0;
-      }
-      
-      .nav-links li {
-        width: 100%;
-        padding: 0;
-        border-bottom: none;
-      }
-      
-      .nav-links a {
-        font-size: 1.5rem;
-        padding: 1rem 0;
-        display: block;
-      }
-      
-      .hero {
-        padding: 4rem 1.5rem 3rem;
-      }
-      
-      .hero h1 {
-        font-size: clamp(2rem, 8vw, 3rem);
-        line-height: 0.95;
-      }
-      
-      .hero p {
-        font-size: clamp(1rem, 4vw, 1.2rem);
-      }
-      
-      /* MODIFIED: Buttons side by side on mobile */
-      .cta-buttons {
-        flex-direction: row; /* Ensure row direction */
-        flex-wrap: nowrap; /* Prevent wrapping */
-        gap: 1rem; /* Adjust gap */
-      }
-      
-      .cta-buttons .btn {
-        width: auto;
-        flex: 1; /* Make them share the space equally */
-        margin-bottom: 0; /* Remove vertical spacing */
-        min-height: 52px;
-        padding: 1rem 0.5rem; /* Tighten padding to ensure text fits */
-        font-size: 0.9rem; /* Adjust font size slightly */
-        white-space: nowrap; /* Prevent text wrapping inside button if possible */
-      }
-      
-      section {
-        padding: 4rem 1.5rem;
-      }
-      
-      section h2 {
-        font-size: clamp(2rem, 7vw, 2.8rem);
-      }
-      
-      .stats-grid,
-      .about-grid,
-      .initiatives-grid,
-      .social-grid {
-        gap: 1.5rem;
-      }
-      
-      .stat-card,
-      .about-card,
-      .initiative-card,
-      .social-card {
-        padding: 2rem 1.5rem;
-      }
-      
-      /* We handle .btn adjustments inside .cta-buttons specific rule above now */
-      
-      .cta-banner {
-        padding: 3rem 1.5rem;
-      }
-      
-      .cta-banner h3 {
-        font-size: clamp(1.8rem, 6vw, 2.5rem);
-      }
-      
-      footer {
-        padding: 3rem 1.5rem 2rem;
-      }
-    }
-
-    /* Extra small screens */
-    @media (max-width: 480px) {
-      .nav-container,
-      .hero,
-      section {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-      
-      .stat-number {
-        font-size: clamp(2.5rem, 12vw, 3.5rem);
-      }
-      
-      .about-icon,
-      .social-icon {
-        font-size: 2.5rem;
-      }
+      .nav-links.active { left: 0; }
+      .nav-links a { font-size: 1.5rem; }
+      .hero { padding-top: 4rem; padding-bottom: 2rem; }
+      .hero h1 { font-size: 2.8rem; }
+      .marquee-content { font-size: 1rem; }
+      .cta-buttons { flex-direction: column; width: 100%; }
+      .btn { width: 100%; text-align: center; }
     }
   </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
  </head>
  <body>
-  <div class="wrapper">
-   <header class="header">
+
+  <header class="header">
     <nav class="nav-container">
-     <div class="logo">#MECS</div>
-     <ul class="nav-links" id="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#initiatives">Initiatives</a></li>
-      <li><a href="playground.html">Playground</a></li>
-      <li><a href="Speculum.html">Speculum</a></li>
-     </ul>
-     <div class="hamburger" id="hamburger">
-      <span></span>
-      <span></span>
-      <span></span>
-     </div>
+      <div class="logo">#MECS</div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#initiatives">Initiatives</a></li>
+        <li><a href="playground.html">Playground</a></li>
+        <li><a href="Speculum.html">Speculum</a></li>
+      </ul>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
     </nav>
-   </header>
+  </header>
 
-   <section id="home" class="hero">
-    <div class="hero-content">
-     <div class="hero-badge">CYBERSECURITY FOR ALL</div>
-     <h1><span id="hero-title">MAKE<br>EVERYONE<br><span class="highlight">CYBERSAFE</span></span></h1>
-     <p id="hero-subtitle">Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online.</p>
-     <div class="cta-buttons">
-      <a href="#join" class="btn btn-primary">Join the Movement</a>
-      <a href="https://aathithya-shanmuga-sundaram.github.io" class="btn btn-primary">About the Founder</a>
-     </div>
+  <section id="home" class="hero">
+    <div class="fade-in-section">
+      <div class="hero-badge">Cybersecurity For All</div>
+      <h1>MAKE<br>EVERYONE<br><span class="highlight">CYBERSAFE</span></h1>
+      <p>Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online, free from jargon.</p>
+      <div class="cta-buttons">
+        <a href="#join" class="btn btn-primary">Join the Movement</a>
+        <a href="https://aathithya-shanmuga-sundaram.github.io" class="btn" style="border: 2px solid #fff; color: #fff;">About Founder</a>
+      </div>
     </div>
-   </section>
+  </section>
 
-   <section>
-    <div class="stats-grid">
-     <div class="stat-card">
-      <div class="stat-number">1K+</div>
-      <div class="stat-label">People Protected</div>
-     </div>
-     <div class="stat-card">
-      <div class="stat-number">5+</div>
-      <div class="stat-label">Myths Busted</div>
-     </div>
-     <div class="stat-card">
-      <div class="stat-number">36</div>
-      <div class="stat-label">Community Members</div>
-     </div>
+  <div class="marquee-container">
+    <div class="marquee-content">
+      NO MORE JARGON • PRACTICAL SECURITY • STAY SAFE • MYTH BUSTING • REAL WORLD ADVICE • PROTECT YOUR DATA • NO MORE JARGON • PRACTICAL SECURITY • STAY SAFE • MYTH BUSTING • REAL WORLD ADVICE • PROTECT YOUR DATA •
     </div>
-   </section>
-
-   <section id="about" class="about">
-    <div class="section-header">
-     <div class="section-label">WHO WE ARE</div>
-     <h2 id="about-title">ABOUT MECS</h2>
-     <p class="section-subtitle">A mission-driven awareness movement, not a company</p>
-    </div>
-    <div class="about-grid">
-     <div class="about-card">
-      <div class="about-icon">🎯</div>
-      <h3>Our Purpose</h3>
-      <p>MakeEveryoneCyberSafe exists to demystify cybersecurity for everyday people. We break down complex threats into practical, real-world guidance.</p>
-     </div>
-     <div class="about-card">
-      <div class="about-icon">⚡</div>
-      <h3>What We Solve</h3>
-      <p>In a world where cyber threats grow daily, we bridge the gap between complex security concepts and practical protection for everyone.</p>
-     </div>
-     <div class="about-card">
-      <div class="about-icon">🚀</div>
-      <h3>Our Vision</h3>
-      <p>A future where cybersecurity is simple, understood, and practiced by everyone. Where people navigate the digital world with confidence.</p>
-     </div>
-    </div>
-   </section>
-
-   <section id="initiatives">
-    <div class="section-header">
-     <div class="section-label">WHAT WE DO</div>
-     <h2>OUR INITIATIVES</h2>
-     <p class="section-subtitle">Community-driven awareness programs that make a difference</p>
-    </div>
-    <div class="initiatives-grid">
-     <div class="initiative-card">
-      <div class="initiative-number">01</div>
-      <h3>Myth-Busting Monday</h3>
-      <p>Weekly breakdowns debunking common cybersecurity myths with facts, evidence, and practical takeaways that anyone can understand.</p>
-      <a href="https://www.instagram.com/makeeveryonecybersafe" class="initiative-link">View on Instagram →</a>
-     </div>
-     <div class="initiative-card">
-      <div class="initiative-number">02</div>
-      <h3>Case Files</h3>
-      <p>Real-world breakdowns of scams, breaches, and cyber incidents—showing exactly how they happened and how to prevent them.</p>
-      <a href="https://www.linkedin.com/in/aathithya-shanmuga-sundaram" class="initiative-link">View Cases →</a>
-     </div>
-     <div class="initiative-card">
-      <div class="initiative-number">03</div>
-      <h3>Awareness Events</h3>
-      <p>Workshops, webinars, and community collaborations designed to spread cybersecurity awareness at scale worldwide.</p>
-      <a href="events.html" class="initiative-link">Check Schedule →</a>
-     </div>
-    </div>
-    <div class="cta-banner">
-     <h3>READY TO GET PROTECTED?</h3>
-     <p>Join thousands learning to stay safe online</p>
-     <a href="#initiatives" class="btn btn-primary">Explore Programs</a>
-    </div>
-   </section>
-
-   <section id="join" class="join">
-    <div class="section-header">
-     <div class="section-label">GET INVOLVED</div>
-     <h2>JOIN THE MOVEMENT</h2>
-     <p class="section-subtitle">Follow our awareness programs and connect with our community</p>
-    </div>
-    <div class="social-grid">
-     <a href="https://instagram.com/makeeveryonecybersafe" target="_blank" rel="noopener noreferrer" class="social-card">
-      <span class="social-icon">📸</span>
-      <h4>Instagram</h4>
-      <p>Daily insights & myth-busting content</p>
-     </a>
-     <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" target="_blank" rel="noopener noreferrer" class="social-card">
-      <span class="social-icon">💼</span>
-      <h4>LinkedIn</h4>
-      <p>Professional security guidance & case studies</p>
-     </a>
-    </div>
-   </section>
-
-   <footer>
-    <div class="footer-content">
-     <div class="footer-logo">#MECS</div>
-     <p id="footer-text">© 2025 MakeEveryoneCyberSafe. A public awareness initiative.</p>
-     <p>A mission to make cybersecurity accessible to all.</p>
-    </div>
-   </footer>
   </div>
 
+  <div class="stats-section" id="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card fade-in-section">
+        <div class="stat-number" data-target="1000">0</div>
+        <div class="stat-label">People Protected</div>
+      </div>
+      <div class="stat-card fade-in-section">
+        <div class="stat-number" data-target="5">0</div>
+        <div class="stat-label">Myths Busted</div>
+      </div>
+      <div class="stat-card fade-in-section">
+        <div class="stat-number" data-target="36">0</div>
+        <div class="stat-label">Community Members</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="section-header fade-in-section">
+      <div class="section-label">Who We Are</div>
+      <h2>About MECS</h2>
+      <p class="section-subtitle">A mission-driven awareness movement, not a company.</p>
+    </div>
+    <div class="grid-3">
+      <div class="info-card fade-in-section">
+        <div class="card-icon">🎯</div>
+        <h3>Our Purpose</h3>
+        <p>MakeEveryoneCyberSafe exists to demystify cybersecurity for everyday people. We break down complex threats into practical, real-world guidance.</p>
+      </div>
+      <div class="info-card fade-in-section">
+        <div class="card-icon">⚡</div>
+        <h3>What We Solve</h3>
+        <p>In a world where cyber threats grow daily, we bridge the gap between complex security concepts and practical protection for everyone.</p>
+      </div>
+      <div class="info-card fade-in-section">
+        <div class="card-icon">🚀</div>
+        <h3>Our Vision</h3>
+        <p>A future where cybersecurity is simple, understood, and practiced by everyone. Where people navigate the digital world with confidence.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="initiatives">
+    <div class="section-header fade-in-section">
+      <div class="section-label">What We Do</div>
+      <h2>Our Initiatives</h2>
+      <p class="section-subtitle">Community-driven awareness programs that make a difference.</p>
+    </div>
+    <div class="grid-3">
+      <div class="info-card fade-in-section">
+        <div class="initiative-number">01</div>
+        <h3>Myth-Busting</h3>
+        <p>Weekly breakdowns debunking common cybersecurity myths with facts, evidence, and practical takeaways that anyone can understand.</p>
+        <a href="https://www.instagram.com/makeeveryonecybersafe" class="text-link">View Instagram →</a>
+      </div>
+      <div class="info-card fade-in-section">
+        <div class="initiative-number">02</div>
+        <h3>Case Files</h3>
+        <p>Real-world breakdowns of scams, breaches, and cyber incidents—showing exactly how they happened and how to prevent them.</p>
+        <a href="https://www.linkedin.com/in/aathithya-shanmuga-sundaram" class="text-link">View Cases →</a>
+      </div>
+      <div class="info-card fade-in-section">
+        <div class="initiative-number">03</div>
+        <h3>Events</h3>
+        <p>Workshops, webinars, and community collaborations designed to spread cybersecurity awareness at scale worldwide.</p>
+        <a href="events.html" class="text-link">Check Schedule →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="join">
+    <div class="section-header fade-in-section">
+      <div class="section-label">Get Involved</div>
+      <h2>Join The Movement</h2>
+    </div>
+    <div class="social-grid">
+      <a href="https://instagram.com/makeeveryonecybersafe" target="_blank" class="social-card fade-in-section">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📸</div>
+        <h4>Instagram</h4>
+        <p style="color: #888;">Daily insights & myth-busting content</p>
+      </a>
+      <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" target="_blank" class="social-card fade-in-section">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">💼</div>
+        <h4>LinkedIn</h4>
+        <p style="color: #888;">Professional security guidance</p>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">#MECS</div>
+    <p style="color: #fff; font-weight: bold;">© 2025 MakeEveryoneCyberSafe</p>
+    <p style="color: #666;">A public awareness initiative making cybersecurity accessible to all.</p>
+  </footer>
+
   <script>
-    const defaultConfig = {
-      background_color: '#000000',
-      surface_color: '#0a0a0a',
-      text_color: '#ffffff',
-      primary_action_color: '#FF0055',
-      secondary_action_color: '#990033',
-      font_family: 'Space Grotesk',
-      font_size: 16,
-      hero_title: 'MAKE\nEVERYONE\nCYBERSAFE',
-      hero_subtitle: 'Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online.',
-      about_title: 'ABOUT MECS',
-      footer_text: '© 2025 MakeEveryoneCyberSafe. A public awareness initiative.'
-    };
-
-    async function onConfigChange(config) {
-      const baseFontSize = config.font_size || defaultConfig.font_size;
-      const customFont = config.font_family || defaultConfig.font_family;
-      const fontStack = `-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-      
-      // Apply colors
-      document.body.style.background = config.background_color || defaultConfig.background_color;
-      document.body.style.color = config.text_color || defaultConfig.text_color;
-      
-      const surfaces = document.querySelectorAll('.stat-card, .initiative-card, .about-card, .social-card, .about');
-      surfaces.forEach(surface => {
-        surface.style.background = config.surface_color || defaultConfig.surface_color;
-      });
-      
-      document.querySelectorAll('.btn-primary').forEach(btn => {
-        btn.style.background = config.primary_action_color || defaultConfig.primary_action_color;
-        btn.style.boxShadow = `0 8px 0 ${config.secondary_action_color || defaultConfig.secondary_action_color}`;
-      });
-
-      document.querySelector('.cta-banner').style.background = `linear-gradient(135deg, ${config.primary_action_color || defaultConfig.primary_action_color} 0%, ${config.secondary_action_color || defaultConfig.secondary_action_color} 100%)`;
-      
-      document.querySelector('.header').style.borderBottomColor = config.primary_action_color || defaultConfig.primary_action_color;
-      document.querySelector('footer').style.borderTopColor = config.primary_action_color || defaultConfig.primary_action_color;
-
-      const accentElements = document.querySelectorAll('.highlight, .stat-number, .initiative-link, .section-label, .hero-badge');
-      accentElements.forEach(el => {
-        el.style.color = config.primary_action_color || defaultConfig.primary_action_color;
-      });
-      
-      // Apply fonts
-      document.body.style.fontFamily = `${customFont}, ${fontStack}`;
-      
-      // Apply font sizes
-      document.querySelector('.hero h1').style.fontSize = `${baseFontSize * 3.1}px`;
-      document.querySelector('.hero p').style.fontSize = `${baseFontSize * 1.3}px`;
-      document.querySelectorAll('section h2').forEach(h2 => {
-        h2.style.fontSize = `${baseFontSize * 2.2}px`;
-      });
-      document.querySelectorAll('.initiative-card h3').forEach(h3 => {
-        h3.style.fontSize = `${baseFontSize * 1.1}px`;
-      });
-      document.body.style.fontSize = `${baseFontSize}px`;
-      
-      // Update text content with proper formatting
-      const heroTitle = document.getElementById('hero-title');
-      if (heroTitle) {
-        const titleText = config.hero_title || defaultConfig.hero_title;
-        const lines = titleText.split('\n');
-        heroTitle.innerHTML = lines.map((line, index) => {
-          if (index === lines.length - 1) {
-            return `<span class="highlight">${line}</span>`;
-          }
-          return line;
-        }).join('<br>');
-      }
-      
-      const heroSubtitle = document.getElementById('hero-subtitle');
-      if (heroSubtitle) heroSubtitle.textContent = config.hero_subtitle || defaultConfig.hero_subtitle;
-      
-      const aboutTitle = document.getElementById('about-title');
-      if (aboutTitle) aboutTitle.textContent = config.about_title || defaultConfig.about_title;
-      
-      const footerText = document.getElementById('footer-text');
-      if (footerText) footerText.textContent = config.footer_text || defaultConfig.footer_text;
-    }
-
-    function mapToCapabilities(config) {
-      return {
-        recolorables: [
-          {
-            get: () => config.background_color || defaultConfig.background_color,
-            set: (value) => {
-              config.background_color = value;
-              window.elementSdk.setConfig({ background_color: value });
-            }
-          },
-          {
-            get: () => config.surface_color || defaultConfig.surface_color,
-            set: (value) => {
-              config.surface_color = value;
-              window.elementSdk.setConfig({ surface_color: value });
-            }
-          },
-          {
-            get: () => config.text_color || defaultConfig.text_color,
-            set: (value) => {
-              config.text_color = value;
-              window.elementSdk.setConfig({ text_color: value });
-            }
-          },
-          {
-            get: () => config.primary_action_color || defaultConfig.primary_action_color,
-            set: (value) => {
-              config.primary_action_color = value;
-              window.elementSdk.setConfig({ primary_action_color: value });
-            }
-          },
-          {
-            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
-            set: (value) => {
-              config.secondary_action_color = value;
-              window.elementSdk.setConfig({ secondary_action_color: value });
-            }
-          }
-        ],
-        borderables: [],
-        fontEditable: {
-          get: () => config.font_family || defaultConfig.font_family,
-          set: (value) => {
-            config.font_family = value;
-            window.elementSdk.setConfig({ font_family: value });
-          }
-        },
-        fontSizeable: {
-          get: () => config.font_size || defaultConfig.font_size,
-          set: (value) => {
-            config.font_size = value;
-            window.elementSdk.setConfig({ font_size: value });
-          }
-        }
-      };
-    }
-
-    function mapToEditPanelValues(config) {
-      return new Map([
-        ['hero_title', config.hero_title || defaultConfig.hero_title],
-        ['hero_subtitle', config.hero_subtitle || defaultConfig.hero_subtitle],
-        ['about_title', config.about_title || defaultConfig.about_title],
-        ['footer_text', config.footer_text || defaultConfig.footer_text]
-      ]);
-    }
-
-    if (window.elementSdk) {
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange,
-        mapToCapabilities,
-        mapToEditPanelValues
-      });
-    }
-
-    // FIXED Mobile menu toggle - No more flickering!
-    let menuOpen = false;
+    // --- Mobile Menu Logic ---
     const hamburger = document.getElementById('hamburger');
     const navLinks = document.getElementById('nav-links');
-
-    function toggleMenu() {
-      menuOpen = !menuOpen;
-      
-      if (menuOpen) {
-        hamburger.classList.add('active');
-        navLinks.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent background scroll
+    
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      // Simple logic to turn hamburger into X
+      const spans = hamburger.querySelectorAll('span');
+      if(navLinks.classList.contains('active')) {
+        spans[0].style.transform = "rotate(45deg) translate(5px, 5px)";
+        spans[1].style.opacity = "0";
+        spans[2].style.transform = "rotate(-45deg) translate(5px, -5px)";
       } else {
-        hamburger.classList.remove('active');
-        navLinks.classList.remove('active');
-        document.body.style.overflow = '';
+        spans[0].style.transform = "none";
+        spans[1].style.opacity = "1";
+        spans[2].style.transform = "none";
       }
-    }
+    });
 
-    if (hamburger && navLinks) {
-      hamburger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleMenu();
-      });
-      
-      // Close on link click
-      navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.stopPropagation();
-          toggleMenu();
-        });
-      });
-      
-      // Close on outside click
-      document.addEventListener('click', function(e) {
-        if (menuOpen && !navLinks.contains(e.target) && !hamburger.contains(e.target)) {
-          toggleMenu();
-        }
-      });
-    }
-
-    // Smooth scroll for navigation
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = "none";
+        spans[1].style.opacity = "1";
+        spans[2].style.transform = "none";
       });
     });
+
+    // --- Scroll Reveal Animation ---
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const sectionObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target); // Only animate once
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in-section').forEach(section => {
+      sectionObserver.observe(section);
+    });
+
+    // --- Number Counter Animation ---
+    const statsSection = document.getElementById('stats-section');
+    const counters = document.querySelectorAll('.stat-number');
+    let hasCounted = false;
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && !hasCounted) {
+        hasCounted = true;
+        counters.forEach(counter => {
+          const target = +counter.getAttribute('data-target');
+          const duration = 2000; // 2 seconds
+          const increment = target / (duration / 16); // 60fps
+          
+          let current = 0;
+          const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+              counter.innerText = Math.ceil(current) + (target > 50 ? "+" : ""); // Add + for larger numbers
+              requestAnimationFrame(updateCounter);
+            } else {
+              counter.innerText = target + (target > 50 ? "+" : "");
+            }
+          };
+          updateCounter();
+        });
+      }
+    }, { threshold: 0.5 });
+
+    if(statsSection) {
+      statsObserver.observe(statsSection);
+    }
   </script>
-  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8b889c034e17b7',t:'MTc2NDg1MzcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
  </body>
 </html>
-
-
