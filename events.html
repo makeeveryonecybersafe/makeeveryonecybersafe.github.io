@@ -2,11 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Events - MakeEveryoneCyberSafe</title>
   <style>@view-transition { navigation: auto; }</style>
   <style>
-    /* --- CORE VARIABLES --- */
+    /* --- 1. THE CRITICAL FIX FOR HORIZONTAL SCROLL --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     :root {
       --bg-color: #000000;
       --surface-color: #0a0a0a;
@@ -15,20 +21,22 @@
       --grid-color: #151515;
     }
 
-    /* --- BASE RESET & LAYOUT --- */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden; /* Force cut off any overflow */
       background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
       background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
       background-size: 40px 40px;
-      color: var(--text-color);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
     /* --- HEADER --- */
@@ -43,67 +51,46 @@
     }
 
     .nav-container {
+      width: 100%;
       max-width: 1400px;
       margin: 0 auto;
       padding: 1rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap; /* Allows stacking on tiny screens */
-      gap: 1rem;
     }
 
     .logo {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: 900;
       color: #ffffff;
       text-decoration: none;
       letter-spacing: -1px;
       text-transform: uppercase;
-      white-space: nowrap;
     }
     
-    .logo:hover {
-      animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-      color: var(--primary);
-    }
-
-    @keyframes glitch {
-      0% { transform: translate(0) }
-      20% { transform: translate(-2px, 2px) }
-      40% { transform: translate(-2px, -2px) }
-      60% { transform: translate(2px, 2px) }
-      80% { transform: translate(2px, -2px) }
-      100% { transform: translate(0) }
-    }
-
     .back-link {
       color: #ccc;
       text-decoration: none;
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s;
-      padding: 0.5rem 0.8rem;
+      font-size: 0.8rem;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.4rem 0.8rem;
+      transition: all 0.3s;
     }
 
-    .back-link:hover { 
-      color: var(--primary); 
+    .back-link:hover {
       border-color: var(--primary);
-      background: rgba(255, 0, 85, 0.1);
+      color: var(--primary);
     }
 
-    /* --- MAIN CONTAINER --- */
+    /* --- MAIN CONTENT --- */
     .container {
-      max-width: 900px;
       width: 100%;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 4rem 1.5rem; /* Reduced padding for mobile */
-      box-sizing: border-box; /* Ensures padding doesn't break width */
+      padding: 3rem 1.5rem; /* Safe padding */
     }
 
     .page-header {
@@ -113,35 +100,35 @@
     }
 
     h1 {
-      /* Fluid typography: shrinks on mobile, grows on desktop */
-      font-size: clamp(2rem, 8vw, 4rem); 
+      /* Clamp ensures font size scales with width without breaking */
+      font-size: clamp(2rem, 8vw, 4rem);
       text-transform: uppercase;
       font-weight: 900;
-      margin: 0;
       line-height: 1.1;
-      word-wrap: break-word;
+      overflow-wrap: break-word; /* Prevents long words pushing width */
+      word-break: break-word;
     }
     
     .subtitle {
       color: #888;
-      font-size: clamp(1rem, 4vw, 1.1rem);
+      font-size: 1rem;
       margin-top: 1rem;
-      max-width: 100%;
       line-height: 1.5;
     }
 
-    /* --- EMPTY STATE (RESPONSIVE) --- */
+    /* --- EMPTY STATE --- */
     .empty-state {
       border: 1px solid #333;
-      padding: 3rem 1.5rem;
+      padding: 3rem 1rem;
       background: rgba(10,10,10,0.8);
       text-align: center;
       position: relative;
-      overflow: hidden;
+      overflow: hidden; /* Contains the scan animation */
       border-radius: 4px;
+      width: 100%;
     }
 
-    /* Scanning line animation */
+    /* Scan line animation */
     .empty-state::after {
       content: '';
       position: absolute;
@@ -168,37 +155,16 @@
       padding: 0.4rem 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
       font-size: 0.75rem;
       margin-bottom: 1.5rem;
       animation: blink 2s infinite;
     }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
+    
+    @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0.5;} }
 
     .empty-icon {
       font-size: 3rem;
       margin-bottom: 1rem;
-      opacity: 0.8;
-      filter: drop-shadow(0 0 10px rgba(255,0,85,0.3));
-    }
-
-    .empty-title {
-      font-size: 1.5rem;
-      text-transform: uppercase;
-      margin: 0 0 1rem 0;
-      font-weight: 800;
-    }
-
-    .empty-desc {
-      color: #888;
-      font-size: 0.95rem;
-      max-width: 400px;
-      margin: 0 auto 2rem auto;
-      line-height: 1.6;
     }
 
     .notify-btn {
@@ -207,102 +173,72 @@
       padding: 1rem 1.5rem;
       text-transform: uppercase;
       font-weight: 800;
-      cursor: pointer;
       text-decoration: none;
-      transition: all 0.3s;
       display: inline-block;
       font-size: 0.9rem;
-      /* Simple polygon for better mobile support */
-      clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-    }
-    
-    .notify-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+      margin-top: 1.5rem;
+      max-width: 100%;
     }
 
-    /* --- EVENT CARDS (RESPONSIVE) --- */
+    /* --- EVENT CARDS --- */
     .events-list {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 1.5rem;
+      width: 100%;
     }
 
     .event-card {
       background: #0a0a0a;
       border: 1px solid #333;
-      padding: 1.5rem; /* Less padding on mobile */
-      position: relative;
-      transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-
-    .event-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-3px);
-    }
-
-    .event-date {
-      color: var(--primary);
-      font-weight: 800;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.8rem;
-      display: block;
+      padding: 1.5rem;
+      width: 100%;
     }
 
     .event-title {
       font-size: 1.5rem;
       font-weight: 800;
-      margin: 0 0 0.8rem 0;
+      margin: 0.5rem 0;
       color: #fff;
       text-transform: uppercase;
-      line-height: 1.2;
+      word-break: break-word; /* Essential for mobile */
+    }
+
+    .event-date {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .event-details {
       color: #aaa;
       font-size: 1rem;
       margin-bottom: 1.5rem;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .join-btn {
-      width: 100%; /* Full width button on mobile feels better */
+      display: block;
+      width: 100%;
       background: transparent;
       color: #fff;
       border: 1px solid #fff;
-      padding: 0.8rem 0;
+      padding: 0.8rem;
       text-align: center;
       text-decoration: none;
       font-weight: 800;
       text-transform: uppercase;
-      display: block;
-      transition: all 0.2s ease;
-      box-sizing: border-box;
-    }
-    
-    .join-btn:hover {
-      background: #fff;
-      color: #000;
     }
 
-    /* --- MOBILE SPECIFIC OVERRIDES --- */
+    /* --- DESKTOP ENHANCEMENTS --- */
     @media (min-width: 768px) {
       .container { padding: 6rem 2rem; }
       .event-card { padding: 2.5rem; }
       .event-title { font-size: 2rem; }
-      .join-btn { width: auto; display: inline-block; padding: 0.8rem 2rem; border-width: 2px; }
-      .nav-container { padding: 1.5rem 2rem; }
-    }
-
-    /* --- ANIMATION --- */
-    .fade-in {
-      animation: fadeIn 0.6s ease-out forwards;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      .join-btn { width: auto; display: inline-block; padding: 0.8rem 2rem; }
+      .logo { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -311,25 +247,21 @@
   <header class="header">
     <nav class="nav-container">
       <a href="index.html" class="logo">#MECS</a>
-      <a href="index.html" class="back-link">← Back Home</a>
+      <a href="index.html" class="back-link">← Back</a>
     </nav>
   </header>
 
-  <div class="container fade-in">
+  <div class="container">
     <div class="page-header">
       <h1>Upcoming Events</h1>
       <p class="subtitle">Join our live sessions, workshops, and community meetups to level up your security game.</p>
     </div>
     
-    <div id="content-area">
-      </div>
+    <div id="content-area"></div>
   </div>
 
   <script>
     // --- EVENT DATA CONTROL ---
-    // Leave empty [] to see the "System Idle" screen.
-    // Add objects to see the Event Cards.
-    
     const events = [
       /*
       {
@@ -344,20 +276,18 @@
     const contentArea = document.getElementById('content-area');
 
     if (events.length === 0) {
-      // RENDER: SYSTEM IDLE STATE
       contentArea.innerHTML = `
         <div class="empty-state">
           <div class="status-badge">● System Status: Idle</div>
           <div class="empty-icon">📡</div>
-          <h2 class="empty-title">No Active Events</h2>
-          <p class="empty-desc">
-            We are currently planning our next operation. Connect with our network to receive updates.
+          <h2 style="margin-bottom:1rem; text-transform:uppercase;">No Signals</h2>
+          <p style="color:#888; font-size:0.9rem; max-width:400px; margin:0 auto;">
+            We are currently planning our next operation. Connect with our network for updates.
           </p>
           <a href="https://instagram.com/makeeveryonecybersafe" target="_blank" class="notify-btn">Follow For Updates</a>
         </div>
       `;
     } else {
-      // RENDER: EVENT CARDS
       let html = '<div class="events-list">';
       events.forEach(event => {
         html += `
@@ -365,7 +295,7 @@
             <span class="event-date">${event.date}</span>
             <h3 class="event-title">${event.title}</h3>
             <p class="event-details">${event.desc}</p>
-            <a href="${event.link}" target="_blank" class="join-btn">Initialize Registration →</a>
+            <a href="${event.link}" target="_blank" class="join-btn">Register →</a>
           </div>
         `;
       });
