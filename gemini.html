@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MECS :: Cyber Crime Lab</title>
+<style>
+  /* --- MECS THEME VARIABLES --- */
+  :root {
+    --bg-color: #050505;
+    --grid-color: #1a1a1a;
+    --primary: #FF0055;
+    --primary-dim: rgba(255, 0, 85, 0.3);
+    --secondary: #00e5ff; /* Cyan for folders */
+    --text-color: #e0e0e0;
+    --muted: #666;
+    --border: #333;
+    --font-stack: 'Consolas', 'Monaco', 'Courier New', monospace;
+  }
+
+  /* --- CORE LAYOUT --- */
+  body {
+    background-color: var(--bg-color);
+    /* Grid + Vignette */
+    background-image: 
+      radial-gradient(circle at center, transparent 0%, #000 90%),
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
+    color: var(--text-color);
+    font-family: var(--font-stack);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* --- TERMINAL WINDOW --- */
+  .window-container {
+    width: 90%;
+    max-width: 1000px;
+    height: 85vh;
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid var(--border);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 50px rgba(255, 0, 85, 0.1); /* Subtle pink glow behind window */
+    backdrop-filter: blur(10px);
+    overflow: hidden; /* Contains scanlines */
+  }
+
+  /* CRT Scanline Overlay */
+  .scanlines {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0),
+      rgba(255,255,255,0) 50%,
+      rgba(0,0,0,0.2) 50%,
+      rgba(0,0,0,0.2)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* DECORATIVE CORNERS */
+  .window-container::before {
+    content: ''; position: absolute; top: -1px; left: -1px; width: 20px; height: 20px;
+    border-top: 2px solid var(--primary); border-left: 2px solid var(--primary);
+    z-index: 11;
+  }
+  .window-container::after {
+    content: ''; position: absolute; bottom: -1px; right: -1px; width: 20px; height: 20px;
+    border-bottom: 2px solid var(--primary); border-right: 2px solid var(--primary);
+    z-index: 11;
+  }
+
+  /* WINDOW HEADER */
+  .window-header {
+    background: #0f0f0f;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    user-select: none;
+    z-index: 12;
+  }
+
+  .window-controls span {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 50%; margin-left: 5px;
+  }
+  .dot-r { background: #ff5f56; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #27c93f; }
+
+  /* --- TERMINAL CONTENT --- */
+  #terminal {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.5;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.2); /* Text Bloom */
+  }
+
+  /* Custom Scrollbar */
+  #terminal::-webkit-scrollbar { width: 6px; }
+  #terminal::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  #terminal::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+  /* IO STYLES */
+  .input-line { display: flex; margin-top: 5px; }
+  
+  .prompt { 
+    color: var(--primary); 
+    margin-right: 8px; 
+    font-weight: 700;
+    text-shadow: 0 0 8px var(--primary-dim);
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+    caret-color: var(--primary);
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
+  }
+
+  /* OUTPUT STYLES */
+  .output { white-space: pre-wrap; margin-bottom: 4px; color: #ccc; }
+  
+  /* Highlight Classes */
+  .msg-success { color: #0f0; text-shadow: 0 0 5px rgba(0,255,0,0.4); }
+  .msg-error { color: #f00; }
+  .msg-info { color: var(--muted); font-style: italic; }
+  .file-dir { color: var(--secondary); font-weight: bold; } /* Folders are Cyan */
+  .file-txt { color: #fff; }
+
+  /* ASCII ART STYLE */
+  .ascii-art {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 10px;
+    margin-bottom: 20px;
+    white-space: pre;
+  }
+
+  /* FOOTER */
+  .window-footer {
+    border-top: 1px solid var(--border);
+    background: #080808;
+    padding: 5px 15px;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 12;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="window-container">
+  <div class="scanlines"></div>
+  
+  <div class="window-header">
+    <div>MECS // FORENSIC_LAB_V3.0</div>
+    <div class="window-controls">
+      <span class="dot-r"></span>
+      <span class="dot-y"></span>
+      <span class="dot-g"></span>
+    </div>
+  </div>
+
+  <div id="terminal" onclick="document.getElementById('cmd-input')?.focus()"></div>
+
+  <div class="window-footer">
+    <span id="clock">00:00:00</span>
+    <span>MEM: 14TB // ENCRYPTION: AES-256</span>
+    <span>NET: ONLINE</span>
+  </div>
+</div>
+
+<script>
+/* ================= SYSTEM UTILS ================= */
+// Clock for realism
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('clock').innerText = now.toISOString().split('T')[1].split('.')[0] + " UTC";
+}, 1000);
+
+/* ================= CORE STATE ================= */
+
+const term = document.getElementById("terminal");
+let cwd = "/";
+
+/* ================= NOISE GENERATORS ================= */
+// Keeps the previous logic but adds more variety
+function noisyLog(real) {
+  const noise = [
+    "[INFO] systemd: Service started",
+    "[DEBUG] udevd: seq forked",
+    "[INFO] cron: Job completed",
+    "[WARN] network: retry timeout",
+    "[INFO] kernel: entropy ok",
+    "[DEBUG] fsck: clean",
+    "[INFO] audit: policy loaded",
+    "[INFO] sshd: connection closed"
+  ];
+  let lines = [];
+  const count = 15 + Math.floor(Math.random() * 10);
+  for(let i=0; i<count; i++){
+    lines.push(noise[Math.floor(Math.random() * noise.length)]);
+  }
+  lines.splice(Math.floor(Math.random() * lines.length), 0, real);
+  return lines.join("\n");
+}
+
+function largeFile(header){
+  let t = header + "\n\n";
+  for(let i=0; i<40; i++){
+    t += `Offset 0x${Math.floor(Math.random()*65535).toString(16).toUpperCase()} : OK\n`;
+  }
+  return t;
+}
+
+/* ================= SCENARIOS ================= */
+// Same scenario logic as before
+function scenario1(){
+  const real = "FDx{INFECTION_DETECTED}";
+  const rev = "FDx{" + "INFECTION_DETECTED".split("").reverse().join("") + "}";
+  return {
+    answer: real,
+    fs: shuffle({
+      "/": { logs: {}, disk: {} },
+      "/logs": {
+        "system.log": largeFile("System boot completed"),
+        "update.log": "FDx{INFECTION_DETECX}\nUpdate successful",
+        "audit.log": largeFile("Audit scan finished")
+      },
+      "/disk": {
+        "user_notes.txt": noisyLog("Recorded backwards:\n" + rev),
+        "cache.tmp": "binary_blob_9A1F",
+        "incident.txt": "Infection suspected but unconfirmed"
+      }
+    })
+  };
+}
+
+function scenario2(){
+  return {
+    answer: "FDx{DATA_EXFILTRATED}",
+    fs: shuffle({
+      "/": { logs: {}, etc: {}, home: {} },
+      "/logs": {
+        "net.log": largeFile("Outbound connections logged"),
+        "proxy.log": "FDx{DATA_EXFILX}\nRequest allowed"
+      },
+      "/etc": {
+        "sync.conf": "marker=FDx{DATA_"
+      },
+      "/home": {
+        "notes.txt": "Transfer completed\nEXFILTRATED}",
+        "draft.txt": "User activity normal"
+      }
+    })
+  };
+}
+
+function scenario3(){
+  const real = "FDx{PERSISTENCE_ENABLED}";
+  const rev = "FDx{" + "PERSISTENCE_ENABLED".split("").reverse().join("") + "}";
+  return {
+    answer: real,
+    fs: shuffle({
+      "/": { startup: {}, logs: {} },
+      "/startup": {
+        "boot.sh": "#!/bin/sh\necho FDx{PERSISTENCE_ENABLD}"
+      },
+      "/logs": {
+        "task.log": noisyLog("Recovered scheduled task:\n" + rev),
+        "kernel.log": largeFile("Kernel running normally")
+      }
+    })
+  };
+}
+
+function shuffle(fs){
+  Object.keys(fs).forEach(d => {
+    const f = fs[d];
+    const s = {};
+    Object.keys(f).sort(() => Math.random() - 0.5)
+      .forEach(k => s[k] = f[k]);
+    fs[d] = s;
+  });
+  return fs;
+}
+
+const scenarios = [scenario1(), scenario2(), scenario3()];
+const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+
+/* ================= UI LOGIC ================= */
+
+function print(text="", type="normal") {
+  const d = document.createElement("div");
+  d.className = "output";
+  
+  if(text.includes("✔")) type = "msg-success";
+  if(text.includes("✘")) type = "msg-error";
+  if(type) d.classList.add(type);
+
+  d.innerHTML = text; // Changed to InnerHTML to support span colors
+  term.appendChild(d);
+  term.scrollTop = term.scrollHeight;
+}
+
+// Special Print for ASCII to keep formatting
+function printAscii(text) {
+  const d = document.createElement("div");
+  d.className = "ascii-art";
+  d.textContent = text;
+  term.appendChild(d);
+}
+
+function prompt() {
+  const line = document.createElement("div");
+  line.className = "input-line";
+
+  const p = document.createElement("span");
+  p.className = "prompt";
+  p.textContent = `TheDrill@MECS:${cwd}$`;
+
+  const input = document.createElement("input");
+  input.id = "cmd-input";
+  input.autofocus = true;
+  input.setAttribute("autocomplete", "off");
+  input.setAttribute("spellcheck", "false");
+
+  input.onkeydown = e => {
+    if(e.key === "Enter"){
+      const cmd = input.value.trim();
+      line.remove();
+      
+      const history = document.createElement("div");
+      history.className = "output";
+      history.innerHTML = `<span class="prompt">TheDrill@MECS:${cwd}$</span> ${cmd}`;
+      term.appendChild(history);
+
+      handle(cmd);
+      prompt();
+    }
+  };
+
+  line.appendChild(p);
+  line.appendChild(input);
+  term.appendChild(line);
+  input.focus();
+}
+
+function getDir(){ return scenario.fs[cwd] || {}; }
+
+function handle(c){
+  if(!c) return;
+  const parts = c.split(" ");
+  const cmd = parts[0];
+  const arg = parts[1];
+
+  if(cmd === "help"){
+    print("TheDrill[v3.0] - Developed by Aathithya Shanmuga Sundaram:", "msg-info");
+    print("  ls            List contents");
+    print("  cd [dir]      Navigate directory");
+    print("  cat [file]    Inspect file evidence");
+    print("  clear         Clear screen");
+    print("  solve [FLAG]  Submit final report");
+    return;
+  }
+  if(cmd === "clear"){ 
+    term.innerHTML = ""; 
+    return; 
+  }
+  
+  // IMPROVED LS: Color coding
+  if(cmd === "ls"){ 
+    const current = getDir();
+    const files = Object.keys(current);
+    if(files.length === 0) {
+      print("(empty)", "msg-info");
+      return;
+    }
+    
+    // Create HTML string with colors
+    const formatted = files.map(f => {
+      // If it's a string, it's a file. If object, it's a dir (in this data structure, dirs are objects)
+      // Actually, in our structure:
+      // Files are strings (content).
+      // But wait! In current structure: fs["/"] = {logs:{}, disk:{}}
+      // fs["/logs"] = {"file.txt": "content"}
+      // So if cwd is "/", getDir() returns {logs:{}, disk:{}} -> values are objects -> Dirs
+      // If cwd is "/logs", getDir() returns {"file.txt": "..."} -> values are strings -> Files
+      
+      const val = current[f];
+      const isDir = typeof val === 'object';
+      return isDir ? `<span class='file-dir'>${f}/</span>` : `<span class='file-txt'>${f}</span>`;
+    }).join("  ");
+    
+    print(formatted);
+    return; 
+  }
+
+  if(cmd === "cd"){
+    if(!arg) return;
+    if(arg === ".."){ cwd = "/"; return; }
+    
+    const target = getDir()[arg];
+    // Check if it exists AND is a directory (object)
+    if(target && typeof target === 'object') {
+      cwd = (cwd === "/" ? "" : cwd) + "/" + arg;
+    } else {
+      print(`cd: ${arg}: Not a directory or does not exist`, "msg-error");
+    }
+    return;
+  }
+
+  if(cmd === "cat"){
+    if(!arg) { print("Usage: cat <filename>", "msg-info"); return; }
+    const fileContent = getDir()[arg];
+    
+    if(fileContent && typeof fileContent === 'string') {
+      print(fileContent);
+    } else {
+      print(`cat: ${arg}: No such file`, "msg-error");
+    }
+    return;
+  }
+
+  if(cmd === "solve"){
+    if(arg === scenario.answer){
+      print("✔ FLAG ACCEPTED. CASE CLOSED.");
+      print("System will reset in 5 seconds...", "msg-info");
+      setTimeout(() => location.reload(), 5000);
+    } else {
+      print("✘ ACCESS DENIED. Incorrect Flag.", "msg-error");
+    }
+    return;
+  }
+  print(`bash: ${cmd}: command not found`, "msg-error");
+}
+
+/* ================= BOOT SEQUENCE ================= */
+
+const logo = `                                               
+                                               
+██████ ▄▄ ▄▄ ▄▄▄▄▄ ████▄  ▄▄▄▄  ▄▄ ▄▄    ▄▄    
+  ██   ██▄██ ██▄▄  ██  ██ ██▄█▄ ██ ██    ██    
+  ██   ██ ██ ██▄▄▄ ████▀  ██ ██ ██ ██▄▄▄ ██▄▄▄ 
+                                               `;
+
+printAscii(logo);
+print("TheDrill - By MECS [v3.0]");
+print("Initializing Secure Environment...", "msg-info");
+setTimeout(() => {
+  print("File System Mounted.");
+  print("Building Scenario....");
+  print("------------------------------------------");
+  print("MISSION: Locate the flag 'FDx{...}' in the system.");
+  print("");
+  prompt();
+}, 800);
+
+</script>
+</body>
+</html>
