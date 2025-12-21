@@ -56,7 +56,7 @@
       max-width: 1400px;
       width: 100%;
       margin: 0 auto;
-      padding: 0 1.5rem; /* Reduced slightly for mobile safety */
+      padding: 0 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -96,7 +96,7 @@
       align-items: center;
       gap: 10px;
       transition: all 0.3s;
-      padding: 0.5rem 0.5rem; /* Safe padding */
+      padding: 0.5rem 0.5rem;
       border: 1px solid rgba(255,255,255,0.2);
     }
 
@@ -156,7 +156,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Better mobile stacking */
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 2rem;
       margin-top: 2rem;
     }
@@ -320,12 +320,11 @@
         <a href="OSINT.html" class="btn-launch">Initialize Simulation →</a>
       </div>
 
-      <div class="card locked">
-        <div class="bg-stripes"></div>
-        <div class="card-icon">🔒</div>
-        <h2 style="color: #555;">Module 02: [Redacted]</h2>
-        <p>This classified operation is currently under development by the #MECS. Access is restricted to authorized personnel only.</p>
-        <span class="btn-launch">Access Denied // Coming Soon</span>
+      <div class="card">
+        <div class="card-icon">💻</div>
+        <h2>Module 02: TheDrill</h2>
+        <p><strong>Digital Forensics & Incident Response.</strong><br> Access the secure terminal to investigate a compromised server. Analyze logs, navigate the file system, and track the attacker's traces.</p>
+        <a href="TheDrill.html" class="btn-launch">Initialize Terminal →</a>
       </div>
 
     </div>
