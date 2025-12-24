@@ -2,244 +2,615 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Speculum by MECS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  <title>SPECULUM by MECS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* MECS Playground Color Palette */
     :root {
-      --bg: #000000;
-      --panel: #0a0a0a; 
-      --fg: #ffffff; /* Text color (Foreground) */
-      --muted: #999999; /* Muted text */
-      --accent: #FF0055; /* Vibrant Pink/Red */
-      --secondary-accent: #990033;
+      --bg: #050505;
+      --text: #e0e0e0;
+      --alert: #ff3333;
+      --success: #00ff41; 
+      --terminal-dim: #555;
     }
 
-    * { 
-        box-sizing: border-box; 
-        /* Applying Space Grotesk */
-        font-family: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif; 
-    }
+    ::selection { background: var(--alert); color: #000; text-shadow: none; }
 
     body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
       margin: 0;
-      /* Subtle radial gradient using the black background */
-      background: radial-gradient(circle at center, var(--panel) 0%, var(--bg) 70%); 
-      color: var(--fg);
       height: 100vh;
+      overflow: hidden;
       display: flex;
-      align-items: center;
       justify-content: center;
-      cursor: none;
+      align-items: center;
+      text-transform: uppercase;
+      background: radial-gradient(circle, #111 0%, #000 90%);
+      -webkit-user-select: text;
+      user-select: text;
     }
 
-    .app { 
-        width: 100%; 
-        max-width: 720px; 
-        padding: 40px; 
-        animation: fadeIn 1.2s ease; 
+    /* CRT Scanlines */
+    body::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 900;
+      background-size: 100% 2px, 3px 100%;
+      pointer-events: none;
     }
-    h1 { 
-        font-size: 3rem; 
-        letter-spacing: 2px; 
-        font-weight: 700;
-        color: var(--accent); /* Header stands out */
-        margin: 0 0 25px 0;
-    }
-    h2 { font-size: 2rem; margin: 0 0 20px 0; }
-    p { color: var(--muted); line-height: 1.8; margin: 0 0 20px 0; }
-    .center { text-align: center; }
 
-    /* Button Styling */
-    .btn { 
-        margin-top: 40px; 
-        padding: 14px 40px; 
-        border: 2px solid var(--accent); /* Border with accent color */
-        background: transparent; 
-        color: var(--accent); 
-        cursor: pointer; 
-        transition: all 0.3s ease; 
-        text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 1px;
+    .container {
+      width: 90%;
+      max-width: 600px;
+      padding: 20px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 300px;
+      position: relative;
     }
-    .btn:hover { 
-        background: var(--accent); 
-        color: var(--bg); /* Black text on pink/red hover */
+
+    h1 {
+      font-size: 1.8rem;
+      border-bottom: 2px solid var(--alert);
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+      letter-spacing: -1px;
+      text-shadow: 2px 0 var(--alert), -2px 0 cyan;
     }
-    .hidden { display: none; }
+
+    p { line-height: 1.6; color: #aaa; margin-bottom: 20px; }
+
+    .log-line {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+      border-left: 3px solid transparent;
+      padding-left: 15px;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+
+    .highlight { color: var(--alert); font-weight: 700; text-shadow: 0 0 8px var(--alert); }
+    .success { color: var(--success); text-shadow: 0 0 8px var(--success); }
+
+    .btn {
+      width: 100%;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--text);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { background: var(--text); color: var(--bg); box-shadow: 0 0 15px var(--text); }
+
+    .hidden { display: none !important; }
     
-    /* Line animation styling */
-    .line { 
-        font-size: 1.25rem; 
-        margin: 26px 0; 
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    .fading-out { animation: fadeOut 0.5s forwards; }
+
+    .flicker-screen { animation: flicker 0.15s infinite; }
+    @keyframes flicker {
+      0% { opacity: 0.9; } 5% { opacity: 0.5; } 10% { opacity: 0.9; } 15% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; }
+    }
+    @keyframes shake {
+      0% { transform: translate(2px, 2px); } 20% { transform: translate(-2px, -2px); } 40% { transform: translate(-2px, 2px); } 60% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); }
+    }
+    
+    .violent-shake { animation: violentShake 0.2s infinite; }
+    @keyframes violentShake {
+      0% { transform: translate(5px, 5px) rotate(2deg); filter: hue-rotate(90deg); }
+      50% { transform: translate(-5px, -5px) rotate(-2deg); filter: invert(1); }
+      100% { transform: translate(5px, -5px) rotate(2deg); filter: hue-rotate(0deg); }
+    }
+
+    /* THE MIRROR LAYER */
+    #mirror-layer {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: black;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mirror-msg {
+      color: #111; 
+      font-size: 1.5rem;
+      text-align: center;
+      font-weight: 700;
+      opacity: 0;
+      animation: slowReveal 4s forwards;
+      margin-bottom: 30px;
+      line-height: 1.4;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+    
+    @keyframes slowReveal { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+    #easter-egg {
+        position: absolute;
+        bottom: 30px;
+        left: 30px;
+        text-align: left;
+        font-size: 0.85rem;
+        color: #444; 
+        font-family: 'Space Mono', monospace;
+        z-index: 1000;
+        line-height: 1.5;
+        text-transform: none; 
+        pointer-events: none;
+        max-width: 80%;
+    }
+    
+    .chat-line { margin-bottom: 8px; display: block; }
+    .user-admin { color: #888; font-weight: bold; }
+    .user-agent { color: #555; font-weight: bold; }
+    .user-system { color: var(--success); opacity: 0.7; }
+
+    .cursor::after { content: '|'; animation: blink 1s infinite; }
+    @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;} }
+
+    .rec-dot {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        width: 12px;
+        height: 12px;
+        background: red;
+        border-radius: 50%;
         opacity: 0; 
-        animation: reveal 1.8s forwards, tremor 4s infinite; 
-        position: relative; 
-        font-weight: 300;
+        box-shadow: 0 0 15px red;
+        transition: opacity 1s;
+        cursor: pointer; 
+        z-index: 1001; 
     }
-    .line::after { 
-        content: ""; 
-        position: absolute; 
-        left: 0; 
-        bottom: -6px; 
-        width: 0; 
-        height: 2px; /* Thicker underline */
-        background: var(--accent); /* Use accent color for underline */
-        animation: underline 1.6s forwards; 
+    .rec-active { opacity: 1; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+    /* JUMPSCARE VISUALS */
+    .strobe-death {
+        animation: strobe 0.1s infinite;
+        background: red !important;
     }
     
-    /* Final Screen Styling */
-    .final { 
-        font-size: 1.4rem; 
-        text-align: center; 
-        line-height: 1.6; 
-    }
-    .final-line { opacity:0; color: var(--fg); font-weight: 500;} /* Ensure final lines are white */
-    
-    /* Countdown Styling */
-    .countdown { 
-        font-size: 8rem; 
-        font-weight: 900; 
-        color: var(--panel); /* Dark, barely visible number */
-        text-align: center; 
-        animation: reveal 1s forwards; 
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    @keyframes strobe {
+        0% { background: black; filter: invert(0); }
+        50% { background: red; filter: invert(1); }
+        100% { background: black; filter: invert(0); }
     }
 
-    /* Keyframes */
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes reveal { to { opacity: 1; } }
-    @keyframes underline { to { width: 100%; } }
-    @keyframes tremor { 0%,92% { transform: translateX(0); } 93% { transform: translateX(-2px); } 94% { transform: translateX(2px); } 95% { transform: translateX(-2px); } 96% { transform: translateX(2px); } 100% { transform: translateX(0); } }
-    @keyframes pulse { 0% { color: var(--fg); } 50% { color: var(--accent); } 100% { color: var(--fg); } }
-    @keyframes fadeInFinal { from { opacity: 0; } to { opacity: 1; } }
-
-    /* For the final pulse effect on the main line */
-    #mirror-lines h2 {
-        animation: fadeInFinal 2s 4s forwards, pulse 3s 8s infinite; 
-        color: var(--accent);
+    #death-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: white;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: black;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 2rem;
     }
 
-    /* Mobile adjustments for readability */
-    @media (max-width: 600px) {
-        .app {
-            padding: 20px;
-        }
-        h1 {
-            font-size: 2rem;
-        }
-        .line {
-            font-size: 1rem;
-            margin: 20px 0;
-        }
-        .countdown {
-            font-size: 5rem;
-        }
-    }
   </style>
 </head>
 <body>
-<div class="app">
 
-  <div id="screen-entry" class="center">
+<div class="container" id="main-display">
+  <div id="section-start">
     <h1>Speculum by MECS</h1>
-    <p class="line">This is not training.<br>This is your reflection.</p>
-    <p class="line">By the end, you may never feel safe online the same way again.</p>
-    <button class="btn" onclick="nextScreen('existence')">Enter The Grid</button>
+    <p>This tool scans your digital footprint to reveal what is currently visible to advertisers, data brokers, and strangers.</p>
+    <p style="color: var(--alert); font-weight: bold;">[!] USE AT YOUR OWN RISK</p>
+    <p style="font-size: 0.8rem; opacity: 0.6;">Sound enabled. Turn volume up.</p>
+    <button class="btn" onclick="runSequence()">BEGIN SPECULUM</button>
   </div>
-
-  <div id="screen-existence" class="hidden">
-    <p class="line">If you have Social Media, You are Being Observed.</p>
-  </div>
-
-  <div id="screen-watched" class="hidden"></div>
-
-  <div id="screen-inference" class="hidden"></div>
-
-  <div id="screen-moral" class="hidden"></div>
-
-  <div id="screen-mirror" class="hidden center">
-    <div id="countdown" class="countdown"></div>
-    <div id="mirror-lines" class="hidden">
-      <p class="line final-line" style="animation: fadeInFinal 2s forwards;">This is your fault.</p>
-      <p class="line final-line" style="animation: fadeInFinal 2s 1s forwards;">You put it online.</p>
-      <p class="line final-line" style="animation: fadeInFinal 2s 2s forwards;">No one broke in.</p>
-      <p class="line final-line" style="animation: fadeInFinal 2s 3s forwards;">They just watched.</p>
-      <h2 class="line final-line" style="animation: fadeInFinal 2s 4s forwards; color: var(--accent);">They will keep watching.</h2>
-      <div class="final">
-        <p class="line final-line" style="animation: fadeInFinal 2s 5s forwards;">Every post trains them.</p>
-        <p class="line final-line" style="animation: fadeInFinal 2s 6s forwards;">Every click exposes you.</p>
-        <p class="line final-line" style="animation: fadeInFinal 2s 7s forwards;">You are not private.</p>
-        <p class="line final-line" id="after-silence" style="opacity:0; animation: fadeInFinal 2s 8s forwards; color: var(--accent);">You never were.</p>
-      </div>
-    </div>
-  </div>
-
 </div>
 
+<div id="mirror-layer" class="hidden">
+  <div class="rec-dot" id="rec-dot" onclick="triggerDotScreech()"></div>
+  
+  <div id="mirror-text-container">
+    <div class="mirror-msg" style="animation-delay: 2s;">IT WASN'T A HACK.</div>
+    <div class="mirror-msg" style="animation-delay: 6s;">IT WAS A POST.</div>
+    <div class="mirror-msg" style="animation-delay: 10s;">BY THE PERSON</div>
+    <div class="mirror-msg" style="animation-delay: 14s; color: var(--alert);">STARING AT THIS BLACK SCREEN.</div>
+  </div>
+
+  <div id="easter-egg"></div>
+</div>
+
+<div id="death-screen" class="hidden">CONNECTION LOST</div>
+
 <script>
-function hideAll() { document.querySelectorAll('.app > div').forEach(d => d.classList.add('hidden')); }
+  const display = document.getElementById('main-display');
+  const mirrorLayer = document.getElementById('mirror-layer');
+  const easterEggContainer = document.getElementById('easter-egg');
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
-function nextScreen(screen) {
-    hideAll();
-    const s = document.getElementById('screen-' + screen);
-    s.classList.remove('hidden');
-
-    if(screen==='existence') setTimeout(()=>nextScreen('watched'),2000);
-    if(screen==='watched') runWatched();
-    if(screen==='inference') runInference();
-    if(screen==='moral') runMoral();
-    if(screen==='mirror') runMirror();
-}
-
-function runWatched(){
-  const lines=['Someone saw your face.','Someone judged your life silently.','Someone knows the places you go.','Someone tracked your friends, to find you.'];
-  revealLines('screen-watched',lines,()=>nextScreen('inference'));
-}
-
-function runInference(){
-  const lines=['Someone knows your habits better than your closest friend.','Small details reveal more than big confessions.','Patterns in your photos reveal more than the pictures themselves.','Exposure occurs even when you feel safe.'];
-  revealLines('screen-inference',lines,()=>nextScreen('moral'));
-}
-
-function runMoral(){
-  const lines=['Not everyone watches to harm.','Some watch simply because they can.','Some watch because no one stops them.','What’s public invites interpretation, not consent.'];
-  revealLines('screen-moral',lines,()=>nextScreen('mirror'));
-}
-
-function revealLines(screenId,lines,callback){
-  const el=document.getElementById(screenId);
-  el.innerHTML='';
-  let delay=0;
-  lines.forEach((text,i)=>{
-    setTimeout(()=>{
-      const p=document.createElement('div');
-      p.className='line';
-      p.textContent=text;
-      el.appendChild(p);
-      if(i===lines.length-1) setTimeout(callback,2200);
-    },delay);
-    delay+=2000;
+  // --- EGG 1: TAB TITLE SWITCHER ---
+  const originalTitle = document.title;
+  document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+          document.title = "LEAVING DOESN'T WORK.";
+      } else {
+          document.title = "STAYING EITHER.";
+          setTimeout(() => { document.title = originalTitle; }, 2000);
+      }
   });
-}
 
-function runMirror(){
-  const cd=document.getElementById('countdown');
-  const lines=document.getElementById('mirror-lines');
-  let n=5;
-  cd.textContent=n;
-  const t=setInterval(()=>{
-    n--;
-    if(n<=0){
-      clearInterval(t);
-      cd.classList.add('hidden');
-      lines.classList.remove('hidden');
-    } else { cd.textContent=n; }
-  },1000);
-}
+  // --- AUDIO ENGINE ---
+  let audioCtx;
+  let droneOsc;
+
+  function initAudio() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+    
+    // Ambient Drone
+    droneOsc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    droneOsc.type = 'sawtooth';
+    droneOsc.frequency.setValueAtTime(50, audioCtx.currentTime);
+    
+    const lfo = audioCtx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(0.2, audioCtx.currentTime);
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.setValueAtTime(10, audioCtx.currentTime);
+    
+    lfo.connect(lfoGain);
+    lfoGain.connect(droneOsc.frequency);
+    gainNode.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    
+    droneOsc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    lfo.start();
+    droneOsc.start();
+  }
+
+  function playDataSound() {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800 + Math.random() * 500, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+  }
+
+  function playCrashSound() {
+    if (!audioCtx) return;
+    const bufferSize = audioCtx.sampleRate * 2; 
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    noise.connect(gain);
+    gain.connect(audioCtx.destination);
+    noise.start();
+  }
+
+  function playKeyClick() {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
+    gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+  }
+
+  // --- SCARY SOUNDS ---
+  function playKnock() {
+      if (!audioCtx) return;
+      // Synthesize a knock: low freq sine wave with quick decay
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.frequency.setValueAtTime(150, t);
+      osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1);
+      
+      gain.gain.setValueAtTime(0.5, t); // Loud
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.15);
+  }
+
+  function playScreech() {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(3000, audioCtx.currentTime); 
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+  }
+
+  function playFinalScream() {
+      if (!audioCtx) return;
+      // Multi-oscillator chaos
+      const t = audioCtx.currentTime;
+      
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc1.type = 'sawtooth';
+      osc2.type = 'square';
+      
+      osc1.frequency.setValueAtTime(100, t);
+      osc1.frequency.linearRampToValueAtTime(1000, t + 0.1); // Rise
+      osc1.frequency.exponentialRampToValueAtTime(50, t + 0.8); // Fall
+      
+      osc2.frequency.setValueAtTime(500, t);
+      osc2.frequency.linearRampToValueAtTime(50, t + 0.8);
+      
+      // Tremolo
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.value = 50;
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 500;
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc1.frequency);
+      lfo.start(t);
+
+      gain.gain.setValueAtTime(0.8, t); // MAX VOLUME
+      gain.gain.linearRampToValueAtTime(0, t + 1.0);
+      
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc1.start(t);
+      osc2.start(t);
+      osc1.stop(t+1);
+      osc2.stop(t+1);
+  }
+
+  // --- LOGIC ---
+  const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const randomItems = ["HIGH-END ELECTRONICS", "DESIGNER PACKAGING", "VEHICLE KEYS", "CREDIT CARD CORNER"];
+
+  const getRealData = async () => {
+    const ua = navigator.userAgent.toLowerCase();
+    let type = "DESKTOP WORKSTATION";
+    if(ua.includes("android")) type = "ANDROID DEVICE";
+    else if(ua.includes("iphone")) type = "APPLE IPHONE";
+    let bat = "UNKNOWN";
+    try {
+      if(navigator.getBattery) {
+        const b = await navigator.getBattery();
+        bat = `${Math.round(b.level * 100)}%`;
+      }
+    } catch(e) {}
+    return { type, bat, res: `${window.screen.width}x${window.screen.height}` };
+  };
+
+  async function fadeScreen() {
+    display.classList.add('fading-out');
+    await wait(600);
+    display.innerHTML = '';
+    display.classList.remove('fading-out');
+  }
+
+  function addLine(text, delay = 0) {
+    const p = document.createElement('div');
+    p.className = 'log-line';
+    p.innerHTML = text;
+    display.appendChild(p);
+    playDataSound();
+    return wait(delay);
+  }
+
+  // --- CHAT LOGIC ---
+  async function typeChat(userClass, userText, messageText) {
+    const line = document.createElement('div');
+    line.className = 'chat-line cursor'; 
+    easterEggContainer.appendChild(line);
+    const userSpan = `<span class="${userClass}">[${userText}]</span> `;
+    line.innerHTML = userSpan; 
+    for (let i = 0; i < messageText.length; i++) {
+        line.innerHTML = userSpan + messageText.substring(0, i + 1);
+        playKeyClick();
+        await wait(Math.random() * 60 + 30);
+    }
+    line.classList.remove('cursor');
+    await wait(1500); 
+  }
+
+  // --- DOT INTERACTION (ESCALATION) ---
+  let clickCount = 0;
+  let shakeTimeout;
+
+  function triggerDotScreech() {
+      clickCount++;
+
+      // If they click 5 times, KILL IT immediately
+      if(clickCount >= 5) {
+          triggerJumpscare();
+          return;
+      }
+
+      playScreech();
+      document.body.classList.remove('violent-shake');
+      void document.body.offsetWidth; 
+      document.body.classList.add('violent-shake');
+      clearTimeout(shakeTimeout);
+      shakeTimeout = setTimeout(() => {
+          document.body.classList.remove('violent-shake');
+      }, 500);
+      
+      let message = "";
+      if (clickCount === 1) message = "WARN: SUBJECT ATTEMPTING TO DISABLE FEED.";
+      else if (clickCount === 2) message = "WARN: INPUT DENIED. FEED LOCKED.";
+      else if (clickCount === 3) message = "WARN: TRACE INITIATED.";
+      else message = "STOP.";
+
+      const line = document.createElement('div');
+      line.className = 'chat-line';
+      line.innerHTML = `<span class="user-system">[SYSTEM]</span> <span style="color:red">${message}</span>`;
+      easterEggContainer.appendChild(line);
+      line.scrollIntoView({behavior: "smooth"});
+  }
+
+  // --- THE ULTIMATE SCARE ---
+  async function triggerJumpscare() {
+      // 1. CLEAR EVERYTHING
+      await wait(30000);
+      document.getElementById('mirror-text-container').innerHTML = "";
+      easterEggContainer.innerHTML = "";
+      document.getElementById('rec-dot').style.display = 'none';
+
+      // 2. THE KNOCK (3 times)
+      await wait(1000);
+      playKnock();
+      await wait(500);
+      playKnock();
+      await wait(500);
+      playKnock();
+      
+      // 3. TEXT
+      await wait(500);
+      const scaryMsg = document.createElement('div');
+      scaryMsg.className = 'mirror-msg';
+      scaryMsg.style.color = 'red';
+      scaryMsg.style.fontSize = '2rem';
+      scaryMsg.style.opacity = '1';
+      scaryMsg.innerText = "LOOK BEHIND YOU.";
+      document.getElementById('mirror-text-container').appendChild(scaryMsg);
+
+      // 4. WAIT FOR READING...
+      await wait(1500);
+
+      // 5. BOOM (Scream + Vibrate + Strobe)
+      playFinalScream();
+      
+      // Mobile Vibration
+      if (navigator.vibrate) {
+          navigator.vibrate([500, 50, 500]); 
+      }
+      
+      // Visual Strobe
+      document.body.classList.add('strobe-death');
+      
+      // 6. CUT TO WHITE
+      await wait(800);
+      document.getElementById('death-screen').classList.remove('hidden');
+      document.body.classList.remove('strobe-death');
+      
+      // Kill audio context
+      if(audioCtx) audioCtx.close();
+  }
+
+  async function triggerEasterEgg() {
+    await wait(40000);
+    document.getElementById('rec-dot').classList.add('rec-active');
+    
+    await typeChat("user-system", "SYSTEM", "Connection stable. Stream active.");
+    await typeChat("user-agent", "AGENT_49", "Are they still looking at the black screen?");
+    await typeChat("user-admin", "ADMIN", "Yes. They are staring right at their reflection.");
+    await typeChat("user-agent", "AGENT_49", "Do they know the camera is still on?");
+    await wait(2000); 
+    await typeChat("user-admin", "ADMIN", "No. Let them sit there.");
+    
+    // TRIGGER THE FINALE
+    triggerJumpscare();
+  }
+
+  async function runSequence() {
+    initAudio();
+    const data = await getRealData();
+    const checkIns = getRandomInt(12, 84);
+    const confidence = getRandomInt(87, 99);
+    const valuableItem = randomItems[Math.floor(Math.random() * randomItems.length)];
+
+    await fadeScreen();
+
+    // HARDWARE
+    await addLine(`> TARGET: <span class="highlight">${data.type}</span>`, 2000);
+    await addLine(`> RESOLUTION: ${data.res}`, 2000);
+    if(data.bat !== "UNKNOWN") {
+      await addLine(`> BATTERY: <span class="highlight">${data.bat}</span>`, 2000);
+      await addLine(`> WE KNOW WHEN YOU SLEEP.`, 3000);
+    } else {
+      await addLine(`> FINGERPRINT: UNIQUE`, 3000);
+    }
+    await fadeScreen();
+    
+    // SOCIAL
+    await addLine(`> SCANNING SOCIAL FOOTPRINT...`, 2500);
+    await addLine(`> FOUND: <span class="success">${checkIns} GEOTAGGED LOCATIONS</span>`, 2500);
+    await addLine(`> HOME ADDRESS CONFIDENCE: <span class="highlight">${confidence}%</span>`, 3000);
+    await fadeScreen();
+
+    // IMAGES
+    await addLine(`> ANALYZING RECENT PHOTOS...`, 2000);
+    await addLine(`> FACIAL RECOGNITION: <span class="success">MATCHED</span>`, 2500);
+    await addLine(`> VALUABLE DETECTED: <span class="highlight">${valuableItem}</span>`, 3000);
+    await fadeScreen();
+
+    // GUILT
+    document.body.classList.add('flicker-screen');
+    await addLine(`You tagged your friends.`, 2500);
+    await addLine(`You showed us the layout of your home.`, 2500);
+    await addLine(`You showed us when you were alone.`, 3000);
+    document.body.classList.remove('flicker-screen');
+    await fadeScreen();
+    
+    // CRASH
+    const crashLine = document.createElement('div');
+    crashLine.className = 'log-line highlight';
+    crashLine.innerHTML = "UPLOADING DATA TO PUBLIC INDEX...";
+    display.appendChild(crashLine);
+    playCrashSound();
+    document.body.style.animation = "shake 0.1s infinite";
+    await wait(4000);
+
+    // MIRROR
+    if(droneOsc) { droneOsc.stop(); droneOsc = null; }
+    document.body.style.animation = "none";
+    display.classList.add('hidden');
+    mirrorLayer.classList.remove('hidden');
+
+    triggerEasterEgg();
+  }
 </script>
-
 </body>
 </html>
