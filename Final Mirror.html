@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DIGITAL MIRROR: FINAL REPORT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --text: #e0e0e0;
+      --alert: #ff3333;
+      --success: #00ff41; 
+      --cyan: #00ffff;
+      --panel-bg: rgba(0, 0, 0, 0.95);
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-transform: uppercase;
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: crosshair;
+    }
+
+    /* --- CRT & VIGNETTE EFFECTS --- */
+    .scanlines {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5));
+      background-size: 100% 4px;
+      z-index: 900; pointer-events: none;
+    }
+    .vignette {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.95) 100%);
+      z-index: 901; pointer-events: none;
+    }
+
+    /* --- WEBCAM LAYER --- */
+    #cam-layer {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 1; opacity: 0; transition: opacity 3s ease-in; pointer-events: none;
+    }
+    video#webcam {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(100%) contrast(1.2) brightness(0.5) sepia(0.5);
+      transform: scaleX(-1);
+    }
+    .face-reticle {
+      position: absolute; top: 50%; left: 50%; width: 200px; height: 200px;
+      transform: translate(-50%, -50%); border: 2px solid var(--alert);
+      box-shadow: 0 0 20px var(--alert); display: none;
+    }
+
+    /* --- UI CONTAINER (INTRO) --- */
+    .container {
+      width: 90%; max-width: 600px; padding: 20px; z-index: 2000;
+      display: flex; flex-direction: column; justify-content: center;
+      min-height: 300px; position: relative;
+    }
+
+    h1 {
+      font-size: 1.8rem; border-bottom: 2px solid var(--alert);
+      padding-bottom: 15px; margin-bottom: 30px; letter-spacing: -1px;
+      text-shadow: 2px 0 var(--alert), -2px 0 cyan;
+    }
+    
+    .btn {
+      width: 100%; padding: 18px; background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--text); color: var(--text);
+      font-family: 'Space Mono', monospace; font-size: 1rem; cursor: pointer;
+      margin-top: 20px; transition: all 0.2s;
+    }
+    .btn:hover { background: var(--text); color: var(--bg); box-shadow: 0 0 15px var(--text); }
+    .btn-alert:hover { background: var(--alert); color: #000; box-shadow: 0 0 15px var(--alert); border-color: var(--alert); }
+
+    .log-line {
+      font-size: 1.1rem; margin-bottom: 15px; opacity: 0;
+      animation: fadeIn 0.5s forwards; border-left: 3px solid transparent;
+      padding-left: 10px;
+    }
+    .highlight { color: var(--alert); font-weight: 700; text-shadow: 0 0 8px var(--alert); }
+    .success { color: var(--success); text-shadow: 0 0 8px var(--success); }
+
+    /* --- MIRROR PHASE (UPDATED FOR 20s) --- */
+    #mirror-text-container {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 3000; display: none; flex-direction: column;
+        justify-content: center; align-items: center; pointer-events: none;
+        background: #000;
+    }
+    .mirror-msg {
+       color: #666;
+       font-size: 1.5rem;
+       font-weight: 700;
+       opacity: 0;
+       animation: mirrorReveal 3s forwards;
+    }
+
+    @keyframes mirrorReveal {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* --- AUCTION UI --- */
+    #auction-ui {
+      position: absolute; width: 100%; height: 100%; z-index: 2500;
+      display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
+      opacity: 0; pointer-events: none;
+    }
+    .active-auction { opacity: 1 !important; pointer-events: auto !important; transition: opacity 2s; }
+
+    .hud-top {
+      display: flex; justify-content: space-between; border-bottom: 1px solid var(--alert);
+      color: var(--alert); background: var(--panel-bg); padding: 10px; font-weight: bold;
+    }
+
+    .logs-wrapper {
+      display: flex; justify-content: space-between; margin-top: auto; margin-bottom: 40px;
+    }
+    #bidder-log, #voyeur-chat {
+      width: 48%; height: 250px; overflow: hidden; font-size: 0.8rem;
+      background: var(--panel-bg); padding: 10px; border: 1px solid #333;
+    }
+    #bidder-log { border-left: 2px solid var(--success); color: #ccc; }
+    #voyeur-chat { border-right: 2px solid var(--cyan); color: var(--cyan); text-align: right; }
+
+    #price-container {
+      position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; width: 100%; pointer-events: none;
+    }
+    #price-val {
+      font-size: 6rem; color: var(--alert); font-family: 'VT323', monospace;
+      text-shadow: 0 0 20px var(--alert);
+    }
+
+    /* --- REALITY CHECK (END SCREEN) --- */
+    #reality-check {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 8000; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; text-align: center;
+        padding: 40px; box-sizing: border-box; opacity: 0; pointer-events: none;
+        transition: opacity 3s;
+    }
+    .reality-visible { opacity: 1 !important; pointer-events: auto !important; }
+    
+    .reality-text { max-width: 700px; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6; text-transform: none; color: #ccc; }
+    .final-price { font-size: 5rem; color: var(--alert); font-family: 'VT323'; margin-bottom: 10px; display: block; }
+    .price-label { font-size: 0.8rem; color: #666; margin-bottom: 30px; letter-spacing: 2px;}
+
+    /* --- MAP POPUP --- */
+    #map-popup {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 80%; max-width: 500px; background: #000; border: 2px solid var(--alert);
+      z-index: 5000; padding: 10px; text-align: center; display: none;
+      box-shadow: 0 0 50px #300;
+    }
+    #map-frame { width: 100%; height: 250px; filter: invert(1) hue-rotate(180deg) contrast(1.5); opacity: 0.8; }
+    .map-overlay {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      color: red; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 0 #000;
+    }
+
+    /* --- HIJACK INPUT --- */
+    #hijack-layer {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 90%; max-width: 500px; background: #000; border: 1px solid var(--cyan);
+      padding: 30px; z-index: 6000; display: none; text-align: center;
+      box-shadow: 0 0 30px var(--cyan);
+    }
+    input#panic-input {
+      background: #111; border: none; border-bottom: 2px solid var(--cyan);
+      color: var(--cyan); font-family: 'VT323'; font-size: 2rem; width: 100%;
+      text-align: center; outline: none; margin-top: 20px;
+    }
+
+    /* --- STAMPS & ANIMATIONS --- */
+    .sold-stamp {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg) scale(5);
+      font-size: 8rem; font-family: 'VT323'; background: var(--alert); color: #000;
+      padding: 10px 40px; border: 5px dashed #000; opacity: 0; z-index: 7000;
+      animation: slam 0.2s forwards; display: none; pointer-events: none;
+    }
+
+    @keyframes slam { to { opacity: 1; transform: translate(-50%, -50%) rotate(-15deg) scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    .fading-out { animation: fadeOut 0.8s forwards; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div id="cam-layer">
+  <video id="webcam" autoplay playsinline muted></video>
+  <div class="face-reticle" id="face-box"></div>
+</div>
+
+<div class="container" id="main-display">
+  <div id="section-start">
+    <h1>DIGITAL MIRROR v5.2</h1>
+    <p>This tool scans your local environment to reveal what is currently visible to data brokers.</p>
+    <p style="color: var(--alert); font-weight: bold;">[!] ENABLE AUDIO & CAMERA</p>
+    <button class="btn" onclick="runSequence()">BEGIN SCAN</button>
+  </div>
+</div>
+
+<div id="mirror-text-container">
+    <div class="mirror-msg" style="animation-delay: 2s;">IT WASN'T A HACK.</div>
+    <div class="mirror-msg" style="animation-delay: 8s;">IT WAS A POST.</div>
+    <div class="mirror-msg" style="animation-delay: 14s;">BY THE PERSON</div>
+    <div class="mirror-msg" id="mirror-final" style="animation-delay: 20s; color: var(--alert);">STARING AT THIS BLACK SCREEN.</div>
+</div>
+
+<div id="auction-ui">
+  <div class="hud-top">
+    <span>LOC: <span id="loc-display">TRIANGULATING...</span></span>
+    <span>OBSERVERS: <span id="obs-count">1</span></span>
+  </div>
+
+  <div id="price-container">
+    <span style="font-size:2rem;color:#555">$</span><span id="price-val">0.00</span>
+  </div>
+
+  <div class="sold-stamp" id="sold-stamp">SOLD</div>
+
+  <div class="logs-wrapper">
+    <div id="bidder-log"></div>
+    <div id="voyeur-chat"></div>
+  </div>
+</div>
+
+<div id="reality-check">
+    <h2 style="color:var(--text); margin-bottom:5px;">TRANSACTION COMPLETE</h2>
+    <span class="final-price" id="final-price-display">$0.00</span>
+    <div class="price-label">ESTIMATED DARK WEB VALUE</div>
+    
+    <div class="reality-text">
+        That is all you are worth to them.<br><br>
+        Your location, your habits, and your identity are often sold for less than the price of a lunch.
+        This transaction happens thousands of times a day, without the sound effects or the warnings.<br><br>
+        <span style="color:#fff; font-weight:bold;">It's time to reclaim your data.</span>
+    </div>
+
+    <button class="btn btn-alert" onclick="window.location.reload()">AUDIT YOUR PRIVACY SETTINGS</button>
+</div>
+
+
+<div id="map-popup">
+    <div style="color:red; font-weight:bold; margin-bottom:5px;">LOCATION BREACH DETECTED</div>
+    <iframe id="map-frame" src="" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    <div class="map-overlay">TARGET</div>
+</div>
+
+<div id="hijack-layer">
+    <h2 style="color:var(--cyan); margin:0;">SYSTEM INTERRUPT</h2>
+    <p>UNAUTHORIZED TRANSACTION DETECTED.</p>
+    <p>TYPE "STOP" TO CANCEL:</p>
+    <input type="text" id="panic-input" autocomplete="off" autofocus>
+</div>
+
+<script>
+  // --- CONFIG & UTILS ---
+  const DOM = {
+    display: document.getElementById('main-display'),
+    mirrorContainer: document.getElementById('mirror-text-container'),
+    mirrorFinal: document.getElementById('mirror-final'),
+    auctionUI: document.getElementById('auction-ui'),
+    cam: document.getElementById('cam-layer'),
+    video: document.getElementById('webcam'),
+    face: document.getElementById('face-box'),
+    locDisplay: document.getElementById('loc-display'),
+    obsCount: document.getElementById('obs-count'),
+    price: document.getElementById('price-val'),
+    bidLog: document.getElementById('bidder-log'),
+    chatLog: document.getElementById('voyeur-chat'),
+    map: document.getElementById('map-popup'),
+    mapFrame: document.getElementById('map-frame'),
+    hijack: document.getElementById('hijack-layer'),
+    input: document.getElementById('panic-input'),
+    sold: document.getElementById('sold-stamp'),
+    reality: document.getElementById('reality-check'),
+    finalPrice: document.getElementById('final-price-display')
+  };
+
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  
+  let isAuctionLive = false;
+  let lastMoveTime = 0;
+  let hasCamera = false; // Tracks if cam was granted
+
+  // --- AUDIO ENGINE ---
+  let audioCtx;
+  
+  function initAudio() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+  }
+
+  function playTone(freq, type='square', dur=0.1, vol=0.05) {
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = type;
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  }
+
+  function playCrashSound() {
+    if (!audioCtx) return;
+    const bufferSize = audioCtx.sampleRate * 2; 
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
+    noise.connect(gain);
+    gain.connect(audioCtx.destination);
+    noise.start();
+  }
+
+  // --- DATA & CAM ---
+  let userData = { city: "UNKNOWN", lat: 0, lon: 0, isp: "UNKNOWN" };
+
+  async function initWebcam() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      DOM.video.srcObject = stream;
+      hasCamera = true;
+    } catch(e) { 
+      console.log("Cam denied or error"); 
+      hasCamera = false;
+    }
+  }
+
+  async function fetchLocation() {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      userData = { city: data.city, lat: data.latitude, lon: data.longitude, isp: data.org };
+    } catch(e) {
+      userData = { city: "LOCAL_HOST", lat: 40.7128, lon: -74.0060, isp: "UNKNOWN_NET" };
+    }
+  }
+
+  async function getDeviceData() {
+    const ua = navigator.userAgent.toLowerCase();
+    let type = "WORKSTATION";
+    if(ua.includes("android")) type = "ANDROID DEVICE";
+    else if(ua.includes("iphone")) type = "APPLE IPHONE";
+    
+    let bat = "UNKNOWN";
+    try {
+      if(navigator.getBattery) {
+        const b = await navigator.getBattery();
+        bat = `${Math.round(b.level * 100)}%`;
+      }
+    } catch(e) {}
+    return { type, bat, res: `${window.screen.width}x${window.screen.height}` };
+  }
+
+  // --- UI HELPERS ---
+  function addLog(text) {
+    const p = document.createElement('div');
+    p.className = 'log-line';
+    p.innerHTML = text;
+    DOM.display.appendChild(p);
+    playTone(800 + Math.random()*200, 'square', 0.05);
+  }
+
+  async function fadeScreen() {
+    DOM.display.classList.add('fading-out');
+    await wait(800);
+    DOM.display.innerHTML = '';
+    DOM.display.classList.remove('fading-out');
+  }
+
+  // --- REACTIVE EVENTS ---
+  document.addEventListener('mousemove', () => {
+      if(!isAuctionLive) return;
+      const now = Date.now();
+      if(now - lastMoveTime > 3000) { // Throttle
+          lastMoveTime = now;
+          triggerReactiveMessage();
+      }
+  });
+
+  function triggerReactiveMessage() {
+      const msgs = [
+          "Target is agitated.",
+          "Mouse movement detected.",
+          "They are trying to close the window.",
+          "Cursor tracking active.",
+          "They are nervous.",
+          "Activity spike detected."
+      ];
+      const msg = msgs[Math.floor(Math.random() * msgs.length)];
+      
+      const div = document.createElement('div');
+       div.innerHTML = `<span style="opacity:0.5">[SYS_MONITOR]</span> <span style="color:var(--alert)">${msg}</span>`;
+       DOM.chatLog.appendChild(div);
+       DOM.chatLog.scrollTop = DOM.chatLog.scrollHeight;
+       playTone(1500, 'square', 0.02);
+  }
+
+  // --- MAIN SEQUENCE ---
+  async function runSequence() {
+    initAudio();
+    initWebcam(); // Start cam early so it's ready
+    fetchLocation(); // Start location fetch
+    
+    // Clear Start Button
+    DOM.display.innerHTML = '';
+
+    const data = await getDeviceData();
+
+    // 1. SCANNING PHASE
+    await wait(500);
+    addLog(`> TARGET IDENTIFIED: <span class="highlight">${data.type}</span>`);
+    await wait(1500);
+    addLog(`> RESOLUTION: ${data.res}`);
+    await wait(1500);
+    
+    if(data.bat !== "UNKNOWN") {
+      addLog(`> BATTERY LEVEL: <span class="highlight">${data.bat}</span>`);
+      await wait(1500);
+    }
+    
+    addLog(`> FINGERPRINT: <span class="success">UNIQUE_ID_${getRandomInt(1000,9999)}</span>`);
+    await wait(2000);
+    
+    // 2. SOCIAL PHASE
+    addLog(`> SCANNING BROWSING HISTORY...`);
+    await wait(2000);
+    addLog(`> FOUND: <span class="success">${getRandomInt(15, 60)} EXPLOITABLE COOKIES</span>`);
+    await wait(2000);
+    addLog(`> HOME ADDRESS CONFIDENCE: <span class="highlight">98.4%</span>`);
+    
+    // Log change based on camera
+    await wait(1500);
+    if(hasCamera) {
+        addLog(`> CAMERA STATUS: <span class="success">ACCESSIBLE</span>`);
+    } else {
+        addLog(`> CAMERA STATUS: <span class="highlight">DENIED (BYPASSING...)</span>`);
+    }
+
+    await wait(2500);
+    await fadeScreen();
+
+    // 3. MIRROR PHASE
+    await runMirrorPhase();
+
+    // 4. AUCTION START
+    startAuction();
+  }
+
+  // --- MIRROR PHASE (EXTENDED) ---
+  async function runMirrorPhase() {
+      // Modify text if camera is blocked
+      if(!hasCamera) {
+          DOM.mirrorFinal.innerText = "THINKING THEY ARE SAFE BEHIND A BLOCKED LENS.";
+      } else {
+          DOM.mirrorFinal.innerText = "STARING AT THIS BLACK SCREEN.";
+      }
+
+      // Show the black container
+      DOM.mirrorContainer.style.display = 'flex';
+      
+      // Low thrumming sound
+      if(audioCtx) {
+          const osc = audioCtx.createOscillator();
+          osc.frequency.value = 40; // Very low hum
+          osc.type = 'sine';
+          const g = audioCtx.createGain();
+          g.gain.value = 0.05;
+          osc.connect(g);
+          g.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 35); // Plays for 35s
+      }
+
+      // WAIT FOR TEXT: 20s (last message start) + 6s (duration) = 26s
+      await wait(26000); 
+      
+      // THE DEAD WAIT (Boredom Filter)
+      await wait(10000);
+
+      DOM.mirrorContainer.style.display = 'none';
+      
+      // Crash effect transition to Auction
+      playCrashSound();
+      document.body.style.backgroundColor = "#fff"; 
+      setTimeout(() => { document.body.style.backgroundColor = "var(--bg)"; }, 50);
+  }
+
+  // --- AUCTION LOGIC ---
+  async function startAuction() {
+    isAuctionLive = true;
+    
+    // Reveal layers
+    DOM.auctionUI.classList.add('active-auction');
+    if(hasCamera) {
+        DOM.cam.style.opacity = 0.2; // Ghostly cam
+    }
+    
+    // Update location text
+    if(userData.city !== "UNKNOWN") {
+        DOM.locDisplay.innerText = `${userData.city.toUpperCase()} (${userData.isp.toUpperCase()})`;
+    }
+
+    // Helpers
+    const addBid = (name, amt, msg) => {
+       DOM.price.innerText = amt.toFixed(2);
+       const div = document.createElement('div');
+       div.innerHTML = `<span style="color:#fff">${name}</span>: ${msg}`;
+       DOM.bidLog.prepend(div);
+       playTone(300 + (amt*5), 'sawtooth', 0.1);
+    };
+    const addChat = (user, msg) => {
+       const div = document.createElement('div');
+       div.innerHTML = `<span style="opacity:0.5">[${user}]</span> ${msg}`;
+       DOM.chatLog.appendChild(div);
+       DOM.chatLog.scrollTop = DOM.chatLog.scrollHeight;
+       playTone(1200, 'sine', 0.05);
+    };
+
+    // --- SLOW BURN AUCTION SCRIPT ---
+    
+    await wait(2000);
+    addChat("SYS", "Secure connection established.");
+    await wait(2000);
+    
+    if(hasCamera) {
+        addChat("SYS", "Bypassing local firewall...");
+    } else {
+        addChat("SYS", "Video connection refused.");
+        await wait(1000);
+        addChat("SYS", "Rerouting to Audio & Data Stream.");
+    }
+
+    await wait(3000);
+    
+    addChat("User_89", "Is this live?");
+    await wait(2000);
+    addChat("Admin", "Feed is live. Latency 40ms.");
+    
+    // Initial observations
+    await wait(3000);
+    if(hasCamera) {
+        addChat("Spectator_2", "Lighting is terrible.");
+        await wait(2000);
+        addChat("Data_Mine", "Pulling EXIF data from video feed.");
+    } else {
+        addChat("Spectator_2", "No video? Lame.");
+        await wait(2000);
+        addChat("Admin", "Don't worry. The microphone is wide open.");
+        await wait(2000);
+        addChat("Data_Mine", "I can hear them breathing.");
+    }
+    
+    await wait(3000);
+    
+    // First bid
+    addBid("BOT_ALPHA", 0.05, "OPENING_BID");
+    DOM.obsCount.innerText = getRandomInt(3, 8);
+    
+    await wait(4000);
+    if(hasCamera) {
+        addChat("User_89", "They are just staring.");
+    } else {
+        addChat("User_89", "They think they are safe.");
+    }
+    
+    await wait(2000);
+    addChat("Admin", "Keystroke logger active.");
+    
+    await wait(3000);
+
+    // Face Scan OR Audio Scan
+    if(hasCamera) {
+        addChat("Admin", "Enhancing facial features...");
+        DOM.face.style.display = 'block';
+        playTone(2000, 'square', 0.1);
+        await wait(300);
+        DOM.face.style.display = 'none';
+        await wait(1000);
+        addBid("DATA_MINER", 0.40, "BIOMETRIC_LOCK");
+    } else {
+        addChat("Admin", "Analyzing voice print...");
+        playTone(200, 'sawtooth', 0.5); // Low aggressive sound
+        await wait(1500);
+        addChat("Data_Mine", "Voice print isolated. Unique match.");
+        addBid("DATA_MINER", 0.40, "AUDIO_FINGERPRINT");
+    }
+
+    DOM.obsCount.innerText = getRandomInt(12, 20);
+
+    // More creepy chat
+    await wait(4000);
+    if(hasCamera) {
+        addChat("Viewer_X", "Looks confused.");
+        await wait(3000);
+        addChat("Stalker_Net", "I have a match on this face from LinkedIn.");
+    } else {
+        addChat("Viewer_X", "I know that typing pattern.");
+        await wait(3000);
+        addChat("Stalker_Net", "Cross-referencing IP with leaked databases...");
+    }
+    
+    // Map Scare
+    await wait(4000);
+    addChat("User_89", "Show me the geolocation.");
+    
+    DOM.map.style.display = "block";
+    DOM.mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${userData.lon-0.05},${userData.lat-0.05},${userData.lon+0.05},${userData.lat+0.05}&layer=mapnik`;
+    playTone(100, 'square', 0.5); 
+
+    await wait(5000); // Look at map longer
+    DOM.map.style.display = "none";
+    addChat("Admin", "Confirmed: " + userData.city);
+    addBid("STALKER_NET", 1.50, "GPS_CONFIRMED");
+    DOM.obsCount.innerText = getRandomInt(40, 100);
+
+    await wait(4000);
+    addChat("Viewer_X", "I want full remote access.");
+    await wait(2000);
+    addChat("Admin", "Initiating handshake protocol...");
+    
+    // Hijack Sequence
+    await wait(2000);
+    triggerHijack();
+  }
+
+  async function triggerHijack() {
+    isAuctionLive = false; // Stop reactive chat during typing
+    DOM.hijack.style.display = "block";
+    DOM.input.focus();
+    
+    const scaryPhrase = "I CONSENT TO THE SALE ";
+    let phraseIdx = 0;
+    
+    const forceType = (e) => {
+        e.preventDefault();
+        DOM.input.value += scaryPhrase[phraseIdx % scaryPhrase.length];
+        phraseIdx++;
+        playTone(600, 'square', 0.05);
+        
+        if(phraseIdx > 5) {
+            DOM.input.removeEventListener('keydown', forceType);
+            setTimeout(finishHijack, 500);
+        }
+    };
+    
+    DOM.input.addEventListener('keydown', forceType);
+    
+    // Auto finish if they don't type
+    setTimeout(() => {
+        if(DOM.hijack.style.display === "block") {
+            DOM.input.value = "I CONSENT TO THE SALE";
+            finishHijack();
+        }
+    }, 4000);
+  }
+
+  async function finishHijack() {
+    DOM.hijack.style.display = "none";
+    
+    // Chaos Bidding - Low Value to finish
+    let finalVal = 5.00;
+    for(let i=0; i<20; i++) {
+        finalVal += (Math.random() * 0.60); // Slow increment
+        DOM.price.innerText = finalVal.toFixed(2);
+        playTone(200 + (i*50), 'sawtooth', 0.05);
+        if(hasCamera) {
+            DOM.cam.style.opacity = 0.2 + (i * 0.04); 
+        }
+        await wait(150);
+    }
+    
+    // SOLD
+    DOM.sold.style.display = "block";
+    playTone(50, 'sawtooth', 1.0);
+    if(hasCamera) DOM.cam.style.opacity = 1; 
+    
+    DOM.finalPrice.innerText = "$" + finalVal.toFixed(2);
+
+    await wait(5000); // Let them look at the SOLD screen
+    
+    // Fade out to black
+    document.body.style.transition = "background 2s";
+    document.body.style.background = "#000";
+    DOM.auctionUI.style.opacity = 0;
+    DOM.cam.style.opacity = 0;
+    
+    // Show Reality Check
+    await wait(3000);
+    showRealityCheck();
+  }
+
+  function showRealityCheck() {
+      DOM.reality.classList.add('reality-visible');
+  }
+
+</script>
+</body>
+</html>
