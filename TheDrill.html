@@ -2,489 +2,601 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MECS :: Cyber Crime Lab</title>
+<title>TheDrill Simulation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-  /* --- MECS THEME VARIABLES --- */
-  :root {
-    --bg-color: #050505;
-    --grid-color: #1a1a1a;
-    --primary: #FF0055;
-    --primary-dim: rgba(255, 0, 85, 0.3);
-    --secondary: #00e5ff; /* Cyan for folders */
-    --text-color: #e0e0e0;
-    --muted: #666;
-    --border: #333;
-    --font-stack: 'Consolas', 'Monaco', 'Courier New', monospace;
-  }
+:root {
+  /* MECS Palette */
+  --bg-color: #0b0b0b;
+  --panel-bg: #141414;
+  --text-primary: #f0f0f0;
+  --text-dim: #888888;
+  --accent-red: #ff2a2a;
+  --accent-blue: #00d2ff;
+  --accent-warn: #ffaa00;
+  --accent-success: #00ff66;
+  
+  --font-stack: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-  /* --- CORE LAYOUT --- */
-  body {
-    background-color: var(--bg-color);
-    /* Grid + Vignette */
-    background-image: 
-      radial-gradient(circle at center, transparent 0%, #000 90%),
-      linear-gradient(var(--grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 100% 100%, 40px 40px, 40px 40px;
-    color: var(--text-color);
-    font-family: var(--font-stack);
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
+* { box-sizing: border-box; }
 
-  /* --- TERMINAL WINDOW --- */
-  .window-container {
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-stack);
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.window {
+  width: 100%;
+  height: 100%;
+  max-width: 1400px;
+  background: var(--panel-bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+
+@media (min-width: 800px) {
+  .window {
     width: 90%;
-    max-width: 1000px;
-    height: 85vh;
-    background: rgba(10, 10, 10, 0.9);
-    border: 1px solid var(--border);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 50px rgba(255, 0, 85, 0.1); /* Subtle pink glow behind window */
-    backdrop-filter: blur(10px);
-    overflow: hidden; /* Contains scanlines */
+    height: 90vh;
+    border: var(--glass-border);
+    border-left: 4px solid var(--accent-red);
   }
+}
 
-  /* CRT Scanline Overlay */
-  .scanlines {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(255,255,255,0),
-      rgba(255,255,255,0) 50%,
-      rgba(0,0,0,0.2) 50%,
-      rgba(0,0,0,0.2)
-    );
-    background-size: 100% 4px;
-    pointer-events: none;
-    z-index: 10;
-  }
+/* --- HUD --- */
+.header {
+  padding: 15px 20px;
+  background: linear-gradient(90deg, #1a1a1a 0%, #0b0b0b 100%);
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
 
-  /* DECORATIVE CORNERS */
-  .window-container::before {
-    content: ''; position: absolute; top: -1px; left: -1px; width: 20px; height: 20px;
-    border-top: 2px solid var(--primary); border-left: 2px solid var(--primary);
-    z-index: 11;
-  }
-  .window-container::after {
-    content: ''; position: absolute; bottom: -1px; right: -1px; width: 20px; height: 20px;
-    border-bottom: 2px solid var(--primary); border-right: 2px solid var(--primary);
-    z-index: 11;
-  }
+.header-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.header-title span { color: var(--accent-red); }
 
-  /* WINDOW HEADER */
-  .window-header {
-    background: #0f0f0f;
-    border-bottom: 1px solid var(--border);
-    padding: 8px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    user-select: none;
-    z-index: 12;
-  }
+.threat-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--accent-red);
+}
 
-  .window-controls span {
-    display: inline-block; width: 10px; height: 10px;
-    border-radius: 50%; margin-left: 5px;
-  }
-  .dot-r { background: #ff5f56; }
-  .dot-y { background: #ffbd2e; }
-  .dot-g { background: #27c93f; }
+.threat-bar-bg {
+  width: 100px;
+  height: 6px;
+  background: #333;
+  position: relative;
+}
 
-  /* --- TERMINAL CONTENT --- */
-  #terminal {
-    padding: 20px;
-    flex: 1;
-    overflow-y: auto;
-    font-size: 14px;
-    line-height: 1.5;
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.2); /* Text Bloom */
-  }
+.threat-bar-fill {
+  height: 100%;
+  background: var(--accent-red);
+  width: 0%;
+  transition: width 0.3s ease;
+}
 
-  /* Custom Scrollbar */
-  #terminal::-webkit-scrollbar { width: 6px; }
-  #terminal::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-  #terminal::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+/* --- TERMINAL --- */
+.terminal {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.5;
+  padding-bottom: 60px;
+}
+.terminal::-webkit-scrollbar { width: 6px; }
+.terminal::-webkit-scrollbar-track { background: #111; }
+.terminal::-webkit-scrollbar-thumb { background: #333; }
 
-  /* IO STYLES */
-  .input-line { display: flex; margin-top: 5px; }
-  
-  .prompt { 
-    color: var(--primary); 
-    margin-right: 8px; 
-    font-weight: 700;
-    text-shadow: 0 0 8px var(--primary-dim);
-  }
+/* --- OUTPUT CLASSES --- */
+.output { margin-bottom: 4px; word-wrap: break-word; }
+.prompt-text { color: var(--accent-red); font-weight: bold; }
+.dir { color: var(--accent-blue); font-weight: bold; }
+.file { color: var(--text-primary); }
+.sys { color: var(--text-dim); }
+.error { color: var(--accent-red); }
+.success { color: var(--accent-success); }
+.warning { color: var(--accent-warn); }
+.info { color: var(--text-dim); border-left: 2px solid #333; padding-left: 10px; }
+.help-table { color: #ccc; margin-top: 10px; margin-bottom: 10px; }
+.help-cmd { color: var(--accent-blue); font-weight: bold; width: 120px; display: inline-block; }
+.game-over { color: var(--accent-red); font-size: 1.2em; font-weight: bold; border: 1px solid var(--accent-red); padding: 20px; text-align: center; margin: 20px 0; background: rgba(255, 42, 42, 0.1); }
 
-  input {
-    background: transparent;
-    border: none;
-    color: #fff;
-    outline: none;
-    width: 100%;
-    font-family: inherit;
-    font-size: inherit;
-    caret-color: var(--primary);
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
-  }
+/* --- INPUT --- */
+.input-line { display: flex; align-items: center; margin-top: 10px; }
+input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  flex: 1;
+  outline: none;
+  caret-color: var(--accent-red);
+  padding-left: 10px;
+}
 
-  /* OUTPUT STYLES */
-  .output { white-space: pre-wrap; margin-bottom: 4px; color: #ccc; }
-  
-  /* Highlight Classes */
-  .msg-success { color: #0f0; text-shadow: 0 0 5px rgba(0,255,0,0.4); }
-  .msg-error { color: #f00; }
-  .msg-info { color: var(--muted); font-style: italic; }
-  .file-dir { color: var(--secondary); font-weight: bold; } /* Folders are Cyan */
-  .file-txt { color: #fff; }
+/* --- MOBILE BAR --- */
+.mobile-bar {
+  display: none;
+  height: 50px;
+  background: #111;
+  border-top: 1px solid #333;
+  overflow-x: auto;
+  align-items: center;
+  padding: 0 10px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mobile-btn {
+  background: #222;
+  border: 1px solid #333;
+  color: #aaa;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: bold;
+}
+.mobile-btn:active { background: var(--accent-red); color: #fff; }
 
-  /* ASCII ART STYLE */
-  .ascii-art {
-    color: var(--primary);
-    font-weight: bold;
-    font-size: 10px;
-    line-height: 10px;
-    margin-bottom: 20px;
-    white-space: pre;
-  }
+@media (max-width: 768px) {
+  .mobile-bar { display: flex; }
+  .terminal { font-size: 13px; padding: 15px; }
+}
 
-  /* FOOTER */
-  .window-footer {
-    border-top: 1px solid var(--border);
-    background: #080808;
-    padding: 5px 15px;
-    font-size: 10px;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    z-index: 12;
-  }
-
+/* --- FX --- */
+.scanline {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none; z-index: 10; opacity: 0.5;
+}
+.overlay-red {
+  position: absolute; top:0; left:0; width:100%; height:100%;
+  background: radial-gradient(circle, transparent 50%, rgba(255,0,0,0.2) 100%);
+  pointer-events: none; display: none; z-index: 5;
+}
 </style>
 </head>
 <body>
 
-<div class="window-container">
-  <div class="scanlines"></div>
+<div class="window">
+  <div class="scanline"></div>
+  <div class="overlay-red" id="alert-overlay"></div>
   
-  <div class="window-header">
-    <div>MECS // FORENSIC_LAB_V3.0</div>
-    <div class="window-controls">
-      <span class="dot-r"></span>
-      <span class="dot-y"></span>
-      <span class="dot-g"></span>
+  <div class="header">
+    <div class="header-title">THE<span>DRILL</span> v4.1</div>
+    <div class="threat-container">
+      TRACE
+      <div class="threat-bar-bg"><div class="threat-bar-fill" id="threat-bar"></div></div>
+      <span id="threat-text">0%</span>
     </div>
   </div>
 
-  <div id="terminal" onclick="document.getElementById('cmd-input')?.focus()"></div>
+  <div class="terminal" id="term" onclick="focusInput()"></div>
 
-  <div class="window-footer">
-    <span id="clock">00:00:00</span>
-    <span>MEM: 14TB // ENCRYPTION: AES-256</span>
-    <span>NET: ONLINE</span>
+  <div class="mobile-bar">
+    <button class="mobile-btn" onclick="quickCmd('ls -la')">LS</button>
+    <button class="mobile-btn" onclick="quickCmd('cd ..')">BACK</button>
+    <button class="mobile-btn" onclick="quickCmd('cat ')">CAT</button>
+    <button class="mobile-btn" onclick="quickCmd('scan')">SCAN</button>
+    <button class="mobile-btn" onclick="quickCmd('submit ')">SUBMIT</button>
+    <button class="mobile-btn" onclick="quickCmd('help')">HELP</button>
   </div>
 </div>
 
 <script>
-/* ================= SYSTEM UTILS ================= */
-// Clock for realism
-setInterval(() => {
-  const now = new Date();
-  document.getElementById('clock').innerText = now.toISOString().split('T')[1].split('.')[0] + " UTC";
-}, 1000);
+/* ================= ENGINE CORE ================= */
+const term = document.getElementById("term");
+const threatBar = document.getElementById("threat-bar");
+const threatText = document.getElementById("threat-text");
+const alertOverlay = document.getElementById("alert-overlay");
 
-/* ================= CORE STATE ================= */
+let state = {
+  cwd: "/",
+  keys: ["BOOTSTRAP"],
+  chain: [],
+  trace: 0,
+  active: true,
+  maxEvidence: 4,
+  scenario: null
+};
 
-const term = document.getElementById("terminal");
-let cwd = "/";
+let currentInput = null;
 
-/* ================= NOISE GENERATORS ================= */
-// Keeps the previous logic but adds more variety
-function noisyLog(real) {
-  const noise = [
-    "[INFO] systemd: Service started",
-    "[DEBUG] udevd: seq forked",
-    "[INFO] cron: Job completed",
-    "[WARN] network: retry timeout",
-    "[INFO] kernel: entropy ok",
-    "[DEBUG] fsck: clean",
-    "[INFO] audit: policy loaded",
-    "[INFO] sshd: connection closed"
-  ];
-  let lines = [];
-  const count = 15 + Math.floor(Math.random() * 10);
-  for(let i=0; i<count; i++){
-    lines.push(noise[Math.floor(Math.random() * noise.length)]);
-  }
-  lines.splice(Math.floor(Math.random() * lines.length), 0, real);
-  return lines.join("\n");
-}
-
-function largeFile(header){
-  let t = header + "\n\n";
-  for(let i=0; i<40; i++){
-    t += `Offset 0x${Math.floor(Math.random()*65535).toString(16).toUpperCase()} : OK\n`;
-  }
-  return t;
-}
-
-/* ================= SCENARIOS ================= */
-// Same scenario logic as before
-function scenario1(){
-  const real = "FDx{INFECTION_DETECTED}";
-  const rev = "FDx{" + "INFECTION_DETECTED".split("").reverse().join("") + "}";
-  return {
-    answer: real,
-    fs: shuffle({
-      "/": { logs: {}, disk: {} },
-      "/logs": {
-        "system.log": largeFile("System boot completed"),
-        "update.log": "FDx{INFECTION_DETECX}\nUpdate successful",
-        "audit.log": largeFile("Audit scan finished")
-      },
-      "/disk": {
-        "user_notes.txt": noisyLog("Recorded backwards:\n" + rev),
-        "cache.tmp": "binary_blob_9A1F",
-        "incident.txt": "Infection suspected but unconfirmed"
-      }
-    })
-  };
-}
-
-function scenario2(){
-  return {
-    answer: "FDx{DATA_EXFILTRATED}",
-    fs: shuffle({
-      "/": { logs: {}, etc: {}, home: {} },
-      "/logs": {
-        "net.log": largeFile("Outbound connections logged"),
-        "proxy.log": "FDx{DATA_EXFILX}\nRequest allowed"
-      },
-      "/etc": {
-        "sync.conf": "marker=FDx{DATA_"
-      },
-      "/home": {
-        "notes.txt": "Transfer completed\nEXFILTRATED}",
-        "draft.txt": "User activity normal"
-      }
-    })
-  };
-}
-
-function scenario3(){
-  const real = "FDx{PERSISTENCE_ENABLED}";
-  const rev = "FDx{" + "PERSISTENCE_ENABLED".split("").reverse().join("") + "}";
-  return {
-    answer: real,
-    fs: shuffle({
-      "/": { startup: {}, logs: {} },
-      "/startup": {
-        "boot.sh": "#!/bin/sh\necho FDx{PERSISTENCE_ENABLD}"
-      },
-      "/logs": {
-        "task.log": noisyLog("Recovered scheduled task:\n" + rev),
-        "kernel.log": largeFile("Kernel running normally")
-      }
-    })
-  };
-}
-
-function shuffle(fs){
-  Object.keys(fs).forEach(d => {
-    const f = fs[d];
-    const s = {};
-    Object.keys(f).sort(() => Math.random() - 0.5)
-      .forEach(k => s[k] = f[k]);
-    fs[d] = s;
-  });
-  return fs;
-}
-
-const scenarios = [scenario1(), scenario2(), scenario3()];
-const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-
-/* ================= UI LOGIC ================= */
-
-function print(text="", type="normal") {
+// --- UTILS ---
+function print(txt, cls="") {
   const d = document.createElement("div");
-  d.className = "output";
-  
-  if(text.includes("✔")) type = "msg-success";
-  if(text.includes("✘")) type = "msg-error";
-  if(type) d.classList.add(type);
-
-  d.innerHTML = text; // Changed to InnerHTML to support span colors
-  term.appendChild(d);
+  d.className = "output " + cls;
+  d.innerHTML = txt.replace(/\n/g, '<br>');
+  term.insertBefore(d, currentInput ? currentInput.parentNode : null);
   term.scrollTop = term.scrollHeight;
 }
 
-// Special Print for ASCII to keep formatting
-function printAscii(text) {
-  const d = document.createElement("div");
-  d.className = "ascii-art";
-  d.textContent = text;
-  term.appendChild(d);
+function xorCrypt(text, key) {
+  return btoa([...text].map((c,i)=>String.fromCharCode(c.charCodeAt(0)^key.charCodeAt(i%key.length))).join(""));
 }
 
+function xorDecrypt(enc, key) {
+  try {
+    const raw = atob(enc);
+    return [...raw].map((c,i)=>String.fromCharCode(c.charCodeAt(0)^key.charCodeAt(i%key.length))).join("");
+  } catch { return null; }
+}
+
+function updateTrace(amount) {
+  if (!state.active) return;
+  state.trace = Math.min(100, Math.max(0, state.trace + amount));
+  threatBar.style.width = state.trace + "%";
+  threatText.innerText = state.trace + "%";
+  
+  if (state.trace > 70) alertOverlay.style.display = "block";
+  else alertOverlay.style.display = "none";
+
+  if (state.trace >= 100) triggerEnding("DETECTED");
+}
+
+/* ================= SCENARIO GENERATOR ================= */
+function createScenarios() {
+  const seed = Math.random().toString(36).slice(2,8).toUpperCase();
+  const c = [
+    `EV-${seed}-A`, `EV-${seed}-B`, `EV-${seed}-C`, `FINAL-${seed}`
+  ];
+
+  return {
+    "LATERAL": {
+      name: "LATERAL MOVEMENT",
+      desc: "Suspicious SSH activity detected. Track the attacker moving between nodes.",
+      chain: c,
+      startHint: "/var/log/auth.log",
+      ips: ["192.168.1.50", "192.168.1.101", "c2.attacker.com"],
+      fs: {
+        "/var/log/auth.log": xorCrypt(`Failed root login from 192.168.1.50\nAccepted publickey for user1\nFragment: ${c[0]}`, "BOOTSTRAP"),
+        "/home/user1/.bash_history": "ssh svcacct@192.168.1.101\nscp /tmp/tool.sh svcacct@192.168.1.101:/tmp",
+        "/var/lib/dhcp/leases": xorCrypt(`lease 192.168.1.101 { hardware ethernet 00:0c:29:4f:8e:32; client-hostname "DB-ADMIN"; Note: ${c[1]} }`, c[0]),
+        "/home/svcacct/notes.txt": xorCrypt(`DB-ADMIN Credentials moved to backup server.\nRef: ${c[2]}`, c[1]),
+        "/opt/backup/config.yaml": xorCrypt(`upstream: c2.attacker.com\nmode: exfil\nID: ${c[3]}`, c[2])
+      }
+    },
+    "RANSOM": {
+      name: "RANSOMWARE ATTACK",
+      desc: "Users reporting encrypted files. Find the entry point and the decryptor key.",
+      chain: c,
+      startHint: "/var/mail/root",
+      ips: ["10.0.0.5", "1BitcoinAddress..."],
+      fs: {
+        "/var/mail/root": xorCrypt(`Subject: URGENT INVOICE\nAttachment: invoice_2024.js\n(The attachment was executed by www-data)\nTrace: ${c[0]}`, "BOOTSTRAP"),
+        "/var/www/html/invoice_2024.js": "eval(String.fromCharCode(10,32,44...)) // Obfuscated Dropper",
+        "/var/www/html/uploads/payload.bin": xorCrypt(`[BINARY BLOB]\nRansom Note generated at /home/user/Desktop\nKey fragment: ${c[1]}`, c[0]),
+        "/home/user/Desktop/READ_ME.txt": xorCrypt(`YOUR FILES ARE ENCRYPTED.\nPayment address: 1BitcoinAddress...\nRef ID: ${c[2]}`, c[1]),
+        "/tmp/ram_dump.mem": xorCrypt(`...memory string search...\nAES_KEY FOUND: ${c[3]}`, c[2])
+      }
+    },
+    "INSIDER": {
+      name: "INSIDER THREAT",
+      desc: "Sensitive design docs leaked. Investigate internal developer activity.",
+      chain: c,
+      startHint: "/opt/git/log",
+      ips: ["internal-printer-99", "usb-device-002"],
+      fs: {
+        "/opt/git/log": xorCrypt(`Commit: 'Fixed typo' by dev_mike\nTimestamp: 3:00 AM (Anomaly)\nDiff shows hidden data: ${c[0]}`, "BOOTSTRAP"),
+        "/home/dev_mike/projects/steg.py": "import steganography\n# hiding blueprints inside cat pictures",
+        "/home/dev_mike/Pictures/cat.jpg": xorCrypt(`[JPEG HEADER]\nSteganography payload detected.\nExtracted: ${c[1]}`, c[0]),
+        "/var/spool/printer/job_99.log": xorCrypt(`Print Job: 'Resignation_Letter.pdf'\nUser: dev_mike\nMetadata: ${c[2]}`, c[1]),
+        "/media/usb/hidden_volume": xorCrypt(`MOUNTED VOLUME\nContains: Company_Secrets.zip\nProof: ${c[3]}`, c[2])
+      }
+    }
+  };
+}
+
+function initFS(scenarioKey) {
+  const s = createScenarios()[scenarioKey];
+  state.scenario = s;
+  state.chain = s.chain;
+  
+  // Base FS Structure
+  const fs = {
+    "/": { "etc": "DIR", "var": "DIR", "home": "DIR", "opt": "DIR", "tmp": "DIR", "media": "DIR" },
+    "/etc": { "passwd": "root:x:0:0::/root:/bin/bash", "hosts": "127.0.0.1 localhost" },
+    "/var": { "log": "DIR", "lib": "DIR", "mail": "DIR", "www": "DIR", "spool": "DIR" },
+    "/var/log": { "syslog": "System initialized..." },
+    "/var/lib": { "dhcp": "DIR" },
+    "/var/www": { "html": "DIR" },
+    "/var/www/html": { "index.php": "<?php echo 'Hello'; ?>", "uploads": "DIR" },
+    "/var/spool": { "printer": "DIR" },
+    "/home": { "user1": "DIR", "svcacct": "DIR", "user": "DIR", "dev_mike": "DIR" },
+    "/home/user1": { ".bash_history": "" },
+    "/home/svcacct": { "notes.txt": "" },
+    "/home/user": { "Desktop": "DIR", "Downloads": "DIR" },
+    "/home/dev_mike": { "projects": "DIR", "Pictures": "DIR" },
+    "/opt": { "backup": "DIR", "git": "DIR" },
+    "/media": { "usb": "DIR" }
+  };
+
+  state.fileSystem = fs;
+  state.specialFiles = s.fs;
+  return s;
+}
+
+/* ================= LOGIC & COMMANDS ================= */
+
+function listDir(path) {
+  path = path.replace(/\/+$/, "") || "/";
+  let contents = new Set();
+  
+  // Add directories
+  Object.keys(state.fileSystem).forEach(k => {
+    if (k.startsWith(path) && k !== path) {
+      const rel = k.substring(path.length === 1 ? 1 : path.length + 1);
+      if (!rel.includes("/")) contents.add(rel + "/");
+    }
+  });
+
+  // Add scenario files
+  Object.keys(state.specialFiles).forEach(k => {
+    const dir = k.substring(0, k.lastIndexOf('/'));
+    if (dir === path) {
+      contents.add(k.substring(k.lastIndexOf('/') + 1));
+    }
+  });
+  
+  // Add base files
+  let baseObj = state.fileSystem[path];
+  if (baseObj && typeof baseObj === 'object') {
+     Object.keys(baseObj).forEach(k => {
+       if (baseObj[k] === "DIR") contents.add(k + "/");
+       else contents.add(k);
+     });
+  }
+
+  return Array.from(contents).sort();
+}
+
+function handleCmd(raw) {
+  if (!state.active) return;
+  
+  const args = raw.trim().split(/\s+/);
+  const cmd = args[0].toLowerCase();
+  const arg1 = args[1] || "";
+
+  // COST OF DOING BUSINESS
+  if(cmd !== "help" && cmd !== "history" && cmd !== "recover") {
+    updateTrace(1); 
+  }
+
+  // --- REFINED HELP ---
+  if (cmd === "help") {
+    print("AVAILABLE COMMANDS:", "info");
+    const h = [
+      ["ls", "List files in current directory"],
+      ["cd [dir]", "Navigate directory structure"],
+      ["cat [file]", "Read/Decrypt file content"],
+      ["submit [id]", "Submit evidence ID to unlock next layer"],
+      ["scan", "Network sweep for active connections (+5% Trace)"],
+      ["recover", "Attempt to scrub logs and lower Trace (RISKY)"],
+      ["history", "Show mission status and keys"],
+      ["clear", "Clear terminal screen"]
+    ];
+    let out = "<div class='help-table'>";
+    h.forEach(x => {
+      out += `<div><span class='help-cmd'>${x[0]}</span> ${x[1]}</div>`;
+    });
+    out += "</div>";
+    print(out);
+    return;
+  }
+  
+  if (cmd === "clear") {
+    term.innerHTML = "";
+    return;
+  }
+
+  if (cmd === "ls") {
+    const items = listDir(state.cwd);
+    if (items.length === 0) print("(empty)", "info");
+    else items.forEach(i => print(i, i.endsWith("/") ? "dir" : "file"));
+    return;
+  }
+
+  if (cmd === "cd") {
+    if (arg1 === "..") {
+      state.cwd = state.cwd.split("/").slice(0,-1).join("/") || "/";
+    } else {
+      const target = (state.cwd === "/" ? "" : state.cwd) + "/" + arg1.replace(/\/$/, "");
+      if (listDir(target).length > 0 || state.fileSystem[target]) {
+        state.cwd = target;
+      } else {
+        print(`cd: ${arg1}: No such directory`, "error");
+      }
+    }
+    return;
+  }
+
+  if (cmd === "cat") {
+    if(!arg1) { print("Usage: cat [filename]", "error"); return; }
+    const fullPath = (state.cwd === "/" ? "" : state.cwd) + "/" + arg1;
+    let content = state.specialFiles[fullPath];
+    
+    if (!content) {
+      const dirObj = state.fileSystem[state.cwd];
+      if (dirObj && dirObj[arg1] && dirObj[arg1] !== "DIR") content = dirObj[arg1];
+    }
+
+    if (!content) {
+      print(`cat: ${arg1}: No such file`, "error");
+      return;
+    }
+
+    let decrypted = null;
+    for (let k of state.keys) {
+      const tryDec = xorDecrypt(content, k);
+      if (tryDec && (tryDec.includes("Fragment") || tryDec.includes("Ref") || tryDec.includes("trace") || tryDec.includes(" "))) {
+        decrypted = tryDec;
+        break;
+      }
+    }
+
+    if (decrypted) {
+      print(decrypted);
+      if (decrypted.includes("Fragment") || decrypted.includes("Ref") || decrypted.includes("Proof") || decrypted.includes("Key")) {
+        print(">> EVIDENCE DETECTED. SUBMIT ID TO PROCEED.", "success");
+      }
+    } else {
+      if ((content.includes("EV-") || content.includes("FINAL")) && !state.keys.includes(state.keys[state.keys.length-1])) {
+        print("[ENCRYPTED] - MISSING PREVIOUS KEY", "warning");
+        print("Raw: " + content.substring(0, 20) + "...", "sys");
+      } else {
+        print(content.length > 50 && !content.includes(" ") ? "[BINARY DATA]" : content);
+      }
+    }
+    return;
+  }
+
+  // --- NEW COMMAND: SCAN ---
+  if (cmd === "scan") {
+    updateTrace(4); // Extra cost
+    print("Initiating network sweep...", "sys");
+    setTimeout(() => {
+        print("Active Connections Found:", "info");
+        state.scenario.ips.forEach(ip => {
+            print(` -> ${ip} [ESTABLISHED]`, "warning");
+        });
+        print("Correlate IPs with file system logs.", "sys");
+    }, 600);
+    return;
+  }
+
+  // --- NEW COMMAND: RECOVER ---
+  if (cmd === "recover") {
+      print("Attempting to scrub system logs...", "sys");
+      const chance = Math.random();
+      if (chance > 0.4) {
+          updateTrace(-15);
+          print("Log scrub successful. Trace reduced.", "success");
+      } else {
+          updateTrace(10);
+          print("SCRUB FAILED. Activity flagged by IDS.", "error");
+      }
+      return;
+  }
+
+  if (cmd === "submit") {
+    if (state.chain.includes(arg1)) {
+      if (!state.keys.includes(arg1)) {
+        state.keys.push(arg1);
+        updateTrace(-15); // Reward
+        print(`[+] KEY ACCEPTED: ${arg1}`, "success");
+        print(`[+] DECRYPTION ROUTINE UPDATED`, "success");
+        if (arg1.startsWith("FINAL")) triggerEnding("WIN");
+      } else {
+        print("Key already active.", "info");
+      }
+    } else {
+      print("[-] INVALID KEY. TRACE SPIKE.", "error");
+      updateTrace(10);
+    }
+    return;
+  }
+  
+  if (cmd === "history") {
+    print(`OP: ${state.scenario.name}`);
+    print(`KEYS: ${state.keys.length - 1} / ${state.maxEvidence}`);
+    print(`TRACE: ${state.trace}%`);
+    return;
+  }
+
+  print("Command not found. Type 'help'.", "error");
+}
+
+/* ================= GAME LOOP ================= */
+
+function triggerEnding(type) {
+  state.active = false;
+  if (type === "WIN") {
+    print("----------------------------------------");
+    print("COMPROMISE CONTAINED. FLAG CAPTURED.", "success");
+    print(`FINAL SCORE: ${100 - state.trace}/100`, "success");
+  } else if (type === "DETECTED") {
+    print("----------------------------------------");
+    print("!!! INTRUSION DETECTED !!!", "game-over");
+    print("System wiped by remote attacker.", "error");
+  }
+  term.innerHTML += "<br><br><button class='mobile-btn' style='width:100%' onclick='location.reload()'>RESTART SIMULATION</button>";
+  term.scrollTop = term.scrollHeight;
+}
+
+function focusInput() { if(currentInput && state.active) currentInput.focus(); }
+
 function prompt() {
+  if (!state.active) return;
+  
   const line = document.createElement("div");
   line.className = "input-line";
-
-  const p = document.createElement("span");
-  p.className = "prompt";
-  p.textContent = `TheDrill@MECS:${cwd}$`;
-
+  line.innerHTML = `<span class='prompt-text'>drill:${state.cwd} #</span>`;
+  
   const input = document.createElement("input");
-  input.id = "cmd-input";
-  input.autofocus = true;
-  input.setAttribute("autocomplete", "off");
-  input.setAttribute("spellcheck", "false");
-
-  input.onkeydown = e => {
-    if(e.key === "Enter"){
-      const cmd = input.value.trim();
-      line.remove();
-      
-      const history = document.createElement("div");
-      history.className = "output";
-      history.innerHTML = `<span class="prompt">TheDrill@MECS:${cwd}$</span> ${cmd}`;
-      term.appendChild(history);
-
-      handle(cmd);
-      prompt();
+  input.type = "text";
+  input.autocomplete = "off";
+  input.spellcheck = false;
+  
+  input.onkeydown = (e) => {
+    if (e.key === "Enter") {
+      const val = input.value;
+      line.innerHTML = `<span class='prompt-text'>drill:${state.cwd} #</span> ${val}`;
+      handleCmd(val);
+      if (state.active) setTimeout(prompt, 50);
     }
   };
 
-  line.appendChild(p);
   line.appendChild(input);
   term.appendChild(line);
+  currentInput = input;
   input.focus();
+  term.scrollTop = term.scrollHeight;
 }
 
-function getDir(){ return scenario.fs[cwd] || {}; }
-
-function handle(c){
-  if(!c) return;
-  const parts = c.split(" ");
-  const cmd = parts[0];
-  const arg = parts[1];
-
-  if(cmd === "help"){
-    print("TheDrill[v3.0] - Developed by Aathithya Shanmuga Sundaram:", "msg-info");
-    print("  ls            List contents");
-    print("  cd [dir]      Navigate directory");
-    print("  cat [file]    Inspect file evidence");
-    print("  clear         Clear screen");
-    print("  solve [FLAG]  Submit final report");
-    return;
-  }
-  if(cmd === "clear"){ 
-    term.innerHTML = ""; 
-    return; 
-  }
-  
-  // IMPROVED LS: Color coding
-  if(cmd === "ls"){ 
-    const current = getDir();
-    const files = Object.keys(current);
-    if(files.length === 0) {
-      print("(empty)", "msg-info");
-      return;
-    }
-    
-    // Create HTML string with colors
-    const formatted = files.map(f => {
-      // If it's a string, it's a file. If object, it's a dir (in this data structure, dirs are objects)
-      // Actually, in our structure:
-      // Files are strings (content).
-      // But wait! In current structure: fs["/"] = {logs:{}, disk:{}}
-      // fs["/logs"] = {"file.txt": "content"}
-      // So if cwd is "/", getDir() returns {logs:{}, disk:{}} -> values are objects -> Dirs
-      // If cwd is "/logs", getDir() returns {"file.txt": "..."} -> values are strings -> Files
-      
-      const val = current[f];
-      const isDir = typeof val === 'object';
-      return isDir ? `<span class='file-dir'>${f}/</span>` : `<span class='file-txt'>${f}</span>`;
-    }).join("  ");
-    
-    print(formatted);
-    return; 
-  }
-
-  if(cmd === "cd"){
-    if(!arg) return;
-    if(arg === ".."){ cwd = "/"; return; }
-    
-    const target = getDir()[arg];
-    // Check if it exists AND is a directory (object)
-    if(target && typeof target === 'object') {
-      cwd = (cwd === "/" ? "" : cwd) + "/" + arg;
-    } else {
-      print(`cd: ${arg}: Not a directory or does not exist`, "msg-error");
-    }
-    return;
-  }
-
-  if(cmd === "cat"){
-    if(!arg) { print("Usage: cat <filename>", "msg-info"); return; }
-    const fileContent = getDir()[arg];
-    
-    if(fileContent && typeof fileContent === 'string') {
-      print(fileContent);
-    } else {
-      print(`cat: ${arg}: No such file`, "msg-error");
-    }
-    return;
-  }
-
-  if(cmd === "solve"){
-    if(arg === scenario.answer){
-      print("✔ FLAG ACCEPTED. CASE CLOSED.");
-      print("System will reset in 5 seconds...", "msg-info");
-      setTimeout(() => location.reload(), 5000);
-    } else {
-      print("✘ ACCESS DENIED. Incorrect Flag.", "msg-error");
-    }
-    return;
-  }
-  print(`bash: ${cmd}: command not found`, "msg-error");
+function quickCmd(c) {
+  if(!currentInput) return;
+  if(c.endsWith(' ')) { currentInput.value += c; currentInput.focus(); }
+  else { currentInput.value = c; currentInput.dispatchEvent(new KeyboardEvent('keydown',{'key':'Enter'})); }
 }
 
-/* ================= BOOT SEQUENCE ================= */
+// BOOT
+const scenarioKeys = ["LATERAL", "RANSOM", "INSIDER"];
+const chosen = scenarioKeys[Math.floor(Math.random() * scenarioKeys.length)];
+const sData = initFS(chosen);
 
-const logo = `                                               
-                                               
-██████ ▄▄ ▄▄ ▄▄▄▄▄ ████▄  ▄▄▄▄  ▄▄ ▄▄    ▄▄    
-  ██   ██▄██ ██▄▄  ██  ██ ██▄█▄ ██ ██    ██    
-  ██   ██ ██ ██▄▄▄ ████▀  ██ ██ ██ ██▄▄▄ ██▄▄▄ 
-                                               `;
+print("THE DRILL OS v4.1 [SECURE BOOT]");
+print("Loading Modules... OK");
+print("------------------------------------------------");
+print(`ALERT: ${sData.name}`, "error");
+print(`BRIEF: ${sData.desc}`, "info");
+print("------------------------------------------------");
 
-printAscii(logo);
-print("TheDrill - By MECS [v3.0]");
-print("Initializing Secure Environment...", "msg-info");
-setTimeout(() => {
-  print("File System Mounted.");
-  print("Building Scenario....");
-  print("------------------------------------------");
-  print("MISSION: Locate the flag 'FDx{...}' in the system.");
-  print("");
-  prompt();
-}, 800);
+prompt();
 
 </script>
 </body>
