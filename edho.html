@@ -96,6 +96,8 @@
         z-index: 3000; display: none; flex-direction: column;
         justify-content: center; align-items: center; pointer-events: none;
         background: #000;
+        text-align: center;
+        padding: 20px;
     }
     .mirror-msg {
        color: #666;
@@ -103,17 +105,12 @@
        font-weight: 700;
        opacity: 0;
        animation: mirrorReveal 3s forwards;
+       margin-bottom: 10px;
     }
 
     @keyframes mirrorReveal {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     /* --- AUCTION UI --- */
@@ -127,10 +124,12 @@
     .hud-top {
       display: flex; justify-content: space-between; border-bottom: 1px solid var(--alert);
       color: var(--alert); background: var(--panel-bg); padding: 10px; font-weight: bold;
+      font-size: 0.9rem;
     }
 
     .logs-wrapper {
       display: flex; justify-content: space-between; margin-top: auto; margin-bottom: 40px;
+      gap: 10px;
     }
     #bidder-log, #voyeur-chat {
       width: 48%; height: 250px; overflow: hidden; font-size: 0.8rem;
@@ -202,6 +201,37 @@
     .fading-out { animation: fadeOut 0.8s forwards; }
 
     .hidden { display: none !important; }
+
+    /* --- MOBILE OPTIMIZATION --- */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.4rem; }
+      .log-line { font-size: 0.9rem; }
+      
+      #price-val { font-size: 4rem; }
+      #price-container { top: 25%; }
+      
+      .logs-wrapper {
+        flex-direction: column-reverse; /* Stack logs, chat on top */
+        margin-bottom: 20px;
+      }
+      #bidder-log, #voyeur-chat {
+        width: 100%;
+        height: 120px;
+        box-sizing: border-box;
+      }
+      
+      #map-popup { width: 95%; }
+      #map-frame { height: 180px; }
+      
+      .sold-stamp { font-size: 4rem; padding: 5px 20px; }
+      
+      .final-price { font-size: 3.5rem; }
+      .reality-text { font-size: 0.9rem; }
+      
+      /* Make hijack input cleaner on mobile */
+      #hijack-layer { padding: 15px; }
+      input#panic-input { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -233,7 +263,7 @@
 <div id="auction-ui">
   <div class="hud-top">
     <span>LOC: <span id="loc-display">TRIANGULATING...</span></span>
-    <span>OBSERVERS: <span id="obs-count">1</span></span>
+    <span>OBS: <span id="obs-count">1</span></span>
   </div>
 
   <div id="price-container">
@@ -351,7 +381,7 @@
 
   async function initWebcam() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
       DOM.video.srcObject = stream;
       hasCamera = true;
     } catch(e) { 
@@ -412,12 +442,22 @@
       }
   });
 
-  function triggerReactiveMessage() {
+  // Touch support for mobile reactive
+  document.addEventListener('touchstart', () => {
+      if(!isAuctionLive) return;
+      const now = Date.now();
+      if(now - lastMoveTime > 3000) { 
+          lastMoveTime = now;
+          triggerReactiveMessage(true);
+      }
+  });
+
+  function triggerReactiveMessage(isMobile = false) {
       const msgs = [
           "Target is agitated.",
-          "Mouse movement detected.",
+          isMobile ? "Touch input detected." : "Mouse movement detected.",
           "They are trying to close the window.",
-          "Cursor tracking active.",
+          isMobile ? "Accelerometer fluctuation." : "Cursor tracking active.",
           "They are nervous.",
           "Activity spike detected."
       ];
@@ -666,19 +706,30 @@
     const scaryPhrase = "I CONSENT TO THE SALE ";
     let phraseIdx = 0;
     
-    const forceType = (e) => {
-        e.preventDefault();
+    // The shared typing logic
+    const handleTyping = (e) => {
+        if(e.type === 'keydown') e.preventDefault();
+        
         DOM.input.value += scaryPhrase[phraseIdx % scaryPhrase.length];
         phraseIdx++;
         playTone(600, 'square', 0.05);
         
         if(phraseIdx > 5) {
-            DOM.input.removeEventListener('keydown', forceType);
+            // Remove listeners
+            DOM.input.removeEventListener('keydown', handleTyping);
+            DOM.hijack.removeEventListener('touchstart', handleTyping);
             setTimeout(finishHijack, 500);
         }
     };
     
-    DOM.input.addEventListener('keydown', forceType);
+    DOM.input.addEventListener('keydown', handleTyping);
+    
+    // MOBILE FIX: Tapping the black box simulates typing so the keyboard doesn't pop up and cover screen
+    DOM.hijack.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Stop zoom or keyboard
+        DOM.input.blur(); // Hide keyboard if open
+        handleTyping(e);
+    });
     
     // Auto finish if they don't type
     setTimeout(() => {
