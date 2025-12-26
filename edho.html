@@ -1,784 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>DIGITAL MIRROR: FINAL REPORT</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #050505;
-      --text: #e0e0e0;
-      --alert: #ff3333;
-      --success: #00ff41; 
-      --cyan: #00ffff;
-      --panel-bg: rgba(0, 0, 0, 0.95);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Mirror</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #cecece;
+            --terminal-green: #33ff00;
+            --alert-red: #ff3333;
+            --highlight: #f0f0f0;
+        }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Space Mono', monospace;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-transform: uppercase;
-      -webkit-user-select: none;
-      user-select: none;
-      cursor: crosshair;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* --- CRT & VIGNETTE EFFECTS --- */
-    .scanlines {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5));
-      background-size: 100% 4px;
-      z-index: 900; pointer-events: none;
-    }
-    .vignette {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.95) 100%);
-      z-index: 901; pointer-events: none;
-    }
+        /* CRT Scanline Effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 1000;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
 
-    /* --- WEBCAM LAYER --- */
-    #cam-layer {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 1; opacity: 0; transition: opacity 3s ease-in; pointer-events: none;
-    }
-    video#webcam {
-      width: 100%; height: 100%; object-fit: cover;
-      filter: grayscale(100%) contrast(1.2) brightness(0.5) sepia(0.5);
-      transform: scaleX(-1);
-    }
-    .face-reticle {
-      position: absolute; top: 50%; left: 50%; width: 200px; height: 200px;
-      transform: translate(-50%, -50%); border: 2px solid var(--alert);
-      box-shadow: 0 0 20px var(--alert); display: none;
-    }
+        #app-container {
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
 
-    /* --- UI CONTAINER (INTRO) --- */
-    .container {
-      width: 90%; max-width: 600px; padding: 20px; z-index: 2000;
-      display: flex; flex-direction: column; justify-content: center;
-      min-height: 300px; position: relative;
-    }
+        h1 { font-size: 2.5rem; text-shadow: 0 0 5px var(--text-main); margin-bottom: 2rem; }
+        
+        button {
+            background: transparent;
+            border: 2px solid var(--text-main);
+            color: var(--text-main);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: var(--text-main); color: var(--bg-color); box-shadow: 0 0 15px var(--text-main); }
 
-    h1 {
-      font-size: 1.8rem; border-bottom: 2px solid var(--alert);
-      padding-bottom: 15px; margin-bottom: 30px; letter-spacing: -1px;
-      text-shadow: 2px 0 var(--alert), -2px 0 cyan;
-    }
-    
-    .btn {
-      width: 100%; padding: 18px; background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--text); color: var(--text);
-      font-family: 'Space Mono', monospace; font-size: 1rem; cursor: pointer;
-      margin-top: 20px; transition: all 0.2s;
-    }
-    .btn:hover { background: var(--text); color: var(--bg); box-shadow: 0 0 15px var(--text); }
-    .btn-alert:hover { background: var(--alert); color: #000; box-shadow: 0 0 15px var(--alert); border-color: var(--alert); }
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .text-red { color: var(--alert-red); text-shadow: 0 0 5px red; }
+        .text-green { color: var(--terminal-green); text-shadow: 0 0 5px green; }
 
-    .log-line {
-      font-size: 1.1rem; margin-bottom: 15px; opacity: 0;
-      animation: fadeIn 0.5s forwards; border-left: 3px solid transparent;
-      padding-left: 10px;
-    }
-    .highlight { color: var(--alert); font-weight: 700; text-shadow: 0 0 8px var(--alert); }
-    .success { color: var(--success); text-shadow: 0 0 8px var(--success); }
+        /* Quiz Styles */
+        .quiz-btn { display: block; width: 100%; margin: 10px 0; border: 1px solid #555; }
 
-    /* --- MIRROR PHASE (UPDATED FOR 20s) --- */
-    #mirror-text-container {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 3000; display: none; flex-direction: column;
-        justify-content: center; align-items: center; pointer-events: none;
-        background: #000;
-        text-align: center;
-        padding: 20px;
-    }
-    .mirror-msg {
-       color: #666;
-       font-size: 1.5rem;
-       font-weight: 700;
-       opacity: 0;
-       animation: mirrorReveal 3s forwards;
-       margin-bottom: 10px;
-    }
+        /* Analysis Text Lines */
+        .analysis-line { margin: 20px 0; font-size: 1.1rem; opacity: 0; transition: opacity 1s ease-in; }
 
-    @keyframes mirrorReveal {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+        /* Transition Phase */
+        #transition-text h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px white;
+        }
 
-    /* --- AUCTION UI --- */
-    #auction-ui {
-      position: absolute; width: 100%; height: 100%; z-index: 2500;
-      display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
-      opacity: 0; pointer-events: none;
-    }
-    .active-auction { opacity: 1 !important; pointer-events: auto !important; transition: opacity 2s; }
+        /* Auction / Easter Egg Styles */
+        #auction-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 5;
+            display: flex; flex-direction: column;
+        }
 
-    .hud-top {
-      display: flex; justify-content: space-between; border-bottom: 1px solid var(--alert);
-      color: var(--alert); background: var(--panel-bg); padding: 10px; font-weight: bold;
-      font-size: 0.9rem;
-    }
+        #webcam-feed {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            /* Sickly yellow filter */
+            filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness(0.6) contrast(1.2);
+            z-index: 1;
+        }
 
-    .logs-wrapper {
-      display: flex; justify-content: space-between; margin-top: auto; margin-bottom: 40px;
-      gap: 10px;
-    }
-    #bidder-log, #voyeur-chat {
-      width: 48%; height: 250px; overflow: hidden; font-size: 0.8rem;
-      background: var(--panel-bg); padding: 10px; border: 1px solid #333;
-    }
-    #bidder-log { border-left: 2px solid var(--success); color: #ccc; }
-    #voyeur-chat { border-right: 2px solid var(--cyan); color: var(--cyan); text-align: right; }
+        .no-footage {
+            background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center;
+            color: #333; font-size: 2rem; font-weight: bold;
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            z-index: 1;
+        }
 
-    #price-container {
-      position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
-      text-align: center; width: 100%; pointer-events: none;
-    }
-    #price-val {
-      font-size: 6rem; color: var(--alert); font-family: 'VT323', monospace;
-      text-shadow: 0 0 20px var(--alert);
-    }
+        #auction-ui {
+            position: relative; z-index: 10; height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 20px; background: rgba(0,0,0,0.3);
+        }
 
-    /* --- REALITY CHECK (END SCREEN) --- */
-    #reality-check {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #000; z-index: 8000; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; text-align: center;
-        padding: 40px; box-sizing: border-box; opacity: 0; pointer-events: none;
-        transition: opacity 3s;
-    }
-    .reality-visible { opacity: 1 !important; pointer-events: auto !important; }
-    
-    .reality-text { max-width: 700px; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6; text-transform: none; color: #ccc; }
-    .final-price { font-size: 5rem; color: var(--alert); font-family: 'VT323'; margin-bottom: 10px; display: block; }
-    .price-label { font-size: 0.8rem; color: #666; margin-bottom: 30px; letter-spacing: 2px;}
+        #price-tag {
+            align-self: center; font-size: 3.5rem; color: var(--alert-red);
+            background: rgba(0,0,0,0.9); padding: 10px 20px;
+            border: 2px solid var(--alert-red); margin-top: 50px;
+            text-shadow: 0 0 10px red;
+        }
 
-    /* --- MAP POPUP --- */
-    #map-popup {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 80%; max-width: 500px; background: #000; border: 2px solid var(--alert);
-      z-index: 5000; padding: 10px; text-align: center; display: none;
-      box-shadow: 0 0 50px #300;
-    }
-    #map-frame { width: 100%; height: 250px; filter: invert(1) hue-rotate(180deg) contrast(1.5); opacity: 0.8; }
-    .map-overlay {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      color: red; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 0 #000;
-    }
+        #chat-box {
+            background: rgba(0, 0, 0, 0.9);
+            height: 45%;
+            overflow-y: auto;
+            border-top: 2px solid var(--terminal-green);
+            padding: 15px;
+            font-size: 0.95rem;
+            text-align: left;
+            box-shadow: 0 -5px 20px rgba(0,0,0,1);
+        }
 
-    /* --- HIJACK INPUT --- */
-    #hijack-layer {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 90%; max-width: 500px; background: #000; border: 1px solid var(--cyan);
-      padding: 30px; z-index: 6000; display: none; text-align: center;
-      box-shadow: 0 0 30px var(--cyan);
-    }
-    input#panic-input {
-      background: #111; border: none; border-bottom: 2px solid var(--cyan);
-      color: var(--cyan); font-family: 'VT323'; font-size: 2rem; width: 100%;
-      text-align: center; outline: none; margin-top: 20px;
-    }
+        .chat-msg { margin-bottom: 8px; line-height: 1.4; }
+        .bidder { color: #aaa; }
+        .host { color: var(--alert-red); font-weight: bold; text-transform: uppercase; }
+        .bid-msg { color: var(--terminal-green); border-bottom: 1px solid #333; padding-bottom: 2px; }
 
-    /* --- STAMPS & ANIMATIONS --- */
-    .sold-stamp {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg) scale(5);
-      font-size: 8rem; font-family: 'VT323'; background: var(--alert); color: #000;
-      padding: 10px 40px; border: 5px dashed #000; opacity: 0; z-index: 7000;
-      animation: slam 0.2s forwards; display: none; pointer-events: none;
-    }
+        #sold-stamp {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 6rem; color: red; border: 8px solid red;
+            padding: 20px; font-weight: bold; opacity: 0;
+            pointer-events: none; z-index: 100;
+            text-shadow: 0 0 20px black;
+            background: rgba(0,0,0,0.5);
+        }
 
-    @keyframes slam { to { opacity: 1; transform: translate(-50%, -50%) rotate(-15deg) scale(1); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-    .fading-out { animation: fadeOut 0.8s forwards; }
-
-    .hidden { display: none !important; }
-
-    /* --- MOBILE OPTIMIZATION --- */
-    @media (max-width: 768px) {
-      h1 { font-size: 1.4rem; }
-      .log-line { font-size: 0.9rem; }
-      
-      #price-val { font-size: 4rem; }
-      #price-container { top: 25%; }
-      
-      .logs-wrapper {
-        flex-direction: column-reverse; /* Stack logs, chat on top */
-        margin-bottom: 20px;
-      }
-      #bidder-log, #voyeur-chat {
-        width: 100%;
-        height: 120px;
-        box-sizing: border-box;
-      }
-      
-      #map-popup { width: 95%; }
-      #map-frame { height: 180px; }
-      
-      .sold-stamp { font-size: 4rem; padding: 5px 20px; }
-      
-      .final-price { font-size: 3.5rem; }
-      .reality-text { font-size: 0.9rem; }
-      
-      /* Make hijack input cleaner on mobile */
-      #hijack-layer { padding: 15px; }
-      input#panic-input { font-size: 1.5rem; }
-    }
-  </style>
+        /* Screen On Animation */
+        @keyframes screenOn {
+            0% { transform: scaleY(0.005) scaleX(0); background: #fff; }
+            50% { transform: scaleY(0.005) scaleX(1); background: #fff; }
+            100% { transform: scaleY(1) scaleX(1); background: transparent; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="scanlines"></div>
-<div class="vignette"></div>
+    <div id="app-container">
+        
+        <section id="intro">
+            <h1>DIGITAL MIRROR</h1>
+            <button id="btn-begin">BEGIN</button>
+            <p style="margin-top:20px; font-size: 0.8rem; color:#555;">(Sound Recommended)</p>
+        </section>
 
-<div id="cam-layer">
-  <video id="webcam" autoplay playsinline muted></video>
-  <div class="face-reticle" id="face-box"></div>
-</div>
+        <section id="quiz" class="hidden">
+            <h2 id="q-text">Question Text</h2>
+            <div id="q-options">
+                <button class="quiz-btn" onclick="handleAnswer(true)">YES</button>
+                <button class="quiz-btn" onclick="handleAnswer(false)">NO</button>
+            </div>
+            <p id="q-progress">1/15</p>
+        </section>
 
-<div class="container" id="main-display">
-  <div id="section-start">
-    <h1>DIGITAL MIRROR v5.2</h1>
-    <p>This tool scans your local environment to reveal what is currently visible to data brokers.</p>
-    <p style="color: var(--alert); font-weight: bold;">[!] ENABLE AUDIO & CAMERA</p>
-    <button class="btn" onclick="runSequence()">BEGIN SCAN</button>
-  </div>
-</div>
+        <section id="analysis" class="hidden">
+            <div id="analysis-content"></div>
+        </section>
 
-<div id="mirror-text-container">
-    <div class="mirror-msg" style="animation-delay: 2s;">IT WASN'T A HACK.</div>
-    <div class="mirror-msg" style="animation-delay: 8s;">IT WAS A POST.</div>
-    <div class="mirror-msg" style="animation-delay: 14s;">BY THE PERSON</div>
-    <div class="mirror-msg" id="mirror-final" style="animation-delay: 20s; color: var(--alert);">STARING AT THIS BLACK SCREEN.</div>
-</div>
+        <section id="transition" class="hidden">
+            <div id="transition-text"></div>
+        </section>
 
-<div id="auction-ui">
-  <div class="hud-top">
-    <span>LOC: <span id="loc-display">TRIANGULATING...</span></span>
-    <span>OBS: <span id="obs-count">1</span></span>
-  </div>
+        <section id="outro" class="hidden">
+            <h2 class="text-green">TRANSACTION COMPLETE</h2>
+            <h1 id="final-price" class="text-red">$0.00</h1>
+            <h3>ESTIMATED DARK WEB VALUE</h3>
+            <hr style="border-color:#333; width: 50%;">
+            <p>That is all you are worth to them.</p>
+            <p>Your location, your habits, and your identity are often sold for less than the price of a lunch.</p>
+            <p>This transaction happens thousands of times a day.</p>
+            <br>
+            <p style="font-size: 0.7rem; color: #555; border: 1px solid #333; padding: 10px;">
+                NOTE: No data was actually saved. The device fingerprint shown was fetched locally from your browser, just as any website on the internet can do.
+            </p>
+            <button onclick="location.reload()" style="margin-top: 20px;">RESET</button>
+        </section>
 
-  <div id="price-container">
-    <span style="font-size:2rem;color:#555">$</span><span id="price-val">0.00</span>
-  </div>
-
-  <div class="sold-stamp" id="sold-stamp">SOLD</div>
-
-  <div class="logs-wrapper">
-    <div id="bidder-log"></div>
-    <div id="voyeur-chat"></div>
-  </div>
-</div>
-
-<div id="reality-check">
-    <h2 style="color:var(--text); margin-bottom:5px;">TRANSACTION COMPLETE</h2>
-    <span class="final-price" id="final-price-display">$0.00</span>
-    <div class="price-label">ESTIMATED DARK WEB VALUE</div>
-    
-    <div class="reality-text">
-        That is all you are worth to them.<br><br>
-        Your location, your habits, and your identity are often sold for less than the price of a lunch.
-        This transaction happens thousands of times a day, without the sound effects or the warnings.<br><br>
-        <span style="color:#fff; font-weight:bold;">It's time to reclaim your data.</span>
     </div>
 
-    <button class="btn btn-alert" onclick="window.location.reload()">AUDIT YOUR PRIVACY SETTINGS</button>
-</div>
+    <div id="auction-overlay" class="hidden">
+        <video id="webcam-feed" autoplay playsinline muted></video>
+        <div class="no-footage hidden" id="no-signal">[NO SIGNAL]</div>
+        <div id="sold-stamp">SOLD</div>
+        <div id="auction-ui">
+            <div id="price-tag">$0.00</div>
+            <div id="chat-box">
+                <div class="chat-msg host">HOST: Establishing Secure Link...</div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        // --- STATE MANAGEMENT ---
+        const state = {
+            camAllowed: false,
+            score: 0,
+            qIndex: 0,
+            answers: [], // Stores user answers
+            ip: "Fetching...",
+            location: "Unknown",
+            device: "",
+            battery: "Unknown"
+        };
 
-<div id="map-popup">
-    <div style="color:red; font-weight:bold; margin-bottom:5px;">LOCATION BREACH DETECTED</div>
-    <iframe id="map-frame" src="" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
-    <div class="map-overlay">TARGET</div>
-</div>
+        // --- DOM ELEMENTS ---
+        const screens = {
+            intro: document.getElementById('intro'),
+            quiz: document.getElementById('quiz'),
+            analysis: document.getElementById('analysis'),
+            transition: document.getElementById('transition'),
+            outro: document.getElementById('outro'),
+            auction: document.getElementById('auction-overlay')
+        };
 
-<div id="hijack-layer">
-    <h2 style="color:var(--cyan); margin:0;">SYSTEM INTERRUPT</h2>
-    <p>UNAUTHORIZED TRANSACTION DETECTED.</p>
-    <p>TYPE "STOP" TO CANCEL:</p>
-    <input type="text" id="panic-input" autocomplete="off" autofocus>
-</div>
+        const questions = [
+            { t: "Do you use the same password for multiple accounts?", insecure: true, insult: "Uses one key for every door. Idiot." },
+            { t: "Do you accept cookies without reading the prompt?", insecure: true, insult: "Accepts all cookies. They have no standards." },
+            { t: "Is your date of birth public on social media?", insecure: true, insult: "DOB is public. Identity theft is too easy." },
+            { t: "Do you have 2-Factor Authentication enabled?", insecure: false, insult: "No 2FA? They are practically begging for it." },
+            { t: "Do you cover your webcam when not in use?", insecure: false, insult: "Lens was uncovered. Voyeur's paradise." },
+            { t: "Do you click links in emails from unknown senders?", insecure: true, insult: "Clicks random links. A phishing dream." },
+            { t: "Do you update your phone software immediately?", insecure: false, insult: "Running legacy software. Exploit ready." },
+            { t: "Do you use free public Wi-Fi for banking?", insecure: true, insult: "Banking on Starbucks WiFi. Hilarious." },
+            { t: "Do you allow apps to track your location always?", insecure: true, insult: "Location is always on. I know where they sleep." },
+            { t: "Do you read the Terms & Conditions?", insecure: false, insult: "Doesn't read T&C. Signed their soul away." },
+            { t: "Do you post photos of your boarding passes?", insecure: true, insult: "Posts boarding passes. Barcode reveals everything." },
+            { t: "Do you use a password manager?", insecure: false, insult: "No password manager. Probably writes them on sticky notes." },
+            { t: "Do you backup your data offline?", insecure: false, insult: "No backups. One ransomware attack and they're done." },
+            { t: "Do you answer 'first pet' quizzes on FB?", insecure: true, insult: "Answers security questions on Facebook for fun." },
+            { t: "Do you believe you are too boring to be hacked?", insecure: true, insult: "Thinks they are 'too boring' to hack. My favorite victim." },
+        ];
 
-<script>
-  // --- CONFIG & UTILS ---
-  const DOM = {
-    display: document.getElementById('main-display'),
-    mirrorContainer: document.getElementById('mirror-text-container'),
-    mirrorFinal: document.getElementById('mirror-final'),
-    auctionUI: document.getElementById('auction-ui'),
-    cam: document.getElementById('cam-layer'),
-    video: document.getElementById('webcam'),
-    face: document.getElementById('face-box'),
-    locDisplay: document.getElementById('loc-display'),
-    obsCount: document.getElementById('obs-count'),
-    price: document.getElementById('price-val'),
-    bidLog: document.getElementById('bidder-log'),
-    chatLog: document.getElementById('voyeur-chat'),
-    map: document.getElementById('map-popup'),
-    mapFrame: document.getElementById('map-frame'),
-    hijack: document.getElementById('hijack-layer'),
-    input: document.getElementById('panic-input'),
-    sold: document.getElementById('sold-stamp'),
-    reality: document.getElementById('reality-check'),
-    finalPrice: document.getElementById('final-price-display')
-  };
+        // --- PHASE 1: INTRO & PERMISSION ---
+        document.getElementById('btn-begin').addEventListener('click', async () => {
+            // Fetch Data
+            state.device = navigator.userAgent;
+            try {
+                const batt = await navigator.getBattery();
+                state.battery = Math.round(batt.level * 100) + "%";
+            } catch(e) { state.battery = "Unknown"; }
+            
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                state.ip = data.ip || "Hidden";
+                state.location = `${data.city}, ${data.country_name}` || "Unknown";
+            } catch(e) {
+                state.ip = "192.168.0.XX (Trace Blocked)";
+                state.location = "Triangulating...";
+            }
 
-  const wait = ms => new Promise(r => setTimeout(r, ms));
-  const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-  
-  let isAuctionLive = false;
-  let lastMoveTime = 0;
-  let hasCamera = false; // Tracks if cam was granted
+            // Camera Logic
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('webcam-feed').srcObject = stream;
+                state.camAllowed = true;
+                nextScreen('intro', 'quiz');
+                loadQuestion();
+            } catch (err) {
+                state.camAllowed = false;
+                document.getElementById('webcam-feed').classList.add('hidden');
+                document.getElementById('no-signal').classList.remove('hidden');
+                nextScreen('intro', 'quiz');
+                loadQuestion();
+            }
+        });
 
-  // --- AUDIO ENGINE ---
-  let audioCtx;
-  
-  function initAudio() {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AudioContext();
-  }
-
-  function playTone(freq, type='square', dur=0.1, vol=0.05) {
-    if(!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.value = freq;
-    osc.type = type;
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + dur);
-  }
-
-  function playCrashSound() {
-    if (!audioCtx) return;
-    const bufferSize = audioCtx.sampleRate * 2; 
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = buffer;
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-    noise.connect(gain);
-    gain.connect(audioCtx.destination);
-    noise.start();
-  }
-
-  // --- DATA & CAM ---
-  let userData = { city: "UNKNOWN", lat: 0, lon: 0, isp: "UNKNOWN" };
-
-  async function initWebcam() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-      DOM.video.srcObject = stream;
-      hasCamera = true;
-    } catch(e) { 
-      console.log("Cam denied or error"); 
-      hasCamera = false;
-    }
-  }
-
-  async function fetchLocation() {
-    try {
-      const res = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
-      userData = { city: data.city, lat: data.latitude, lon: data.longitude, isp: data.org };
-    } catch(e) {
-      userData = { city: "LOCAL_HOST", lat: 40.7128, lon: -74.0060, isp: "UNKNOWN_NET" };
-    }
-  }
-
-  async function getDeviceData() {
-    const ua = navigator.userAgent.toLowerCase();
-    let type = "WORKSTATION";
-    if(ua.includes("android")) type = "ANDROID DEVICE";
-    else if(ua.includes("iphone")) type = "APPLE IPHONE";
-    
-    let bat = "UNKNOWN";
-    try {
-      if(navigator.getBattery) {
-        const b = await navigator.getBattery();
-        bat = `${Math.round(b.level * 100)}%`;
-      }
-    } catch(e) {}
-    return { type, bat, res: `${window.screen.width}x${window.screen.height}` };
-  }
-
-  // --- UI HELPERS ---
-  function addLog(text) {
-    const p = document.createElement('div');
-    p.className = 'log-line';
-    p.innerHTML = text;
-    DOM.display.appendChild(p);
-    playTone(800 + Math.random()*200, 'square', 0.05);
-  }
-
-  async function fadeScreen() {
-    DOM.display.classList.add('fading-out');
-    await wait(800);
-    DOM.display.innerHTML = '';
-    DOM.display.classList.remove('fading-out');
-  }
-
-  // --- REACTIVE EVENTS ---
-  document.addEventListener('mousemove', () => {
-      if(!isAuctionLive) return;
-      const now = Date.now();
-      if(now - lastMoveTime > 3000) { // Throttle
-          lastMoveTime = now;
-          triggerReactiveMessage();
-      }
-  });
-
-  // Touch support for mobile reactive
-  document.addEventListener('touchstart', () => {
-      if(!isAuctionLive) return;
-      const now = Date.now();
-      if(now - lastMoveTime > 3000) { 
-          lastMoveTime = now;
-          triggerReactiveMessage(true);
-      }
-  });
-
-  function triggerReactiveMessage(isMobile = false) {
-      const msgs = [
-          "Target is agitated.",
-          isMobile ? "Touch input detected." : "Mouse movement detected.",
-          "They are trying to close the window.",
-          isMobile ? "Accelerometer fluctuation." : "Cursor tracking active.",
-          "They are nervous.",
-          "Activity spike detected."
-      ];
-      const msg = msgs[Math.floor(Math.random() * msgs.length)];
-      
-      const div = document.createElement('div');
-       div.innerHTML = `<span style="opacity:0.5">[SYS_MONITOR]</span> <span style="color:var(--alert)">${msg}</span>`;
-       DOM.chatLog.appendChild(div);
-       DOM.chatLog.scrollTop = DOM.chatLog.scrollHeight;
-       playTone(1500, 'square', 0.02);
-  }
-
-  // --- MAIN SEQUENCE ---
-  async function runSequence() {
-    initAudio();
-    initWebcam(); // Start cam early so it's ready
-    fetchLocation(); // Start location fetch
-    
-    // Clear Start Button
-    DOM.display.innerHTML = '';
-
-    const data = await getDeviceData();
-
-    // 1. SCANNING PHASE
-    await wait(500);
-    addLog(`> TARGET IDENTIFIED: <span class="highlight">${data.type}</span>`);
-    await wait(1500);
-    addLog(`> RESOLUTION: ${data.res}`);
-    await wait(1500);
-    
-    if(data.bat !== "UNKNOWN") {
-      addLog(`> BATTERY LEVEL: <span class="highlight">${data.bat}</span>`);
-      await wait(1500);
-    }
-    
-    addLog(`> FINGERPRINT: <span class="success">UNIQUE_ID_${getRandomInt(1000,9999)}</span>`);
-    await wait(2000);
-    
-    // 2. SOCIAL PHASE
-    addLog(`> SCANNING BROWSING HISTORY...`);
-    await wait(2000);
-    addLog(`> FOUND: <span class="success">${getRandomInt(15, 60)} EXPLOITABLE COOKIES</span>`);
-    await wait(2000);
-    addLog(`> HOME ADDRESS CONFIDENCE: <span class="highlight">98.4%</span>`);
-    
-    // Log change based on camera
-    await wait(1500);
-    if(hasCamera) {
-        addLog(`> CAMERA STATUS: <span class="success">ACCESSIBLE</span>`);
-    } else {
-        addLog(`> CAMERA STATUS: <span class="highlight">DENIED (BYPASSING...)</span>`);
-    }
-
-    await wait(2500);
-    await fadeScreen();
-
-    // 3. MIRROR PHASE
-    await runMirrorPhase();
-
-    // 4. AUCTION START
-    startAuction();
-  }
-
-  // --- MIRROR PHASE (EXTENDED) ---
-  async function runMirrorPhase() {
-      // Modify text if camera is blocked
-      if(!hasCamera) {
-          DOM.mirrorFinal.innerText = "THINKING THEY ARE SAFE BEHIND A BLOCKED LENS.";
-      } else {
-          DOM.mirrorFinal.innerText = "STARING AT THIS BLACK SCREEN.";
-      }
-
-      // Show the black container
-      DOM.mirrorContainer.style.display = 'flex';
-      
-      // Low thrumming sound
-      if(audioCtx) {
-          const osc = audioCtx.createOscillator();
-          osc.frequency.value = 40; // Very low hum
-          osc.type = 'sine';
-          const g = audioCtx.createGain();
-          g.gain.value = 0.05;
-          osc.connect(g);
-          g.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 35); // Plays for 35s
-      }
-
-      // WAIT FOR TEXT: 20s (last message start) + 6s (duration) = 26s
-      await wait(26000); 
-      
-      // THE DEAD WAIT (Boredom Filter)
-      await wait(10000);
-
-      DOM.mirrorContainer.style.display = 'none';
-      
-      // Crash effect transition to Auction
-      playCrashSound();
-      document.body.style.backgroundColor = "#fff"; 
-      setTimeout(() => { document.body.style.backgroundColor = "var(--bg)"; }, 50);
-  }
-
-  // --- AUCTION LOGIC ---
-  async function startAuction() {
-    isAuctionLive = true;
-    
-    // Reveal layers
-    DOM.auctionUI.classList.add('active-auction');
-    if(hasCamera) {
-        DOM.cam.style.opacity = 0.2; // Ghostly cam
-    }
-    
-    // Update location text
-    if(userData.city !== "UNKNOWN") {
-        DOM.locDisplay.innerText = `${userData.city.toUpperCase()} (${userData.isp.toUpperCase()})`;
-    }
-
-    // Helpers
-    const addBid = (name, amt, msg) => {
-       DOM.price.innerText = amt.toFixed(2);
-       const div = document.createElement('div');
-       div.innerHTML = `<span style="color:#fff">${name}</span>: ${msg}`;
-       DOM.bidLog.prepend(div);
-       playTone(300 + (amt*5), 'sawtooth', 0.1);
-    };
-    const addChat = (user, msg) => {
-       const div = document.createElement('div');
-       div.innerHTML = `<span style="opacity:0.5">[${user}]</span> ${msg}`;
-       DOM.chatLog.appendChild(div);
-       DOM.chatLog.scrollTop = DOM.chatLog.scrollHeight;
-       playTone(1200, 'sine', 0.05);
-    };
-
-    // --- SLOW BURN AUCTION SCRIPT ---
-    
-    await wait(2000);
-    addChat("SYS", "Secure connection established.");
-    await wait(2000);
-    
-    if(hasCamera) {
-        addChat("SYS", "Bypassing local firewall...");
-    } else {
-        addChat("SYS", "Video connection refused.");
-        await wait(1000);
-        addChat("SYS", "Rerouting to Audio & Data Stream.");
-    }
-
-    await wait(3000);
-    
-    addChat("User_89", "Is this live?");
-    await wait(2000);
-    addChat("Admin", "Feed is live. Latency 40ms.");
-    
-    // Initial observations
-    await wait(3000);
-    if(hasCamera) {
-        addChat("Spectator_2", "Lighting is terrible.");
-        await wait(2000);
-        addChat("Data_Mine", "Pulling EXIF data from video feed.");
-    } else {
-        addChat("Spectator_2", "No video? Lame.");
-        await wait(2000);
-        addChat("Admin", "Don't worry. The microphone is wide open.");
-        await wait(2000);
-        addChat("Data_Mine", "I can hear them breathing.");
-    }
-    
-    await wait(3000);
-    
-    // First bid
-    addBid("BOT_ALPHA", 0.05, "OPENING_BID");
-    DOM.obsCount.innerText = getRandomInt(3, 8);
-    
-    await wait(4000);
-    if(hasCamera) {
-        addChat("User_89", "They are just staring.");
-    } else {
-        addChat("User_89", "They think they are safe.");
-    }
-    
-    await wait(2000);
-    addChat("Admin", "Keystroke logger active.");
-    
-    await wait(3000);
-
-    // Face Scan OR Audio Scan
-    if(hasCamera) {
-        addChat("Admin", "Enhancing facial features...");
-        DOM.face.style.display = 'block';
-        playTone(2000, 'square', 0.1);
-        await wait(300);
-        DOM.face.style.display = 'none';
-        await wait(1000);
-        addBid("DATA_MINER", 0.40, "BIOMETRIC_LOCK");
-    } else {
-        addChat("Admin", "Analyzing voice print...");
-        playTone(200, 'sawtooth', 0.5); // Low aggressive sound
-        await wait(1500);
-        addChat("Data_Mine", "Voice print isolated. Unique match.");
-        addBid("DATA_MINER", 0.40, "AUDIO_FINGERPRINT");
-    }
-
-    DOM.obsCount.innerText = getRandomInt(12, 20);
-
-    // More creepy chat
-    await wait(4000);
-    if(hasCamera) {
-        addChat("Viewer_X", "Looks confused.");
-        await wait(3000);
-        addChat("Stalker_Net", "I have a match on this face from LinkedIn.");
-    } else {
-        addChat("Viewer_X", "I know that typing pattern.");
-        await wait(3000);
-        addChat("Stalker_Net", "Cross-referencing IP with leaked databases...");
-    }
-    
-    // Map Scare
-    await wait(4000);
-    addChat("User_89", "Show me the geolocation.");
-    
-    DOM.map.style.display = "block";
-    DOM.mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${userData.lon-0.05},${userData.lat-0.05},${userData.lon+0.05},${userData.lat+0.05}&layer=mapnik`;
-    playTone(100, 'square', 0.5); 
-
-    await wait(5000); // Look at map longer
-    DOM.map.style.display = "none";
-    addChat("Admin", "Confirmed: " + userData.city);
-    addBid("STALKER_NET", 1.50, "GPS_CONFIRMED");
-    DOM.obsCount.innerText = getRandomInt(40, 100);
-
-    await wait(4000);
-    addChat("Viewer_X", "I want full remote access.");
-    await wait(2000);
-    addChat("Admin", "Initiating handshake protocol...");
-    
-    // Hijack Sequence
-    await wait(2000);
-    triggerHijack();
-  }
-
-  async function triggerHijack() {
-    isAuctionLive = false; // Stop reactive chat during typing
-    DOM.hijack.style.display = "block";
-    DOM.input.focus();
-    
-    const scaryPhrase = "I CONSENT TO THE SALE ";
-    let phraseIdx = 0;
-    
-    // The shared typing logic
-    const handleTyping = (e) => {
-        if(e.type === 'keydown') e.preventDefault();
-        
-        DOM.input.value += scaryPhrase[phraseIdx % scaryPhrase.length];
-        phraseIdx++;
-        playTone(600, 'square', 0.05);
-        
-        if(phraseIdx > 5) {
-            // Remove listeners
-            DOM.input.removeEventListener('keydown', handleTyping);
-            DOM.hijack.removeEventListener('touchstart', handleTyping);
-            setTimeout(finishHijack, 500);
+        // --- PHASE 2: QUIZ ---
+        function loadQuestion() {
+            if (state.qIndex >= questions.length) {
+                finishQuiz();
+                return;
+            }
+            const q = questions[state.qIndex];
+            document.getElementById('q-text').innerText = q.t;
+            document.getElementById('q-progress').innerText = `${state.qIndex + 1}/${questions.length}`;
         }
-    };
-    
-    DOM.input.addEventListener('keydown', handleTyping);
-    
-    // MOBILE FIX: Tapping the black box simulates typing so the keyboard doesn't pop up and cover screen
-    DOM.hijack.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Stop zoom or keyboard
-        DOM.input.blur(); // Hide keyboard if open
-        handleTyping(e);
-    });
-    
-    // Auto finish if they don't type
-    setTimeout(() => {
-        if(DOM.hijack.style.display === "block") {
-            DOM.input.value = "I CONSENT TO THE SALE";
-            finishHijack();
+
+        function handleAnswer(bool) {
+            state.answers.push(bool); // Store answer
+            const q = questions[state.qIndex];
+            if ((q.insecure && bool) || (!q.insecure && !bool)) {
+                state.score++;
+            }
+            state.qIndex++;
+            loadQuestion();
         }
-    }, 4000);
-  }
 
-  async function finishHijack() {
-    DOM.hijack.style.display = "none";
-    
-    // Chaos Bidding - Low Value to finish
-    let finalVal = 5.00;
-    for(let i=0; i<20; i++) {
-        finalVal += (Math.random() * 0.60); // Slow increment
-        DOM.price.innerText = finalVal.toFixed(2);
-        playTone(200 + (i*50), 'sawtooth', 0.05);
-        if(hasCamera) {
-            DOM.cam.style.opacity = 0.2 + (i * 0.04); 
+        function nextScreen(curr, next) {
+            screens[curr].classList.add('hidden');
+            screens[next].classList.remove('hidden');
         }
-        await wait(150);
-    }
-    
-    // SOLD
-    DOM.sold.style.display = "block";
-    playTone(50, 'sawtooth', 1.0);
-    if(hasCamera) DOM.cam.style.opacity = 1; 
-    
-    DOM.finalPrice.innerText = "$" + finalVal.toFixed(2);
 
-    await wait(5000); // Let them look at the SOLD screen
-    
-    // Fade out to black
-    document.body.style.transition = "background 2s";
-    document.body.style.background = "#000";
-    DOM.auctionUI.style.opacity = 0;
-    DOM.cam.style.opacity = 0;
-    
-    // Show Reality Check
-    await wait(3000);
-    showRealityCheck();
-  }
+        // --- PHASE 3: ANALYSIS ---
+        function finishQuiz() {
+            nextScreen('quiz', 'analysis');
+            const container = document.getElementById('analysis-content');
+            let lines = [];
+            let scenario = ""; 
 
-  function showRealityCheck() {
-      DOM.reality.classList.add('reality-visible');
-  }
+            const isSecure = state.score < 5; 
+            
+            if (isSecure && state.camAllowed) {
+                scenario = "A";
+                lines = [
+                    "Analyzing answers...",
+                    "Results: Highly Secure.",
+                    "You spot the phishing.",
+                    "But...",
+                    `<span class='text-red'>You just allowed a random website to access your camera.</span>`,
+                    "Logic failed you."
+                ];
+            } else if (!isSecure) {
+                scenario = "B";
+                lines = [
+                    "Analyzing answers...",
+                    "Results: <span class='text-red'>CRITICAL VULNERABILITY</span>",
+                    "Your digital footprint is messy.",
+                    "Passwords reused. Cookies accepted.",
+                    "You are an open book."
+                ];
+            } else if (isSecure && !state.camAllowed) {
+                scenario = "C";
+                lines = [
+                    "Analyzing answers...",
+                    "Results: Secure.",
+                    "Camera Access: <span class='text-red'>BLOCKED</span>",
+                    "You think a piece of tape saves you.",
+                    "<span class='text-red'>A Blocked Lens cannot stop us.</span>",
+                    `IP: <span class='text-green'>${state.ip}</span>`,
+                    `Location: <span class='text-green'>${state.location}</span>`,
+                    `Device: ${state.device.substring(0, 20)}...`
+                ];
+            }
 
-</script>
+            let delay = 0;
+            lines.forEach((line) => {
+                const p = document.createElement('div');
+                p.innerHTML = line;
+                p.className = 'analysis-line';
+                container.appendChild(p);
+                setTimeout(() => { p.style.opacity = 1; }, delay);
+                delay += 1500;
+            });
+
+            setTimeout(() => { startTransition(scenario); }, delay + 2000);
+        }
+
+        // --- PHASE 4: TRANSITION (PERSISTENT TEXT) ---
+        function startTransition(scenario) {
+            nextScreen('analysis', 'transition');
+            const container = document.getElementById('transition-text');
+            let poem = [];
+
+            if (scenario === "A") {
+                poem = ["It wasn't a hack.", "It was a permission.", "Allowed by the person.", "Staring at this screen."];
+            } else if (scenario === "C") {
+                poem = ["It wasn't a hack.", "It was a permission.", "Allowed by the person.", "Thinking they are safe behind a blocked lens."];
+            } else {
+                poem = ["It wasn't a hack.", "It was the habits.", "Of the person.", "Staring at this screen."];
+            }
+
+            let delay = 0;
+            poem.forEach(line => {
+                const p = document.createElement('h3');
+                p.innerText = line;
+                p.style.opacity = 0;
+                p.style.transition = "opacity 2s";
+                container.appendChild(p);
+                
+                setTimeout(() => { p.style.opacity = 1; }, delay);
+                delay += 2000;
+            });
+
+            // The Uncomfortable Stare (Wait 40s total logic, shortened slightly for demo sanity, but keeps text)
+            // Text remains VISIBLE during this wait.
+            setTimeout(() => {
+                launchAuction(scenario);
+            }, delay + 8000); 
+        }
+
+        // --- PHASE 5: THE AUCTION (ENHANCED) ---
+        function launchAuction(scenario) {
+            screens.transition.classList.add('hidden'); // Text vanishes NOW
+            screens.auction.classList.remove('hidden');
+            screens.auction.style.animation = "screenOn 0.4s ease-out";
+
+            const chatBox = document.getElementById('chat-box');
+            const priceTag = document.getElementById('price-tag');
+            let currentPrice = 0.00;
+            const bidders = ["User992", "DataMines", "xX_Hunter_Xx", "Ghost", "Buyer77", "NullPtr"];
+            
+            // Build the insults list based on user's actual wrong answers
+            let collectedInsults = [];
+            state.answers.forEach((ans, idx) => {
+                const q = questions[idx];
+                // If answer matches the 'insecure' condition (or lack of secure condition)
+                if ((q.insecure && ans) || (!q.insecure && !ans)) {
+                    collectedInsults.push(q.insult);
+                }
+            });
+            // Add generic insults if they were perfect
+            if(collectedInsults.length === 0) {
+                collectedInsults.push("Data is too clean. Suspicious.", "They are hiding something.", "I bet their hard drive is gold.");
+            }
+
+            // --- SCRIPT GENERATION ---
+            let script = [];
+            
+            // 1. Intro
+            if (state.camAllowed) {
+                script.push({ role: 'bidder', text: "We have visual. Nice resolution." });
+                script.push({ role: 'bidder', text: "Look at that face. They know." });
+            } else {
+                script.push({ role: 'bidder', text: "No cam? Boring." });
+                script.push({ role: 'host', text: "Patience. The metadata is rich." });
+            }
+
+            script.push({ role: 'bidder', text: "Starting bid $0.10" });
+            script.push({ role: 'bid', val: 0.10 });
+
+            // 2. Loop through insults and host interruptions
+            let insultIndex = 0;
+            
+            // INTERVENTION 1: Location
+            script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "I want their search history." });
+            script.push({ role: 'bidder', text: "Where are they?" });
+            script.push({ role: 'host', text: `TRACE COMPLETE: Subject is in ${state.location}.` });
+            script.push({ role: 'bidder', text: "That's local. Raising." });
+            script.push({ role: 'bid', val: 0 });
+
+            // INTERVENTION 2: Specific Habits
+            script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "What about passwords?" });
+            script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "They look nervous." });
+            script.push({ role: 'bidder', text: "Raise." });
+            script.push({ role: 'bid', val: 0 });
+
+            // INTERVENTION 3: Device Fingerprint
+            script.push({ role: 'bidder', text: "Is the data fresh?" });
+            script.push({ role: 'host', text: `SYSTEM SCAN: ${state.device.substring(0, 25)}...` });
+            script.push({ role: 'host', text: `BATTERY LEVEL: ${state.battery}. They are currently active.` });
+            script.push({ role: 'bidder', text: "Active session? Take my money." });
+            script.push({ role: 'bid', val: 0 }); // Big jump
+
+            // Final Volley
+            script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "Gimme everything." });
+            script.push({ role: 'bidder', text: "Mine." });
+            script.push({ role: 'bid', val: 0 });
+            script.push({ role: 'bidder', text: "All in." });
+            
+            // Closing
+            script.push({ role: 'host', text: "Going once..." });
+            script.push({ role: 'host', text: "Going twice..." });
+            script.push({ role: 'sold' });
+
+            // --- EXECUTION LOOP ---
+            let scriptIndex = 0;
+            const interval = setInterval(() => {
+                if (scriptIndex >= script.length) {
+                    clearInterval(interval);
+                    setTimeout(endSimulation, 4000);
+                    return;
+                }
+
+                const item = script[scriptIndex];
+                
+                if (item.role === 'sold') {
+                    document.getElementById('sold-stamp').style.opacity = 1;
+                    document.getElementById('sold-stamp').style.transform = "translate(-50%, -50%) rotate(-15deg) scale(1.2)";
+                    if(state.camAllowed) document.getElementById('webcam-feed').style.filter = "brightness(2) contrast(2)";
+                } 
+                else if (item.role === 'bid') {
+                    // Logic: Price only goes up on bid
+                    let inc = item.val > 0 ? item.val : (Math.random() * 3) + 1.5;
+                    currentPrice += inc;
+                    if(currentPrice > 14.8) currentPrice = 14.85; // cap near 15
+                    priceTag.innerText = "$" + currentPrice.toFixed(2);
+                    addChat(`>>> BID RAISED TO: $${currentPrice.toFixed(2)}`, "bid-msg");
+                } 
+                else {
+                    let name = item.role === 'host' ? "HOST" : bidders[Math.floor(Math.random() * bidders.length)];
+                    addChat(`${name}: ${item.text}`, item.role);
+                }
+
+                scriptIndex++;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 2800); // Slower pacing to allow reading
+        }
+
+        function addChat(text, type) {
+            const d = document.createElement('div');
+            d.className = `chat-msg ${type}`;
+            d.innerText = text;
+            document.getElementById('chat-box').appendChild(d);
+        }
+
+        function endSimulation() {
+            screens.auction.classList.add('hidden');
+            screens.outro.classList.remove('hidden');
+            document.getElementById('final-price').innerText = document.getElementById('price-tag').innerText;
+        }
+
+    </script>
 </body>
 </html>
