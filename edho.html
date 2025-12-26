@@ -140,7 +140,6 @@
             background: rgba(0,0,0,0.5);
         }
 
-        /* Screen On Animation */
         @keyframes screenOn {
             0% { transform: scaleY(0.005) scaleX(0); background: #fff; }
             50% { transform: scaleY(0.005) scaleX(1); background: #fff; }
@@ -155,7 +154,7 @@
         <section id="intro">
             <h1>DIGITAL MIRROR</h1>
             <button id="btn-begin">BEGIN</button>
-            <p style="margin-top:20px; font-size: 0.8rem; color:#555;">(Sound Recommended)</p>
+            <p style="margin-top:20px; font-size: 0.8rem; color:#555;">(Headphones Recommended)</p>
         </section>
 
         <section id="quiz" class="hidden">
@@ -205,19 +204,131 @@
     </div>
 
     <script>
+        // --- AUDIO ENGINE (Web Audio API) ---
+        const SFX = {
+            ctx: null,
+            droneOsc: null,
+            droneGain: null,
+
+            init: function() {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            },
+
+            // Low frequency horror drone
+            startDrone: function() {
+                if(!this.ctx) return;
+                this.droneOsc = this.ctx.createOscillator();
+                this.droneGain = this.ctx.createGain();
+                
+                this.droneOsc.type = 'sawtooth';
+                this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A
+                
+                // Add a lowpass filter to make it muffled/scary
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 200;
+
+                this.droneOsc.connect(filter);
+                filter.connect(this.droneGain);
+                this.droneGain.connect(this.ctx.destination);
+                
+                this.droneGain.gain.setValueAtTime(0.05, this.ctx.currentTime); // Quiet start
+                this.droneOsc.start();
+            },
+
+            // High pitched click for buttons
+            click: function() {
+                if(!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+                
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            },
+
+            // Digital static glitch sound
+            glitch: function() {
+                if(!this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * 0.2; // 0.2 seconds
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const gain = this.ctx.createGain();
+                gain.gain.value = 0.05;
+                noise.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            },
+
+            // Notification beep for chat
+            chatBeep: function() {
+                if(!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            },
+
+            // Heavy slam for SOLD
+            slam: function() {
+                if(!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1);
+                
+                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 1);
+            },
+
+            // Increase tension during the stare
+            rampTension: function() {
+                if(this.droneOsc) {
+                    // Slowly raise pitch and volume
+                    this.droneOsc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 10);
+                    this.droneGain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 10);
+                }
+            }
+        };
+
         // --- STATE MANAGEMENT ---
         const state = {
             camAllowed: false,
             score: 0,
             qIndex: 0,
-            answers: [], // Stores user answers
+            answers: [],
             ip: "Fetching...",
             location: "Unknown",
             device: "",
             battery: "Unknown"
         };
 
-        // --- DOM ELEMENTS ---
         const screens = {
             intro: document.getElementById('intro'),
             quiz: document.getElementById('quiz'),
@@ -247,6 +358,10 @@
 
         // --- PHASE 1: INTRO & PERMISSION ---
         document.getElementById('btn-begin').addEventListener('click', async () => {
+            SFX.init(); // Initialize Audio Context
+            SFX.click();
+            SFX.startDrone(); // Start background horror audio
+
             // Fetch Data
             state.device = navigator.userAgent;
             try {
@@ -264,7 +379,6 @@
                 state.location = "Triangulating...";
             }
 
-            // Camera Logic
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 document.getElementById('webcam-feed').srcObject = stream;
@@ -289,10 +403,12 @@
             const q = questions[state.qIndex];
             document.getElementById('q-text').innerText = q.t;
             document.getElementById('q-progress').innerText = `${state.qIndex + 1}/${questions.length}`;
+            SFX.glitch(); // Sound effect on new question
         }
 
         function handleAnswer(bool) {
-            state.answers.push(bool); // Store answer
+            SFX.click(); // Sound effect on click
+            state.answers.push(bool);
             const q = questions[state.qIndex];
             if ((q.insecure && bool) || (!q.insecure && !bool)) {
                 state.score++;
@@ -354,7 +470,10 @@
                 p.innerHTML = line;
                 p.className = 'analysis-line';
                 container.appendChild(p);
-                setTimeout(() => { p.style.opacity = 1; }, delay);
+                setTimeout(() => { 
+                    p.style.opacity = 1; 
+                    SFX.glitch(); // Sound effect on line reveal
+                }, delay);
                 delay += 1500;
             });
 
@@ -364,6 +483,8 @@
         // --- PHASE 4: TRANSITION (PERSISTENT TEXT) ---
         function startTransition(scenario) {
             nextScreen('analysis', 'transition');
+            SFX.rampTension(); // Make audio scarier
+
             const container = document.getElementById('transition-text');
             let poem = [];
 
@@ -387,42 +508,38 @@
                 delay += 2000;
             });
 
-            // The Uncomfortable Stare (Wait 40s total logic, shortened slightly for demo sanity, but keeps text)
-            // Text remains VISIBLE during this wait.
+            // The Uncomfortable Stare 
             setTimeout(() => {
                 launchAuction(scenario);
-            }, delay + 8000); 
+            }, delay + 30000); 
         }
 
-        // --- PHASE 5: THE AUCTION (ENHANCED) ---
+        // --- PHASE 5: THE AUCTION ---
         function launchAuction(scenario) {
-            screens.transition.classList.add('hidden'); // Text vanishes NOW
+            screens.transition.classList.add('hidden'); 
             screens.auction.classList.remove('hidden');
             screens.auction.style.animation = "screenOn 0.4s ease-out";
+            SFX.click();
 
             const chatBox = document.getElementById('chat-box');
             const priceTag = document.getElementById('price-tag');
             let currentPrice = 0.00;
             const bidders = ["User992", "DataMines", "xX_Hunter_Xx", "Ghost", "Buyer77", "NullPtr"];
             
-            // Build the insults list based on user's actual wrong answers
             let collectedInsults = [];
             state.answers.forEach((ans, idx) => {
                 const q = questions[idx];
-                // If answer matches the 'insecure' condition (or lack of secure condition)
                 if ((q.insecure && ans) || (!q.insecure && !ans)) {
                     collectedInsults.push(q.insult);
                 }
             });
-            // Add generic insults if they were perfect
             if(collectedInsults.length === 0) {
-                collectedInsults.push("Data is too clean. Suspicious.", "They are hiding something.", "I bet their hard drive is gold.");
+                collectedInsults.push("Data is too clean. Suspicious.", "I bet their hard drive is gold.");
             }
 
             // --- SCRIPT GENERATION ---
             let script = [];
             
-            // 1. Intro
             if (state.camAllowed) {
                 script.push({ role: 'bidder', text: "We have visual. Nice resolution." });
                 script.push({ role: 'bidder', text: "Look at that face. They know." });
@@ -434,41 +551,38 @@
             script.push({ role: 'bidder', text: "Starting bid $0.10" });
             script.push({ role: 'bid', val: 0.10 });
 
-            // 2. Loop through insults and host interruptions
             let insultIndex = 0;
             
-            // INTERVENTION 1: Location
+            // Intervention 1
             script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "I want their search history." });
             script.push({ role: 'bidder', text: "Where are they?" });
             script.push({ role: 'host', text: `TRACE COMPLETE: Subject is in ${state.location}.` });
             script.push({ role: 'bidder', text: "That's local. Raising." });
             script.push({ role: 'bid', val: 0 });
 
-            // INTERVENTION 2: Specific Habits
+            // Intervention 2
             script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "What about passwords?" });
             script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "They look nervous." });
             script.push({ role: 'bidder', text: "Raise." });
             script.push({ role: 'bid', val: 0 });
 
-            // INTERVENTION 3: Device Fingerprint
+            // Intervention 3
             script.push({ role: 'bidder', text: "Is the data fresh?" });
             script.push({ role: 'host', text: `SYSTEM SCAN: ${state.device.substring(0, 25)}...` });
-            script.push({ role: 'host', text: `BATTERY LEVEL: ${state.battery}. They are currently active.` });
+            script.push({ role: 'host', text: `BATTERY LEVEL: ${state.battery}. They are active.` });
             script.push({ role: 'bidder', text: "Active session? Take my money." });
-            script.push({ role: 'bid', val: 0 }); // Big jump
+            script.push({ role: 'bid', val: 0 }); 
 
-            // Final Volley
+            // Final
             script.push({ role: 'bidder', text: collectedInsults[insultIndex++] || "Gimme everything." });
             script.push({ role: 'bidder', text: "Mine." });
             script.push({ role: 'bid', val: 0 });
             script.push({ role: 'bidder', text: "All in." });
             
-            // Closing
             script.push({ role: 'host', text: "Going once..." });
             script.push({ role: 'host', text: "Going twice..." });
             script.push({ role: 'sold' });
 
-            // --- EXECUTION LOOP ---
             let scriptIndex = 0;
             const interval = setInterval(() => {
                 if (scriptIndex >= script.length) {
@@ -480,26 +594,28 @@
                 const item = script[scriptIndex];
                 
                 if (item.role === 'sold') {
+                    SFX.slam(); // Audio Slam
                     document.getElementById('sold-stamp').style.opacity = 1;
                     document.getElementById('sold-stamp').style.transform = "translate(-50%, -50%) rotate(-15deg) scale(1.2)";
                     if(state.camAllowed) document.getElementById('webcam-feed').style.filter = "brightness(2) contrast(2)";
                 } 
                 else if (item.role === 'bid') {
-                    // Logic: Price only goes up on bid
+                    SFX.click();
                     let inc = item.val > 0 ? item.val : (Math.random() * 3) + 1.5;
                     currentPrice += inc;
-                    if(currentPrice > 14.8) currentPrice = 14.85; // cap near 15
+                    if(currentPrice > 14.8) currentPrice = 14.85; 
                     priceTag.innerText = "$" + currentPrice.toFixed(2);
                     addChat(`>>> BID RAISED TO: $${currentPrice.toFixed(2)}`, "bid-msg");
                 } 
                 else {
+                    SFX.chatBeep(); // Audio Beep
                     let name = item.role === 'host' ? "HOST" : bidders[Math.floor(Math.random() * bidders.length)];
                     addChat(`${name}: ${item.text}`, item.role);
                 }
 
                 scriptIndex++;
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 2800); // Slower pacing to allow reading
+            }, 2800); 
         }
 
         function addChat(text, type) {
@@ -510,6 +626,7 @@
         }
 
         function endSimulation() {
+            if(SFX.droneOsc) SFX.droneOsc.stop(); // Stop audio
             screens.auction.classList.add('hidden');
             screens.outro.classList.remove('hidden');
             document.getElementById('final-price').innerText = document.getElementById('price-tag').innerText;
