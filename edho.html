@@ -1,172 +1,266 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Mirror</title>
-    <style>
-        :root {
-            --bg-color: #050505;
-            --text-main: #cecece;
-            --terminal-green: #33ff00;
-            --alert-red: #ff3333;
-            --highlight: #f0f0f0;
-        }
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MECS | Digital Mirror</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+  <style>
+    /* --- 1. CORE VARIABLES & RESET --- */
+    * { box-sizing: border-box; }
+    
+    :root {
+      --bg-color: #000000;
+      --surface-color: #0a0a0a;
+      --text-main: #e0e0e0;
+      --primary: #FF0055; /* MECS PINK */
+      --primary-dim: rgba(255, 0, 85, 0.1);
+      --alert-red: #ff3333;
+      --grid-color: #151515;
+    }
 
-        /* CRT Scanline Effect */
-        body::after {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 1000;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
+    body {
+      background-color: var(--bg-color);
+      /* Cyber Grid Background Pattern */
+      background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: var(--text-main);
+      font-family: 'Space Grotesk', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-        #app-container {
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            z-index: 10;
-            position: relative;
-        }
+    /* CRT Scanline Effect (Pink Tinted) */
+    body::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 85, 0.03), rgba(0, 0, 0, 0.02), rgba(0, 0, 255, 0.03));
+        z-index: 1000;
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+    }
 
-        h1 { font-size: 2.5rem; text-shadow: 0 0 5px var(--text-main); margin-bottom: 2rem; }
-        
-        button {
-            background: transparent;
-            border: 2px solid var(--text-main);
-            color: var(--text-main);
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover { background: var(--text-main); color: var(--bg-color); box-shadow: 0 0 15px var(--text-main); }
+    /* --- HEADER (Simplified for Immersion) --- */
+    .header-mini {
+        position: absolute; top: 0; left: 0; width: 100%;
+        padding: 1.5rem; display: flex; justify-content: space-between;
+        z-index: 50; pointer-events: none; /* Let clicks pass through */
+    }
+    .logo {
+        font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: -1px; pointer-events: auto; cursor: pointer;
+    }
 
-        /* Utility Classes */
-        .hidden { display: none !important; }
-        .text-red { color: var(--alert-red); text-shadow: 0 0 5px red; }
-        .text-green { color: var(--terminal-green); text-shadow: 0 0 5px green; }
+    #app-container {
+        width: 90%; max-width: 600px;
+        text-align: center; z-index: 10;
+        position: relative;
+    }
 
-        /* Quiz Styles */
-        .quiz-btn { display: block; width: 100%; margin: 10px 0; border: 1px solid #555; }
+    h1 {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 900; letter-spacing: -2px;
+        text-transform: uppercase; margin-bottom: 2rem;
+        line-height: 1; text-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+    }
+    
+    /* MECS Button Style */
+    .btn {
+        background: var(--primary);
+        color: #000;
+        border: none;
+        padding: 1rem 3rem;
+        font-size: 1rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 800;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.2s;
+        /* The Polygon Clip */
+        clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    }
+    .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 #fff;
+    }
 
-        /* Analysis Text Lines */
-        .analysis-line { margin: 20px 0; font-size: 1.1rem; opacity: 0; transition: opacity 1s ease-in; }
+    /* Utility Classes */
+    .hidden { display: none !important; }
+    .text-primary { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+    .text-red { color: var(--alert-red); text-shadow: 0 0 10px red; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Transition Phase */
-        #transition-text h3 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 8px white;
-        }
+    /* Quiz Styles */
+    .quiz-card {
+        background: rgba(10, 10, 10, 0.8);
+        border: 1px solid #333;
+        backdrop-filter: blur(10px);
+        padding: 2rem;
+        position: relative;
+    }
+    .quiz-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--primary);
+    }
 
-        /* Auction / Easter Egg Styles */
-        #auction-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; z-index: 5;
-            display: flex; flex-direction: column;
-        }
+    .quiz-btn {
+        display: block; width: 100%; margin: 15px 0;
+        background: transparent;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 1rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .quiz-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-dim);
+    }
 
-        #webcam-feed {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-            /* Sickly yellow filter */
-            filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness(0.6) contrast(1.2);
-            z-index: 1;
-        }
+    /* Analysis Text Lines */
+    .analysis-line {
+        margin: 15px 0; font-size: 1.1rem; opacity: 0; transition: opacity 0.5s ease-in;
+        font-family: 'JetBrains Mono', monospace;
+        border-left: 2px solid var(--primary);
+        padding-left: 1rem;
+        text-align: left;
+        background: linear-gradient(90deg, rgba(255,0,85,0.05) 0%, transparent 100%);
+    }
 
-        .no-footage {
-            background: #0a0a0a;
-            display: flex; align-items: center; justify-content: center;
-            color: #333; font-size: 2rem; font-weight: bold;
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            z-index: 1;
-        }
+    /* Transition Phase */
+    #transition-text h3 {
+        font-size: 1.8rem; margin-bottom: 20px; font-weight: 300;
+    }
 
-        #auction-ui {
-            position: relative; z-index: 10; height: 100%;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 20px; background: rgba(0,0,0,0.3);
-        }
+    /* --- AUCTION / EASTER EGG STYLES --- */
+    #auction-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: black; z-index: 5;
+        display: flex; flex-direction: column;
+    }
 
-        #price-tag {
-            align-self: center; font-size: 3.5rem; color: var(--alert-red);
-            background: rgba(0,0,0,0.9); padding: 10px 20px;
-            border: 2px solid var(--alert-red); margin-top: 50px;
-            text-shadow: 0 0 10px red;
-        }
+    #webcam-feed {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover;
+        /* MECS Style Filter: High Contrast, Desaturated, Slight Pink Tint */
+        filter: grayscale(100%) contrast(1.5) brightness(0.8) sepia(0.3) hue-rotate(300deg);
+        z-index: 1;
+        opacity: 0.6;
+    }
 
-        #chat-box {
-            background: rgba(0, 0, 0, 0.9);
-            height: 45%;
-            overflow-y: auto;
-            border-top: 2px solid var(--terminal-green);
-            padding: 15px;
-            font-size: 0.95rem;
-            text-align: left;
-            box-shadow: 0 -5px 20px rgba(0,0,0,1);
-        }
+    .no-footage {
+        background: #000;
+        display: flex; align-items: center; justify-content: center;
+        color: #333; font-size: 2rem; font-weight: bold;
+        position: absolute; top:0; left:0; width:100%; height:100%;
+        z-index: 1;
+        font-family: 'JetBrains Mono', monospace;
+    }
 
-        .chat-msg { margin-bottom: 8px; line-height: 1.4; }
-        .bidder { color: #aaa; }
-        .host { color: var(--alert-red); font-weight: bold; text-transform: uppercase; }
-        .bid-msg { color: var(--terminal-green); border-bottom: 1px solid #333; padding-bottom: 2px; }
+    #auction-ui {
+        position: relative; z-index: 10; height: 100%;
+        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 20px;
+        background: radial-gradient(circle at center, transparent 0%, #000 90%);
+    }
 
-        #sold-stamp {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 6rem; color: red; border: 8px solid red;
-            padding: 20px; font-weight: bold; opacity: 0;
-            pointer-events: none; z-index: 100;
-            text-shadow: 0 0 20px black;
-            background: rgba(0,0,0,0.5);
-        }
+    #price-tag {
+        align-self: center; font-size: 4rem; color: var(--primary);
+        font-weight: 900; font-family: 'Space Grotesk', sans-serif;
+        background: rgba(0,0,0,0.8); padding: 10px 40px;
+        border-top: 2px solid var(--primary);
+        border-bottom: 2px solid var(--primary);
+        margin-top: 80px;
+        text-shadow: 0 0 20px var(--primary);
+    }
 
-        @keyframes screenOn {
-            0% { transform: scaleY(0.005) scaleX(0); background: #fff; }
-            50% { transform: scaleY(0.005) scaleX(1); background: #fff; }
-            100% { transform: scaleY(1) scaleX(1); background: transparent; }
-        }
-    </style>
-</head>
-<body>
+    #chat-box {
+        background: rgba(0, 0, 0, 0.85);
+        height: 40%;
+        overflow-y: auto;
+        border-top: 1px solid var(--primary);
+        padding: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        text-align: left;
+    }
+    
+    /* Scrollbar for chat */
+    #chat-box::-webkit-scrollbar { width: 5px; }
+    #chat-box::-webkit-scrollbar-track { background: #000; }
+    #chat-box::-webkit-scrollbar-thumb { background: var(--primary); }
+
+    .chat-msg { margin-bottom: 8px; line-height: 1.4; }
+    .bidder { color: #888; }
+    .host { color: var(--primary); font-weight: bold; }
+    .bid-msg { color: #fff; border-left: 2px solid var(--primary); padding-left: 10px; }
+
+    #sold-stamp {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%) rotate(-15deg);
+        font-size: 8rem; color: transparent; 
+        -webkit-text-stroke: 4px var(--alert-red);
+        padding: 20px; font-weight: 900; opacity: 0;
+        pointer-events: none; z-index: 100;
+        text-shadow: 0 0 30px rgba(255,0,0,0.5);
+    }
+
+    @keyframes screenOn {
+        0% { transform: scaleY(0.005) scaleX(0); background: #fff; }
+        50% { transform: scaleY(0.005) scaleX(1); background: #fff; }
+        100% { transform: scaleY(1) scaleX(1); background: transparent; }
+    }
+  </style>
+ </head>
+ <body>
+
+    <div class="header-mini">
+        <div class="logo" onclick="window.location.href='index.html'">#MECS</div>
+        <div style="font-size: 0.8rem; color: #555; font-family: 'JetBrains Mono';">PROTOCOL: MIRROR_V1</div>
+    </div>
 
     <div id="app-container">
         
         <section id="intro">
-            <h1>DIGITAL MIRROR</h1>
-            <button id="btn-begin">BEGIN</button>
-            <p style="margin-top:20px; font-size: 0.8rem; color:#555;">(Headphones Recommended)</p>
+            <h1 class="text-primary">DIGITAL<br>MIRROR</h1>
+            <p style="margin-bottom: 3rem; color: #888; max-width: 400px; margin-left: auto; margin-right: auto;">
+                This tool simulates how trackers analyze your digital footprint in real-time.
+            </p>
+            <button id="btn-begin" class="btn">INITIALIZE</button>
+            <p style="margin-top:20px; font-size: 0.75rem; color:#444; font-family: 'JetBrains Mono';">
+                [ HEADPHONES RECOMMENDED ]
+            </p>
         </section>
 
         <section id="quiz" class="hidden">
-            <h2 id="q-text">Question Text</h2>
-            <div id="q-options">
-                <button class="quiz-btn" onclick="handleAnswer(true)">YES</button>
-                <button class="quiz-btn" onclick="handleAnswer(false)">NO</button>
+            <div class="quiz-card">
+                <h2 id="q-text" style="font-size: 1.5rem; margin-bottom: 2rem;">Question Text</h2>
+                <div id="q-options">
+                    <button class="quiz-btn" onclick="handleAnswer(true)">YES</button>
+                    <button class="quiz-btn" onclick="handleAnswer(false)">NO</button>
+                </div>
+                <p id="q-progress" style="color: #444; margin-top: 1rem; font-family: 'JetBrains Mono';">1/15</p>
             </div>
-            <p id="q-progress">1/15</p>
         </section>
 
         <section id="analysis" class="hidden">
+            <h2 class="mono" style="color: #666; font-size: 0.9rem; margin-bottom: 2rem;">/// GENERATING PROFILE ///</h2>
             <div id="analysis-content"></div>
         </section>
 
@@ -175,30 +269,36 @@
         </section>
 
         <section id="outro" class="hidden">
-            <h2 class="text-green">TRANSACTION COMPLETE</h2>
-            <h1 id="final-price" class="text-red">$0.00</h1>
-            <h3>ESTIMATED DARK WEB VALUE</h3>
-            <hr style="border-color:#333; width: 50%;">
-            <p>That is all you are worth to them.</p>
-            <p>Your location, your habits, and your identity are often sold for less than the price of a lunch.</p>
-            <p>This transaction happens thousands of times a day.</p>
-            <br>
-            <p style="font-size: 0.7rem; color: #555; border: 1px solid #333; padding: 10px;">
-                NOTE: No data was actually saved. The device fingerprint shown was fetched locally from your browser, just as any website on the internet can do.
-            </p>
-            <button onclick="location.reload()" style="margin-top: 20px;">RESET</button>
+            <h2 class="text-primary" style="letter-spacing: 5px;">TRANSACTION COMPLETE</h2>
+            <h1 id="final-price" class="text-red" style="font-size: 5rem;">$0.00</h1>
+            <h3 style="color: #666;">ESTIMATED DARK WEB VALUE</h3>
+            
+            <div style="max-width: 500px; margin: 3rem auto; text-align: left; color: #aaa;">
+                <p>That is all you are worth to them.</p>
+                <p>Your location, your habits, and your identity are traded daily for less than the price of a coffee.</p>
+            </div>
+            
+            <div style="font-size: 0.7rem; color: #555; border: 1px solid #333; padding: 15px; margin-top: 2rem; font-family: 'JetBrains Mono'; max-width: 500px; margin: 2rem auto;">
+                <strong style="color: var(--primary);">SYSTEM NOTE:</strong> No data was actually sent to a server. The device fingerprinting shown was fetched locally within your browser, exactly how trackers do it silently every day.
+            </div>
+            <button onclick="location.reload()" class="btn" style="margin-top: 20px; background: #333; color: #fff;">RESET SYSTEM</button>
         </section>
 
     </div>
 
     <div id="auction-overlay" class="hidden">
         <video id="webcam-feed" autoplay playsinline muted></video>
-        <div class="no-footage hidden" id="no-signal">[NO SIGNAL]</div>
+        <div class="no-footage hidden" id="no-signal">
+            <div>
+                <span class="text-red">⚠ SIGNAL LOST</span><br>
+                <span style="font-size: 1rem; color: #555;">METADATA ONLY MODE</span>
+            </div>
+        </div>
         <div id="sold-stamp">SOLD</div>
         <div id="auction-ui">
             <div id="price-tag">$0.00</div>
             <div id="chat-box">
-                <div class="chat-msg host">HOST: Establishing Secure Link...</div>
+                <div class="chat-msg host">SYSTEM: Establishing Secure Link...</div>
             </div>
         </div>
     </div>
@@ -224,7 +324,7 @@
                 this.droneOsc.type = 'sawtooth';
                 this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A
                 
-                // Add a lowpass filter to make it muffled/scary
+                // Add a lowpass filter
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
                 filter.frequency.value = 200;
@@ -237,7 +337,7 @@
                 this.droneOsc.start();
             },
 
-            // High pitched click for buttons
+            // Digital click
             click: function() {
                 if(!this.ctx) return;
                 const osc = this.ctx.createOscillator();
@@ -246,7 +346,7 @@
                 osc.frequency.setValueAtTime(800, this.ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
                 
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
 
                 osc.connect(gain);
@@ -255,10 +355,10 @@
                 osc.stop(this.ctx.currentTime + 0.1);
             },
 
-            // Digital static glitch sound
+            // Glitch sound
             glitch: function() {
                 if(!this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 0.2; // 0.2 seconds
+                const bufferSize = this.ctx.sampleRate * 0.2; 
                 const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                 const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
@@ -274,7 +374,7 @@
                 noise.start();
             },
 
-            // Notification beep for chat
+            // Chat beep
             chatBeep: function() {
                 if(!this.ctx) return;
                 const osc = this.ctx.createOscillator();
@@ -290,7 +390,7 @@
                 osc.stop(this.ctx.currentTime + 0.3);
             },
 
-            // Heavy slam for SOLD
+            // Slam
             slam: function() {
                 if(!this.ctx) return;
                 const osc = this.ctx.createOscillator();
@@ -307,10 +407,9 @@
                 osc.stop(this.ctx.currentTime + 1);
             },
 
-            // Increase tension during the stare
+            // Ramp Tension
             rampTension: function() {
                 if(this.droneOsc) {
-                    // Slowly raise pitch and volume
                     this.droneOsc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 10);
                     this.droneGain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 10);
                 }
@@ -339,28 +438,28 @@
         };
 
         const questions = [
-            { t: "Do you use the same password for multiple accounts?", insecure: true, insult: "Uses one key for every door. Idiot." },
-            { t: "Do you accept cookies without reading the prompt?", insecure: true, insult: "Accepts all cookies. They have no standards." },
-            { t: "Is your date of birth public on social media?", insecure: true, insult: "DOB is public. Identity theft is too easy." },
-            { t: "Do you have 2-Factor Authentication enabled?", insecure: false, insult: "No 2FA? They are practically begging for it." },
+            { t: "Do you use the same password for multiple accounts?", insecure: true, insult: "Uses one key for every door. Easy target." },
+            { t: "Do you accept cookies without reading the prompt?", insecure: true, insult: "Accepts tracking. No standards." },
+            { t: "Is your date of birth public on social media?", insecure: true, insult: "DOB is public. Identity theft starter pack." },
+            { t: "Do you have 2-Factor Authentication enabled?", insecure: false, insult: "No 2FA? They're practically begging for it." },
             { t: "Do you cover your webcam when not in use?", insecure: false, insult: "Lens was uncovered. Voyeur's paradise." },
-            { t: "Do you click links in emails from unknown senders?", insecure: true, insult: "Clicks random links. A phishing dream." },
+            { t: "Do you click links in emails from unknown senders?", insecure: true, insult: "Clicks random links. Phishing dream." },
             { t: "Do you update your phone software immediately?", insecure: false, insult: "Running legacy software. Exploit ready." },
             { t: "Do you use free public Wi-Fi for banking?", insecure: true, insult: "Banking on Starbucks WiFi. Hilarious." },
-            { t: "Do you allow apps to track your location always?", insecure: true, insult: "Location is always on. I know where they sleep." },
+            { t: "Do you allow apps to track your location always?", insecure: true, insult: "Location always on. I know where they sleep." },
             { t: "Do you read the Terms & Conditions?", insecure: false, insult: "Doesn't read T&C. Signed their soul away." },
             { t: "Do you post photos of your boarding passes?", insecure: true, insult: "Posts boarding passes. Barcode reveals everything." },
-            { t: "Do you use a password manager?", insecure: false, insult: "No password manager. Probably writes them on sticky notes." },
-            { t: "Do you backup your data offline?", insecure: false, insult: "No backups. One ransomware attack and they're done." },
-            { t: "Do you answer 'first pet' quizzes on FB?", insecure: true, insult: "Answers security questions on Facebook for fun." },
-            { t: "Do you believe you are too boring to be hacked?", insecure: true, insult: "Thinks they are 'too boring' to hack. My favorite victim." },
+            { t: "Do you use a password manager?", insecure: false, insult: "No password manager. Probably uses 'Password123'." },
+            { t: "Do you backup your data offline?", insecure: false, insult: "No backups. One ransomware attack and it's over." },
+            { t: "Do you answer 'first pet' quizzes on social media?", insecure: true, insult: "Answers security questions for fun." },
+            { t: "Do you believe you are too boring to be hacked?", insecure: true, insult: "Thinks they are 'too boring'. My favorite victim." },
         ];
 
         // --- PHASE 1: INTRO & PERMISSION ---
         document.getElementById('btn-begin').addEventListener('click', async () => {
-            SFX.init(); // Initialize Audio Context
+            SFX.init(); 
             SFX.click();
-            SFX.startDrone(); // Start background horror audio
+            SFX.startDrone(); 
 
             // Fetch Data
             state.device = navigator.userAgent;
@@ -403,11 +502,11 @@
             const q = questions[state.qIndex];
             document.getElementById('q-text').innerText = q.t;
             document.getElementById('q-progress').innerText = `${state.qIndex + 1}/${questions.length}`;
-            SFX.glitch(); // Sound effect on new question
+            SFX.glitch(); 
         }
 
         function handleAnswer(bool) {
-            SFX.click(); // Sound effect on click
+            SFX.click(); 
             state.answers.push(bool);
             const q = questions[state.qIndex];
             if ((q.insecure && bool) || (!q.insecure && !bool)) {
@@ -434,17 +533,17 @@
             if (isSecure && state.camAllowed) {
                 scenario = "A";
                 lines = [
-                    "Analyzing answers...",
-                    "Results: Highly Secure.",
+                    "Analyzing behavioral patterns...",
+                    "Results: <span style='color:#fff'>High Security Awareness.</span>",
                     "You spot the phishing.",
                     "But...",
-                    `<span class='text-red'>You just allowed a random website to access your camera.</span>`,
+                    `<span class='text-red'>You just granted camera access to a stranger.</span>`,
                     "Logic failed you."
                 ];
             } else if (!isSecure) {
                 scenario = "B";
                 lines = [
-                    "Analyzing answers...",
+                    "Analyzing behavioral patterns...",
                     "Results: <span class='text-red'>CRITICAL VULNERABILITY</span>",
                     "Your digital footprint is messy.",
                     "Passwords reused. Cookies accepted.",
@@ -453,13 +552,13 @@
             } else if (isSecure && !state.camAllowed) {
                 scenario = "C";
                 lines = [
-                    "Analyzing answers...",
-                    "Results: Secure.",
+                    "Analyzing behavioral patterns...",
+                    "Results: <span style='color:#fff'>Secure.</span>",
                     "Camera Access: <span class='text-red'>BLOCKED</span>",
                     "You think a piece of tape saves you.",
                     "<span class='text-red'>A Blocked Lens cannot stop us.</span>",
-                    `IP: <span class='text-green'>${state.ip}</span>`,
-                    `Location: <span class='text-green'>${state.location}</span>`,
+                    `IP: <span class='text-primary'>${state.ip}</span>`,
+                    `Location: <span class='text-primary'>${state.location}</span>`,
                     `Device: ${state.device.substring(0, 20)}...`
                 ];
             }
@@ -472,7 +571,7 @@
                 container.appendChild(p);
                 setTimeout(() => { 
                     p.style.opacity = 1; 
-                    SFX.glitch(); // Sound effect on line reveal
+                    SFX.glitch(); 
                 }, delay);
                 delay += 1500;
             });
@@ -480,10 +579,10 @@
             setTimeout(() => { startTransition(scenario); }, delay + 2000);
         }
 
-        // --- PHASE 4: TRANSITION (PERSISTENT TEXT) ---
+        // --- PHASE 4: TRANSITION ---
         function startTransition(scenario) {
             nextScreen('analysis', 'transition');
-            SFX.rampTension(); // Make audio scarier
+            SFX.rampTension(); 
 
             const container = document.getElementById('transition-text');
             let poem = [];
@@ -508,7 +607,6 @@
                 delay += 2000;
             });
 
-            // The Uncomfortable Stare 
             setTimeout(() => {
                 launchAuction(scenario);
             }, delay + 30000); 
@@ -537,7 +635,7 @@
                 collectedInsults.push("Data is too clean. Suspicious.", "I bet their hard drive is gold.");
             }
 
-            // --- SCRIPT GENERATION ---
+            // Script Generation
             let script = [];
             
             if (state.camAllowed) {
@@ -594,7 +692,7 @@
                 const item = script[scriptIndex];
                 
                 if (item.role === 'sold') {
-                    SFX.slam(); // Audio Slam
+                    SFX.slam(); 
                     document.getElementById('sold-stamp').style.opacity = 1;
                     document.getElementById('sold-stamp').style.transform = "translate(-50%, -50%) rotate(-15deg) scale(1.2)";
                     if(state.camAllowed) document.getElementById('webcam-feed').style.filter = "brightness(2) contrast(2)";
@@ -608,14 +706,14 @@
                     addChat(`>>> BID RAISED TO: $${currentPrice.toFixed(2)}`, "bid-msg");
                 } 
                 else {
-                    SFX.chatBeep(); // Audio Beep
+                    SFX.chatBeep(); 
                     let name = item.role === 'host' ? "HOST" : bidders[Math.floor(Math.random() * bidders.length)];
                     addChat(`${name}: ${item.text}`, item.role);
                 }
 
                 scriptIndex++;
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 2800); 
+            }, 2500); 
         }
 
         function addChat(text, type) {
@@ -626,12 +724,12 @@
         }
 
         function endSimulation() {
-            if(SFX.droneOsc) SFX.droneOsc.stop(); // Stop audio
+            if(SFX.droneOsc) SFX.droneOsc.stop(); 
             screens.auction.classList.add('hidden');
             screens.outro.classList.remove('hidden');
             document.getElementById('final-price').innerText = document.getElementById('price-tag').innerText;
         }
 
     </script>
-</body>
+ </body>
 </html>
