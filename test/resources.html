@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MECS - Archives</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#000000',
+                            surface: '#0a0a0a',
+                            surfaceLight: '#111111',
+                            grid: '#151515',
+                            primary: '#FF0055',
+                            primaryHover: '#D40047',
+                            dark: '#990033',
+                            text: '#ffffff',
+                            gray: '#aaaaaa',
+                            neonGreen: '#00ff41'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #000000;
+            background-image: 
+                linear-gradient(#151515 1px, transparent 1px),
+                linear-gradient(90deg, #151515 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: #ffffff;
+        }
+
+        /* Custom Scrollbar for the main content area */
+        .content-area::-webkit-scrollbar { width: 6px; }
+        .content-area::-webkit-scrollbar-track { background: #000; }
+        .content-area::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 0, 85, 0.1);
+            border-left: 2px solid #FF0055;
+            color: #fff;
+        }
+        
+        .code-block {
+            background: #080808;
+            border: 1px solid #222;
+        }
+        .code-block:hover {
+            border-color: #FF0055;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <header class="h-16 bg-black/90 backdrop-blur-md border-b border-white/10 flex-shrink-0 z-50">
+        <div class="container mx-auto px-6 h-full flex justify-between items-center">
+            <a href="index.html" class="group flex items-center gap-2">
+                <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
+                    <i class="fas fa-archive text-black text-sm"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tighter uppercase">
+                    #MECS<span class="text-mecs-primary group-hover:text-white transition-colors"></span>
+                </span>
+            </a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
+                    <li><a href="training.html" class="hover:text-mecs-primary transition-colors">Training</a></li>
+                    <li><a href="resources.html" class="text-mecs-primary transition-colors">Resources</a></li>
+                    <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Explore Labs</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="flex flex-grow overflow-hidden container mx-auto px-4 md:px-0">
+
+        <aside class="w-64 hidden md:flex flex-col border-r border-white/10 bg-black/50 backdrop-blur-sm h-full pt-8">
+            <div class="px-6 mb-6">
+                <h3 class="text-xs font-bold text-mecs-gray uppercase tracking-widest mb-4">Categories</h3>
+                <nav class="space-y-1">
+                    <a href="#tools" class="nav-item active block px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all rounded-r-md">
+                        <i class="fas fa-toolbox w-5"></i> Defense Tools
+                    </a>
+                    <a href="#cheatsheets" class="nav-item block px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all rounded-r-md">
+                        <i class="fas fa-terminal w-5"></i> Command Ref
+                    </a>
+                    <a href="#manuals" class="nav-item block px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all rounded-r-md">
+                        <i class="fas fa-book w-5"></i> Field Manuals
+                    </a>
+                    <a href="#templates" class="nav-item block px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all rounded-r-md">
+                        <i class="fas fa-file-contract w-5"></i> Templates
+                    </a>
+                </nav>
+            </div>
+
+            <div class="mt-auto p-6">
+                <div class="bg-mecs-primary/10 border border-mecs-primary/20 p-4 rounded-sm">
+                    <h4 class="text-mecs-primary font-bold text-xs uppercase mb-1">Weekly Update</h4>
+                    <p class="text-[10px] text-gray-400">Added: Linux Hardening Checklist v2.4</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-grow content-area overflow-y-auto p-6 md:p-12 scroll-smooth">
+            
+            <section id="tools" class="mb-16 animate__animated animate__fadeIn">
+                <div class="flex items-end justify-between mb-8 border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-3xl font-black uppercase mb-2">Defense <span class="text-mecs-primary">Tools</span></h2>
+                        <p class="text-sm text-mecs-gray">Verified software for personal and network hardening.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-mecs-surface border border-white/10 p-4 hover:border-mecs-primary group transition-all flex items-start gap-4">
+                        <div class="w-12 h-12 bg-white/5 flex items-center justify-center text-xl text-mecs-primary">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold uppercase text-sm group-hover:text-mecs-primary transition-colors">Bitwarden</h3>
+                            <p class="text-xs text-mecs-gray mt-1 mb-3">Open-source password management. Zero-knowledge architecture.</p>
+                            <a href="#" class="text-[10px] uppercase font-bold text-white border-b border-white/30 hover:border-mecs-primary hover:text-mecs-primary pb-0.5">Get Tool</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-mecs-surface border border-white/10 p-4 hover:border-mecs-primary group transition-all flex items-start gap-4">
+                        <div class="w-12 h-12 bg-white/5 flex items-center justify-center text-xl text-mecs-primary">
+                            <i class="fas fa-ghost"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold uppercase text-sm group-hover:text-mecs-primary transition-colors">Privacy Badger</h3>
+                            <p class="text-xs text-mecs-gray mt-1 mb-3">Browser extension that automatically learns to block invisible trackers.</p>
+                            <a href="#" class="text-[10px] uppercase font-bold text-white border-b border-white/30 hover:border-mecs-primary hover:text-mecs-primary pb-0.5">Get Tool</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-mecs-surface border border-white/10 p-4 hover:border-mecs-primary group transition-all flex items-start gap-4">
+                        <div class="w-12 h-12 bg-white/5 flex items-center justify-center text-xl text-mecs-primary">
+                            <i class="fas fa-shield-virus"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold uppercase text-sm group-hover:text-mecs-primary transition-colors">Little Snitch</h3>
+                            <p class="text-xs text-mecs-gray mt-1 mb-3">Host-based application firewall for macOS. Visualizes network traffic.</p>
+                            <a href="#" class="text-[10px] uppercase font-bold text-white border-b border-white/30 hover:border-mecs-primary hover:text-mecs-primary pb-0.5">Get Tool</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="cheatsheets" class="mb-16">
+                <div class="flex items-end justify-between mb-8 border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-3xl font-black uppercase mb-2">Command <span class="text-mecs-primary">Ref</span></h2>
+                        <p class="text-sm text-mecs-gray">Quick-copy snippets for terminal operations.</p>
+                    </div>
+                    <div class="flex gap-2">
+                         <span class="text-[10px] uppercase font-bold px-2 py-1 bg-white/10 rounded">Linux</span>
+                         <span class="text-[10px] uppercase font-bold px-2 py-1 bg-white/10 rounded">Git</span>
+                         <span class="text-[10px] uppercase font-bold px-2 py-1 bg-white/10 rounded">Network</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <div class="code-block p-4 relative group">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-mecs-primary font-mono text-xs font-bold">// Find Files by Name</span>
+                            <button class="text-gray-500 hover:text-white text-xs uppercase font-bold" onclick="copyToClip('find . -name &quot;*.log&quot;')"><i class="far fa-copy"></i> Copy</button>
+                        </div>
+                        <code class="block font-mono text-sm text-gray-300 bg-black p-3 border border-white/5 rounded">
+                            find . -name "*.log"
+                        </code>
+                        <p class="text-[10px] text-gray-500 mt-2">Locates all log files in current directory and subdirectories.</p>
+                    </div>
+
+                    <div class="code-block p-4 relative group">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-mecs-primary font-mono text-xs font-bold">// Check Listening Ports</span>
+                            <button class="text-gray-500 hover:text-white text-xs uppercase font-bold" onclick="copyToClip('netstat -tuln')"><i class="far fa-copy"></i> Copy</button>
+                        </div>
+                        <code class="block font-mono text-sm text-gray-300 bg-black p-3 border border-white/5 rounded">
+                            netstat -tuln
+                        </code>
+                        <p class="text-[10px] text-gray-500 mt-2">Displays TCP/UDP ports currently listening for connections.</p>
+                    </div>
+
+                    <div class="code-block p-4 relative group">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-mecs-primary font-mono text-xs font-bold">// File Permissions (Secure)</span>
+                            <button class="text-gray-500 hover:text-white text-xs uppercase font-bold" onclick="copyToClip('chmod 600 config.yaml')"><i class="far fa-copy"></i> Copy</button>
+                        </div>
+                        <code class="block font-mono text-sm text-gray-300 bg-black p-3 border border-white/5 rounded">
+                            chmod 600 config.yaml
+                        </code>
+                        <p class="text-[10px] text-gray-500 mt-2">Sets file to be readable/writable only by the owner.</p>
+                    </div>
+
+                    <div class="code-block p-4 relative group">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-mecs-primary font-mono text-xs font-bold">// SSH Key Gen</span>
+                            <button class="text-gray-500 hover:text-white text-xs uppercase font-bold" onclick="copyToClip('ssh-keygen -t ed25519 -C &quot;email&quot;')"><i class="far fa-copy"></i> Copy</button>
+                        </div>
+                        <code class="block font-mono text-sm text-gray-300 bg-black p-3 border border-white/5 rounded">
+                            ssh-keygen -t ed25519 -C "email"
+                        </code>
+                        <p class="text-[10px] text-gray-500 mt-2">Generates a secure Ed25519 SSH key pair.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="manuals" class="mb-20">
+                <div class="flex items-end justify-between mb-8 border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-3xl font-black uppercase mb-2">Field <span class="text-mecs-primary">Manuals</span></h2>
+                        <p class="text-sm text-mecs-gray">In-depth guides and checklists.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <a href="#" class="flex items-center justify-between bg-mecs-surface border border-white/10 p-4 hover:border-mecs-primary hover:bg-white/5 group transition-all">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                            <div>
+                                <h4 class="font-bold uppercase text-sm">Incident Response Playbook</h4>
+                                <p class="text-xs text-mecs-gray">Step-by-step guide for handling data breaches.</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold border border-white/20 px-2 py-1 uppercase group-hover:bg-white group-hover:text-black transition-colors">Download PDF</span>
+                    </a>
+
+                    <a href="#" class="flex items-center justify-between bg-mecs-surface border border-white/10 p-4 hover:border-mecs-primary hover:bg-white/5 group transition-all">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                            <div>
+                                <h4 class="font-bold uppercase text-sm">Home Network Hardening</h4>
+                                <p class="text-xs text-mecs-gray">Router config, IoT isolation, and firewall rules.</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold border border-white/20 px-2 py-1 uppercase group-hover:bg-white group-hover:text-black transition-colors">Download PDF</span>
+                    </a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="copyToast" class="fixed bottom-10 right-10 bg-mecs-primary text-black px-4 py-2 font-bold uppercase btn-clip transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i class="fas fa-check-circle mr-2"></i> Copied to Clipboard
+    </div>
+
+    <script>
+        function copyToClip(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copyToast');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 2000);
+            });
+        }
+
+        // Simple Active State for Sidebar
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active', 'border-l-2', 'border-[#FF0055]', 'bg-white/5'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
