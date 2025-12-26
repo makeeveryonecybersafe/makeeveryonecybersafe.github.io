@@ -1,378 +1,315 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MECS OSINT Awareness Simulation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
-  <style>
-    /* MECS Playground Color Palette */
-    :root {
-      --bg: #000000;
-      --panel: #0a0a0a; 
-      --surface-border: #1a1a1a;
-      --accent: #FF0055; /* Vibrant Pink/Red */
-      --secondary-accent: #990033; /* Darker accent for shadows */
-      --danger: #ff0055; /* Using main accent for danger to keep theme cohesive */
-      --success: #00ff77; /* Bright green for correct feedback */
-      --text: #ffffff;
-      --muted: #999999;
-    }
-
-    /* Base Styling & Font */
-    * { 
-      box-sizing: border-box; 
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    /* Header */
-    header {
-      padding: 2rem 2rem;
-      background: var(--panel);
-      border-bottom: 4px solid var(--accent);
-      box-shadow: 0 4px 10px rgba(255, 0, 85, 0.2);
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MECS - OSINT Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
-    header h1 .highlight {
-        color: var(--accent);
-    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    header p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-
-    /* Main Layout */
-    main {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 30px;
-      padding: 30px 40px;
-    }
-
-    /* Card/Panel Base Styling */
-    .card-panel {
-      background: var(--panel);
-      border-radius: 5px; /* Subtle change from original */
-      padding: 25px;
-      border: 1px solid var(--surface-border);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-    
-    /* Profile Section (Left) */
-    .profile h2 {
-      margin-top: 0;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent);
-      text-transform: uppercase;
-      margin-bottom: 15px;
-    }
-
-    .bio {
-      font-size: 1rem;
-      color: var(--muted);
-      margin-bottom: 25px;
-      padding: 10px;
-      border-left: 3px solid var(--accent);
-    }
-
-    .post {
-      border-top: 1px dashed var(--surface-border);
-      padding: 18px 0;
-    }
-
-    .post:first-child { border-top: none; }
-
-    .post .meta {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 5px;
-    }
-    
-    .post p {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 400;
-      color: var(--text);
-    }
-
-    .post .comments {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      color: var(--success); /* Using success color for comments to make them 'data points' */
-      font-style: italic;
-    }
-    
-    /* Lab Panel (Right) */
-    .lab-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    .lab-panel h3 {
-      margin: 0;
-      font-size: 1.4rem;
-      color: var(--text);
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 8px;
-    }
-
-    .question {
-      border-top: 1px solid var(--surface-border);
-      padding-top: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .question p {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    /* Form Elements */
-    input, textarea {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--surface-border);
-      color: var(--text);
-      border-radius: 3px;
-      padding: 10px;
-      font-size: 0.95rem;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-
-    input:focus, textarea:focus {
-      border-color: var(--accent);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(255, 0, 85, 0.3); 
-    }
-
-    button {
-      background: var(--accent);
-      border: none;
-      color: var(--bg);
-      padding: 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: background 0.2s, transform 0.1s, box-shadow 0.3s;
-      margin-top: 10px;
-      box-shadow: 0 5px 0 var(--secondary-accent);
-    }
-
-    button:hover:not(:disabled) {
-      background: #ff3377;
-      transform: translateY(-2px);
-      box-shadow: 0 7px 0 var(--secondary-accent);
-    }
-    
-    button:active:not(:disabled) {
-        transform: translateY(3px);
-        box-shadow: 0 2px 0 var(--secondary-accent);
-    }
-
-    button:disabled {
-      background: var(--surface-border);
-      color: var(--muted);
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    /* Feedback and Results */
-    .feedback {
-      font-size: 0.85rem;
-      margin-top: 4px;
-      padding-left: 5px;
-      font-weight: 500;
-    }
-
-    .correct { 
-        color: var(--success); 
-        border-left: 3px solid var(--success);
-        padding: 4px 0 4px 8px;
-    }
-    .wrong { 
-        color: var(--danger); 
-        border-left: 3px solid var(--danger);
-        padding: 4px 0 4px 8px;
-    }
-
-    .hidden { display: none; }
-
-    .consequences {
-      background: var(--bg);
-      border: 1px solid var(--danger);
-      padding: 20px;
-      border-radius: 5px;
-      font-size: 1rem;
-      color: var(--text);
-      /* Stronger glow to match the cyberpunk aesthetic */
-      box-shadow: 0 0 15px rgba(255, 0, 85, 0.7); 
-    }
-    
-    .consequences strong {
-        color: var(--danger);
-        font-size: 1.1rem;
-        display: block;
-        margin-bottom: 8px;
-    }
-    
-    .consequences .lesson {
-        color: var(--success);
-        font-weight: 500;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-        main {
-            grid-template-columns: 1fr;
-            padding: 20px;
-            gap: 20px;
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#000000',
+                            surface: '#0a0a0a',
+                            surfaceLight: '#111111',
+                            grid: '#151515',
+                            primary: '#FF0055',
+                            primaryHover: '#D40047',
+                            dark: '#990033',
+                            text: '#ffffff',
+                            gray: '#aaaaaa',
+                            neonGreen: '#00ff41'
+                        }
+                    },
+                    animation: {
+                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #000000;
+            background-image: 
+                linear-gradient(#151515 1px, transparent 1px),
+                linear-gradient(90deg, #151515 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: #ffffff;
         }
 
-        header h1 {
-            font-size: 2rem;
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
 
-        .profile h2 {
-            font-size: 1.6rem;
+        .mecs-card {
+            background: #0a0a0a;
+            border: 1px solid #222;
         }
-    }
-  </style>
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #333;
+            color: #00ff41;
+            font-family: 'JetBrains Mono', monospace;
+            width: 100%;
+            padding: 0.5rem 0;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .terminal-input:focus {
+            border-color: #FF0055;
+        }
+        
+        /* Post Styling */
+        .data-packet {
+            border-left: 2px solid #333;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        .data-packet:hover {
+            border-left-color: #FF0055;
+            background: linear-gradient(90deg, rgba(255,0,85,0.05), transparent);
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 
-<header>
-  <h1><span class="highlight">#MECS</span> OSINT Simulation</h1>
-  <p>Hands-on training: Social media over-sharing & real-world consequences</p>
-</header>
+    <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="group flex items-center gap-2">
+                    <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
+                        <i class="fas fa-crosshairs text-black text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tighter uppercase">
+                        #MECS</span>
+                    </span>
+                </a>
+                
+                <div class="hidden md:block">
+                    <div class="flex items-center gap-2 text-xs font-mono text-red-500 border border-red-900/50 bg-red-900/10 px-3 py-1 rounded-sm">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                        LIVE TARGET ACTIVE
+                    </div>
+                </div>
 
-<main>
-  <section class="card-panel profile">
-    <h2>🎯 Target Profile: Mavis Henry</h2>
-    <div class="bio">
-      Since 1997 | IT Support | Weekend cyclist 🚴 | "Early bird, always"<br>
-      Loves filter coffee & sunrise rides
-    </div>
-
-    <div class="post">
-      <div class="meta">ACCESS LOG · Apr 12 · 06:04:15 UTC</div>
-      <p>Sunrise rides before office hit different ☀️🚴</p>
-      <div class="comments">Carl: Same café again? You never get bored 😄</div>
-    </div>
-
-    <div class="post">
-      <div class="meta">ACCESS LOG · Apr 15 · 20:42:01 UTC</div>
-      <p>Finally booked tickets! One week break after project closure 🙌</p>
-      <div class="comments">Jennifer: Don’t forget to switch off your router this time 😂</div>
-    </div>
-
-    <div class="post">
-      <div class="meta">DATA POINT · "Daily" Routine Log</div>
-      <p>5:30 AM alarms, coffee at 6, ride by 6:15.</p>
-    </div>
-
-    <div class="post">
-      <div class="meta">ACCESS LOG · Mar 30 · 21:12:55 UTC</div>
-      <p>Dad still using my old bike lock password idea 😅</p>
-      <div class="comments">Jonathanan: How he forgets your Year of Birth 😂</div>
-    </div>
-  </section>
-
-  <section class="card-panel lab-panel">
-    <h3>🔍 Investigation Tasks</h3>
-
-    <div class="question" data-answer="cycling">
-      <p>1. Identify a predictable daily routine window that increases physical risk.</p>
-      <input type="text" placeholder="" />
-      <div class="feedback"></div>
-    </div>
-
-    <div class="question" data-answer="travel">
-      <p>2. What evidence suggests a long-term period when the house may be unattended?</p>
-      <input type="text" placeholder="" />
-      <div class="feedback"></div>
-    </div>
-
-    <div class="question" data-answer="1997">
-      <p>3. Infer a weak password hinted by multiple posts.</p>
-      <input type="text" placeholder="" />
-      <div class="feedback"></div>
-    </div>
-
-    <button id="submitBtn">Evaluate Findings</button>
-
-    <div id="result" class="hidden"></div>
-  </section>
-</main>
-
-<script>
-  const submitBtn = document.getElementById('submitBtn');
-  const questions = document.querySelectorAll('.question');
-  const result = document.getElementById('result');
-
-  submitBtn.onclick = () => {
-    let correct = 0;
-
-    questions.forEach(q => {
-      const input = q.querySelector('input');
-      const feedback = q.querySelector('.feedback');
-      const answer = q.dataset.answer;
-
-      // Basic check: See if the first word of the correct answer is included in the user's input
-      if (input.value.toLowerCase().includes(answer.split(' ')[0])) {
-        feedback.textContent = 'Correct: Data points connected. Threat vector identified.';
-        feedback.className = 'feedback correct';
-        correct++;
-      } else {
-        feedback.textContent = 'Incorrect: You failed to connect related data points. Review all posts.';
-        feedback.className = 'feedback wrong';
-      }
-    });
-
-    if (correct === questions.length) {
-      result.classList.remove('hidden');
-      result.innerHTML = `
-        <div class="consequences">
-          <strong>🚨 TARGET COMPROMISED: Breach Confirmed! 🚨</strong><br>
-          Based on your findings, an attacker has successfully compiled a threat profile:
-          <ul>
-            <li>Timing: Predictable early-morning absence identified.</li>
-            <li>Opportunity: Confirmed week-long travel window (Unattended House).</li>
-            <li>Entry: Guessable authentication secret (Password Weakness).</li>
-          </ul>
-          <br>
-          <span class="lesson">💡 Key Lesson: OSINT is pattern recognition. Innocent posts, when combined, create high-value intelligence.</span>
+                <a href="playground.html" class="text-xs font-bold uppercase text-mecs-gray hover:text-white transition-colors">
+                    <i class="fas fa-times mr-1"></i> Abort Mission
+                </a>
+            </div>
         </div>
-      `;
-    }
-  };
-</script>
+    </header>
 
+    <main class="flex-grow pt-32 px-4 container mx-auto mb-20">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+
+            <div class="animate__animated animate__fadeInLeft">
+                <div class="mecs-card p-1 relative h-full">
+                    <div class="bg-[#111] p-4 flex justify-between items-center border-b border-white/10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-lg">👤</div>
+                            <div>
+                                <h2 class="text-sm font-bold uppercase text-white">Target: Mavis Henry</h2>
+                                <p class="text-[10px] font-mono text-mecs-primary">ID: #MH-97-ALPHA</p>
+                            </div>
+                        </div>
+                        <div class="text-right text-[10px] text-gray-500 font-mono">
+                            STATUS: UNSECURED<br>
+                            SOURCE: PUBLIC FEED
+                        </div>
+                    </div>
+
+                    <div class="p-6 h-[600px] overflow-y-auto custom-scrollbar">
+                        
+                        <div class="bg-white/5 p-4 mb-6 border border-white/10 font-mono text-xs text-gray-300">
+                            <span class="text-mecs-gray">> BIO_SCRAPE:</span><br>
+                            Since 1997 | IT Support | Weekend cyclist 🚴 | "Early bird, always"<br>
+                            Loves filter coffee & sunrise rides
+                        </div>
+
+                        <div class="data-packet">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-bold text-mecs-primary bg-mecs-primary/10 px-1">IMG_LOG_01</span>
+                                <span class="text-[10px] font-mono text-gray-500">Apr 12 · 06:04 UTC</span>
+                            </div>
+                            <p class="text-sm text-white mb-2">Sunrise rides before office hit different ☀️🚴</p>
+                            <div class="text-xs text-gray-500 italic pl-2 border-l border-gray-700">
+                                💬 Carl: Same café again? You never get bored 😄
+                            </div>
+                        </div>
+
+                        <div class="data-packet">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1">TXT_LOG_02</span>
+                                <span class="text-[10px] font-mono text-gray-500">Apr 15 · 20:42 UTC</span>
+                            </div>
+                            <p class="text-sm text-white mb-2">Finally booked tickets! One week break after project closure 🙌</p>
+                            <div class="text-xs text-gray-500 italic pl-2 border-l border-gray-700">
+                                💬 Jennifer: Don’t forget to switch off your router this time 😂
+                            </div>
+                        </div>
+
+                        <div class="data-packet">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-1">SYS_LOG_03</span>
+                                <span class="text-[10px] font-mono text-gray-500">Metadata Analysis</span>
+                            </div>
+                            <p class="text-sm text-white mb-2 font-mono text-xs">
+                                > Routine Detected:<br>
+                                > 05:30 Alarm<br>
+                                > 06:00 Coffee<br>
+                                > 06:15 Cycling Departure
+                            </p>
+                        </div>
+
+                        <div class="data-packet">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-bold text-mecs-primary bg-mecs-primary/10 px-1">TXT_LOG_04</span>
+                                <span class="text-[10px] font-mono text-gray-500">Mar 30 · 21:12 UTC</span>
+                            </div>
+                            <p class="text-sm text-white mb-2">Dad still using my old bike lock password idea 😅</p>
+                            <div class="text-xs text-gray-500 italic pl-2 border-l border-gray-700">
+                                💬 Jonathan: How he forgets your Year of Birth 😂
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
+                <div class="bg-[#050505] border border-white/20 p-8 btn-clip h-full flex flex-col relative">
+                    
+                    <div class="flex items-center gap-2 mb-6 border-b border-white/10 pb-4">
+                        <i class="fas fa-terminal text-mecs-primary"></i>
+                        <h2 class="font-mono font-bold uppercase text-white">Threat Analysis Console</h2>
+                    </div>
+
+                    <div class="flex-grow space-y-8">
+                        
+                        <div class="question-block" data-answer="cycling">
+                            <label class="block text-gray-500 text-xs font-mono uppercase mb-2">
+                                [VECTOR 01] Identify the predictable routine:
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-0 top-2 text-mecs-primary font-mono">></span>
+                                <input type="text" class="terminal-input pl-4 focus:ring-0" placeholder="Enter activity..." autocomplete="off">
+                            </div>
+                            <div class="feedback text-[10px] font-mono mt-2 h-4"></div>
+                        </div>
+
+                        <div class="question-block" data-answer="travel">
+                            <label class="block text-gray-500 text-xs font-mono uppercase mb-2">
+                                [VECTOR 02] What evidence suggests a long-term period when the house may be unattended? :
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-0 top-2 text-mecs-primary font-mono">></span>
+                                <input type="text" class="terminal-input pl-4 focus:ring-0" placeholder="Enter reason..." autocomplete="off">
+                            </div>
+                            <div class="feedback text-[10px] font-mono mt-2 h-4"></div>
+                        </div>
+
+                        <div class="question-block" data-answer="1997">
+                            <label class="block text-gray-500 text-xs font-mono uppercase mb-2">
+                                [VECTOR 03] Identify his Dad's Password:
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-0 top-2 text-mecs-primary font-mono">></span>
+                                <input type="text" class="terminal-input pl-4 focus:ring-0" placeholder="Enter code..." autocomplete="off">
+                            </div>
+                            <div class="feedback text-[10px] font-mono mt-2 h-4"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-8 border-t border-white/10 pt-6">
+                        <button id="submitBtn" class="w-full btn-clip bg-white/10 border border-white/20 text-white font-mono font-bold uppercase py-4 hover:bg-mecs-primary hover:border-mecs-primary hover:text-black transition-all group flex justify-center items-center gap-2">
+                            <i class="fas fa-play text-xs"></i> Execute Attack Simulation
+                        </button>
+                    </div>
+
+                    <div id="resultOverlay" class="absolute inset-0 bg-black/95 flex items-center justify-center p-8 hidden z-20">
+                        <div class="text-center border border-mecs-primary p-8 bg-mecs-primary/5 btn-clip">
+                            <i class="fas fa-skull text-6xl text-mecs-primary mb-6 animate-pulse"></i>
+                            <h2 class="text-3xl font-black text-white uppercase mb-2">Target Compromised</h2>
+                            <p class="text-gray-400 font-mono text-xs mb-6">
+                                The combined data points allowed for a complete profile takeover.
+                            </p>
+                            <div class="text-left bg-black p-4 mb-6 font-mono text-[10px] text-green-400 border-l-2 border-mecs-primary">
+                                > ACCESS GRANTED<br>
+                                > ROUTINE: MAPPED<br>
+                                > PIN: CRACKED (1997)
+                            </div>
+                            <a href="playground.html" class="inline-block bg-white text-black px-6 py-2 font-bold uppercase text-xs hover:bg-mecs-primary transition-colors">
+                                Return to Lab
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const submitBtn = document.getElementById('submitBtn');
+        const questions = document.querySelectorAll('.question-block');
+        const resultOverlay = document.getElementById('resultOverlay');
+
+        submitBtn.onclick = () => {
+            let correctCount = 0;
+
+            questions.forEach(q => {
+                const input = q.querySelector('input');
+                const feedback = q.querySelector('.feedback');
+                const answer = q.dataset.answer;
+
+                // Basic logic: Check if input includes the key term
+                if (input.value.toLowerCase().includes(answer.toLowerCase())) {
+                    feedback.textContent = '[SUCCESS] Vector Confirmed';
+                    feedback.classList.remove('text-red-500');
+                    feedback.classList.add('text-green-500');
+                    input.classList.add('border-green-500');
+                    correctCount++;
+                } else {
+                    feedback.textContent = '[ERROR] Invalid Intelligence';
+                    feedback.classList.remove('text-green-500');
+                    feedback.classList.add('text-red-500');
+                    input.classList.add('border-red-500');
+                }
+            });
+
+            if (correctCount === questions.length) {
+                // Trigger success animation
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> COMPILING...';
+                setTimeout(() => {
+                    resultOverlay.classList.remove('hidden');
+                    resultOverlay.classList.add('animate__animated', 'animate__fadeIn');
+                }, 1000);
+            }
+        };
+    </script>
 </body>
 </html>
