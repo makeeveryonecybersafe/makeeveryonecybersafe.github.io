@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MECS - Tactical Resources</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#050505',
+                            surface: '#0a0a0a',
+                            border: '#222',
+                            primary: '#FF0055',
+                            alert: '#ff0033',
+                            safe: '#00ccff',
+                            text: '#ffffff',
+                            dim: '#888'
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            background-image: radial-gradient(circle at 50% 0%, #111 0%, transparent 40%);
+            color: #ffffff;
+        }
+
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        /* Card Styles */
+        .cyber-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid #222;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        /* Checkbox Styling */
+        .cyber-check { appearance: none; width: 1.2em; height: 1.2em; border: 1px solid #555; background: #000; display: grid; place-content: center; cursor: pointer; transition: all 0.2s; }
+        .cyber-check::before { content: ""; width: 0.65em; height: 0.65em; transform: scale(0); transition: 120ms transform ease-in-out; background: #00ccff; }
+        .cyber-check:checked::before { transform: scale(1); }
+        .cyber-check:checked { border-color: #00ccff; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+    <header class="fixed w-full top-0 h-16 bg-black/90 backdrop-blur-md border-b border-white/10 flex-shrink-0 z-50 relative">
+        <div class="container mx-auto px-6 h-full flex justify-between items-center">
+            <a href="index.html" class="group flex items-center gap-2">
+                <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
+                    <i class="fas fa-shield-alt text-black text-sm"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tighter uppercase">
+                    #MECS<span class="text-mecs-primary group-hover:text-white transition-colors"></span>
+                </span>
+            </a>
+
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
+                    <li><a href="training.html" class="hover:text-mecs-primary transition-colors">Training</a></li>
+                    <li><a href="#" class="text-mecs-primary transition-colors">Resources</a></li>
+                    <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Explore Labs</a></li>
+                </ul>
+            </nav>
+
+            <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none">
+                <i class="fas fa-bars transition-transform duration-300"></i>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-primary backdrop-blur-md md:hidden animate__animated animate__fadeInDown z-50">
+            <ul class="flex flex-col p-6 space-y-6 text-center">
+                <li><a href="training.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2 border-b border-white/10">Training</a></li>
+                <li><a href="#" class="block text-sm font-bold uppercase tracking-widest text-mecs-primary transition-colors py-2 border-b border-white/10">Resources</a></li>
+                <li><a href="playground.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2">Explore Labs</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-32 pb-20 px-4 container mx-auto">
+
+        <div class="text-center mb-16 animate__animated animate__fadeIn">
+            <h1 class="text-4xl md:text-6xl font-black uppercase mb-4">Tactical <span class="text-transparent bg-clip-text bg-gradient-to-r from-mecs-primary to-mecs-safe">Defense Center</span></h1>
+            <p class="text-mecs-dim max-w-xl mx-auto">Two modes of operation: Respond to a crisis immediately, or build your long-term defenses.</p>
+        </div>
+
+        <section id="first-aid" class="mb-32 scroll-mt-28">
+            <div class="flex items-center gap-4 mb-8 border-b border-mecs-alert/30 pb-4">
+                <div class="w-12 h-12 bg-mecs-alert/10 rounded-full flex items-center justify-center border border-mecs-alert text-mecs-alert text-2xl">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black uppercase text-white">Digital First Aid</h2>
+                    <p class="text-mecs-alert font-mono text-xs uppercase tracking-widest">Status: Emergency Response Protocol</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <button onclick="activateProtocol('hack')" class="protocol-btn cyber-card p-6 text-left hover:border-mecs-alert group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity text-mecs-alert"><i class="fas fa-exclamation-circle text-4xl"></i></div>
+                    <h3 class="font-bold uppercase text-lg mb-2 group-hover:text-mecs-alert">I Was Hacked</h3>
+                    <p class="text-xs text-mecs-dim">Recover compromised accounts.</p>
+                </button>
+
+                <button onclick="activateProtocol('phish')" class="protocol-btn cyber-card p-6 text-left hover:border-mecs-alert group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity text-mecs-alert"><i class="fas fa-fish text-4xl"></i></div>
+                    <h3 class="font-bold uppercase text-lg mb-2 group-hover:text-mecs-alert">Clicked a Link</h3>
+                    <p class="text-xs text-mecs-dim">Phishing damage control.</p>
+                </button>
+
+                <button onclick="activateProtocol('device')" class="protocol-btn cyber-card p-6 text-left hover:border-mecs-alert group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity text-mecs-alert"><i class="fas fa-mobile-alt text-4xl"></i></div>
+                    <h3 class="font-bold uppercase text-lg mb-2 group-hover:text-mecs-alert">Lost Device</h3>
+                    <p class="text-xs text-mecs-dim">Secure data remotely.</p>
+                </button>
+
+                <button onclick="activateProtocol('ransom')" class="protocol-btn cyber-card p-6 text-left hover:border-mecs-alert group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity text-mecs-alert"><i class="fas fa-skull text-4xl"></i></div>
+                    <h3 class="font-bold uppercase text-lg mb-2 group-hover:text-mecs-alert">Ransomware</h3>
+                    <p class="text-xs text-mecs-dim">Infected computer steps.</p>
+                </button>
+            </div>
+
+            <div id="protocol-display" class="hidden bg-mecs-alert/5 border border-mecs-alert p-8 rounded relative animate__animated animate__fadeIn">
+                <div class="absolute top-0 left-0 bg-mecs-alert text-black font-bold text-xs px-3 py-1 uppercase">Active Protocol</div>
+                
+                <h3 id="proto-title" class="text-2xl font-black uppercase text-white mb-6 mt-2">Protocol Name</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <ul id="proto-steps" class="space-y-4">
+                            </ul>
+                    </div>
+                    <div class="bg-black/50 p-6 border border-white/10 rounded h-fit">
+                        <h4 class="text-mecs-alert font-bold uppercase text-sm mb-4"><i class="fas fa-ban mr-2"></i> Do Not Do This</h4>
+                        <ul id="proto-donts" class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="architect" class="mb-20 scroll-mt-28">
+            <div class="flex items-center gap-4 mb-8 border-b border-mecs-safe/30 pb-4">
+                <div class="w-12 h-12 bg-mecs-safe/10 rounded-full flex items-center justify-center border border-mecs-safe text-mecs-safe text-2xl">
+                    <i class="fas fa-drafting-compass"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black uppercase text-white">Privacy Architect</h2>
+                    <p class="text-mecs-safe font-mono text-xs uppercase tracking-widest">Status: Building Defense Blueprint</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="cyber-card p-6">
+                        <h3 class="text-sm font-bold uppercase text-mecs-safe mb-4">1. Select your ecosystem</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between p-3 border border-white/10 hover:border-mecs-safe cursor-pointer transition-colors bg-black/40 rounded">
+                                <span class="text-sm font-bold"><i class="fab fa-apple mr-2"></i> iOS / iPhone</span>
+                                <input type="checkbox" class="cyber-check" value="ios" onchange="generateBlueprint()">
+                            </label>
+                            <label class="flex items-center justify-between p-3 border border-white/10 hover:border-mecs-safe cursor-pointer transition-colors bg-black/40 rounded">
+                                <span class="text-sm font-bold"><i class="fab fa-android mr-2"></i> Android</span>
+                                <input type="checkbox" class="cyber-check" value="android" onchange="generateBlueprint()">
+                            </label>
+                            <label class="flex items-center justify-between p-3 border border-white/10 hover:border-mecs-safe cursor-pointer transition-colors bg-black/40 rounded">
+                                <span class="text-sm font-bold"><i class="fab fa-instagram mr-2"></i> Social Media</span>
+                                <input type="checkbox" class="cyber-check" value="social" onchange="generateBlueprint()">
+                            </label>
+                            <label class="flex items-center justify-between p-3 border border-white/10 hover:border-mecs-safe cursor-pointer transition-colors bg-black/40 rounded">
+                                <span class="text-sm font-bold"><i class="fas fa-wallet mr-2"></i> Finance / Banking</span>
+                                <input type="checkbox" class="cyber-check" value="finance" onchange="generateBlueprint()">
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-mecs-safe/10 border border-mecs-safe/30 rounded text-center">
+                        <div id="blueprint-count" class="text-4xl font-black text-mecs-safe">0</div>
+                        <div class="text-xs uppercase font-bold tracking-widest text-mecs-safe">Actions Generated</div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="cyber-card p-0 min-h-[400px] flex flex-col relative overflow-hidden">
+                        <div class="p-4 border-b border-white/10 bg-black/60 flex justify-between items-center">
+                            <span class="font-mono text-xs text-gray-500">BLUEPRINT_ID: <span class="text-mecs-safe">GENERATED_V1</span></span>
+                            <button onclick="printBlueprint()" class="text-xs uppercase font-bold text-white hover:text-mecs-safe"><i class="fas fa-print mr-2"></i> Print / PDF</button>
+                        </div>
+
+                        <div id="blueprint-empty" class="flex-grow flex flex-col items-center justify-center text-center p-8 opacity-50">
+                            <i class="fas fa-layer-group text-6xl mb-4 text-gray-700"></i>
+                            <p class="text-gray-500 uppercase font-bold text-sm">Select categories to generate<br>your hardening checklist.</p>
+                        </div>
+
+                        <div id="blueprint-content" class="hidden flex-grow p-6 space-y-6 overflow-y-auto max-h-[600px]">
+                            </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-black border-t border-mecs-primary py-8 text-center">
+        <p class="text-gray-600 text-xs uppercase tracking-widest">MECS Defense Center &copy; 2025</p>
+    </footer>
+
+    <script>
+        // === MOBILE MENU LOGIC (FROM REFERENCE) ===
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            // Toggle visibility
+            mobileMenu.classList.toggle('hidden');
+            
+            // Toggle Icon (Bars <-> X)
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileIcon.classList.remove('fa-times');
+                mobileIcon.classList.add('fa-bars');
+            } else {
+                mobileIcon.classList.remove('fa-bars');
+                mobileIcon.classList.add('fa-times');
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                if(!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    mobileIcon.classList.remove('fa-times');
+                    mobileIcon.classList.add('fa-bars');
+                }
+            }
+        });
+
+        // === 1. DIGITAL FIRST AID LOGIC ===
+        const protocols = {
+            'hack': {
+                title: "Compromised Account Protocol",
+                steps: [
+                    "Change your password immediately. If you can't access the account, use the 'Forgot Password' flow.",
+                    "Check for 'Linked Devices' or 'Active Sessions' in settings and LOG OUT of everything you don't recognize.",
+                    "Turn on 2-Factor Authentication (2FA) immediately using an Authenticator App (not SMS if possible).",
+                    "Check your email filters. Hackers often set up filters to auto-delete security alerts."
+                ],
+                donts: [
+                    "Do NOT reuse the old password.",
+                    "Do NOT pay anyone who claims they can 'hack it back' (they are scammers).",
+                    "Do NOT ignore other accounts that use the same password."
+                ]
+            },
+            'phish': {
+                title: "Phishing Containment",
+                steps: [
+                    "Disconnect your device from the Internet (Wi-Fi and Data) immediately to stop potential malware communication.",
+                    "If you entered a password, change it immediately from a DIFFERENT device (like your phone).",
+                    "If you entered banking info, call your bank's fraud department immediately to freeze the card.",
+                    "Run a full antivirus scan if you downloaded anything."
+                ],
+                donts: [
+                    "Do NOT click the link again to 'check' it.",
+                    "Do NOT trust caller ID if 'your bank' calls you right after (scammers spoof numbers)."
+                ]
+            },
+            'device': {
+                title: "Lost Device Protocol",
+                steps: [
+                    "Use 'Find My' (iOS) or 'Find My Device' (Android) to lock the device and put a message on the screen.",
+                    "If recovery looks unlikely, trigger a REMOTE WIPE to erase your data.",
+                    "Call your mobile carrier to suspend your SIM card so they can't use your number for 2FA.",
+                    "Change your Apple ID / Google Account password."
+                ],
+                donts: [
+                    "Do NOT meet a thief in a private location if they contact you.",
+                    "Do NOT remove the device from your account (this turns off Activation Lock)."
+                ]
+            },
+            'ransom': {
+                title: "Ransomware Response",
+                steps: [
+                    "Disconnect from the network (Unplug Ethernet, turn off Wi-Fi) immediately to prevent spread to other devices.",
+                    "Take a photo of the ransom note on the screen for evidence.",
+                    "Try to identify the ransomware type using ID Ransomware (website).",
+                    "Restore your files from an external backup (Cloud or Hard Drive) once the system is wiped."
+                ],
+                donts: [
+                    "Do NOT pay the ransom. There is no guarantee you will get your files back.",
+                    "Do NOT run 'optimization' tools you find online."
+                ]
+            }
+        };
+
+        function activateProtocol(type) {
+            const display = document.getElementById('protocol-display');
+            const data = protocols[type];
+            
+            // Populate Data
+            document.getElementById('proto-title').innerText = data.title;
+            
+            const stepsList = document.getElementById('proto-steps');
+            stepsList.innerHTML = '';
+            data.steps.forEach((step, index) => {
+                stepsList.innerHTML += `
+                    <li class="flex gap-4 items-start bg-black/40 p-4 rounded border border-white/5">
+                        <span class="flex-shrink-0 w-8 h-8 bg-mecs-alert text-black font-black flex items-center justify-center rounded-full text-sm">${index + 1}</span>
+                        <p class="text-gray-300 text-sm leading-relaxed">${step}</p>
+                    </li>
+                `;
+            });
+
+            const dontsList = document.getElementById('proto-donts');
+            dontsList.innerHTML = '';
+            data.donts.forEach(dont => {
+                dontsList.innerHTML += `<li>${dont}</li>`;
+            });
+
+            // Show
+            display.classList.remove('hidden');
+            display.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // === 2. PRIVACY ARCHITECT LOGIC ===
+        const blueprintData = {
+            'ios': [
+                { title: "Turn Off Ad Tracking", desc: "Settings > Privacy > Tracking > Allow Apps to Request to Track (OFF)." },
+                { title: "Review Location Services", desc: "Settings > Privacy > Location Services. Set apps to 'While Using' or 'Never'." },
+                { title: "Disable Lock Screen Access", desc: "Settings > FaceID & Passcode. Turn off 'Control Center' and 'USB Accessories' when locked." }
+            ],
+            'android': [
+                { title: "Opt-out of Ads", desc: "Settings > Google > Ads > Delete advertising ID." },
+                { title: "Permissions Audit", desc: "Settings > Privacy > Permission Manager. Check who has access to Mic and Camera." },
+                { title: "Play Protect", desc: "Ensure Google Play Protect is enabled to scan for bad apps." }
+            ],
+            'social': [
+                { title: "Instagram Activity", desc: "Settings > Privacy > Activity Status (OFF). Stops people seeing when you are online." },
+                { title: "Login Approvals", desc: "Turn on 2FA (Authentication App) for Facebook, Instagram, and Twitter." },
+                { title: "Photo Tagging", desc: "Set settings to 'Approve tags manually' before they appear on your profile." }
+            ],
+            'finance': [
+                { title: "Transaction Alerts", desc: "Log into your banking app and enable Push Notifications for EVERY transaction over $1." },
+                { title: "SIM Lock", desc: "Set up a PIN for your SIM card to prevent 'SIM Swapping' attacks." },
+                { title: "Credit Freeze", desc: "Freeze your credit with the main bureaus if you aren't applying for loans soon." }
+            ]
+        };
+
+        function generateBlueprint() {
+            const checkboxes = document.querySelectorAll('.cyber-check:checked');
+            const contentDiv = document.getElementById('blueprint-content');
+            const emptyDiv = document.getElementById('blueprint-empty');
+            const countDiv = document.getElementById('blueprint-count');
+            
+            contentDiv.innerHTML = '';
+            let totalItems = 0;
+
+            if (checkboxes.length === 0) {
+                contentDiv.classList.add('hidden');
+                emptyDiv.classList.remove('hidden');
+                countDiv.innerText = "0";
+                return;
+            }
+
+            contentDiv.classList.remove('hidden');
+            emptyDiv.classList.add('hidden');
+
+            checkboxes.forEach(chk => {
+                const category = chk.value;
+                const items = blueprintData[category];
+                
+                // Header for Category
+                const catHeader = document.createElement('div');
+                catHeader.className = "text-mecs-safe font-bold uppercase tracking-widest text-xs border-b border-white/10 pb-2 mt-4";
+                catHeader.innerText = `// ${category.toUpperCase()} MODULE`;
+                contentDiv.appendChild(catHeader);
+
+                // Items
+                items.forEach(item => {
+                    totalItems++;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = "flex items-start gap-4 p-3 hover:bg-white/5 rounded transition-colors";
+                    itemDiv.innerHTML = `
+                        <input type="checkbox" class="mt-1 cyber-check w-5 h-5 flex-shrink-0">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${item.title}</h4>
+                            <p class="text-gray-400 text-xs mt-1">${item.desc}</p>
+                        </div>
+                    `;
+                    contentDiv.appendChild(itemDiv);
+                });
+            });
+
+            countDiv.innerText = totalItems;
+        }
+
+        function printBlueprint() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
