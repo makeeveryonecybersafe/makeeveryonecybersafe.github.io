@@ -52,12 +52,6 @@
             color: #ffffff;
         }
 
-        .hover-glitch:hover {
-            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-            color: #FF0055;
-            text-shadow: 2px 2px #990033;
-        }
-
         .mecs-card {
             background: #0a0a0a;
             border: 1px solid #222;
@@ -90,49 +84,35 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-        <div class="container mx-auto px-6 py-4 relative">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="group flex items-center gap-2">
-                    <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
-                        <i class="fas fa-shield-alt text-black text-sm"></i>
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter uppercase">
-                        #MECS
-                    </span>
-                </a>
-                
-                <nav class="hidden md:block">
-                    <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
-                        <li><a href="#" class="text-mecs-primary">Training</a></li>
-                        <li><a href="resources.html" class="hover:text-mecs-primary transition-colors">Resources</a></li>
-                        <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Explore Labs</a></li>
-                    </ul>
-                </nav>
+    <header class="fixed w-full top-0 h-16 bg-black/90 backdrop-blur-md border-b border-white/10 flex-shrink-0 z-50 relative">
+        <div class="container mx-auto px-6 h-full flex justify-between items-center">
+            <a href="index.html" class="group flex items-center gap-2">
+                <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
+                    <i class="fas fa-shield-alt text-black text-sm"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tighter uppercase">
+                    #MECS<span class="text-mecs-primary group-hover:text-white transition-colors"></span>
+                </span>
+            </a>
 
-                <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none">
-                    <i class="fas fa-bars transition-transform duration-300"></i>
-                </button>
-            </div>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
+                    <li><a href="#" class="text-mecs-primary transition-colors">Training</a></li>
+                    <li><a href="resources.html" class="hover:text-mecs-primary transition-colors">Resources</a></li>
+                    <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Explore Labs</a></li>
+                </ul>
+            </nav>
+
+            <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none">
+                <i class="fas fa-bars transition-transform duration-300"></i>
+            </button>
         </div>
 
-        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-mecs-surface border-b border-mecs-primary/50 shadow-[0_10px_50px_rgba(255,0,85,0.2)]">
-            <ul class="flex flex-col p-6 space-y-4 font-mono text-sm">
-                <li>
-                    <a href="#" class="block text-mecs-primary border-l-2 border-mecs-primary pl-4 py-1 bg-white/5">
-                        > TRAINING_DATABASE
-                    </a>
-                </li>
-                <li>
-                    <a href="resources.html" class="block text-gray-400 hover:text-white border-l-2 border-transparent hover:border-white pl-4 py-1 transition-all">
-                        > RESOURCES
-                    </a>
-                </li>
-                <li>
-                    <a href="playground.html" class="block text-gray-400 hover:text-white border-l-2 border-transparent hover:border-white pl-4 py-1 transition-all">
-                        > EXPLORE_LABS
-                    </a>
-                </li>
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-primary backdrop-blur-md md:hidden animate__animated animate__fadeInDown z-50">
+            <ul class="flex flex-col p-6 space-y-6 text-center">
+                <li><a href="#" class="block text-sm font-bold uppercase tracking-widest text-mecs-primary transition-colors py-2 border-b border-white/10">Training</a></li>
+                <li><a href="resources.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2 border-b border-white/10">Resources</a></li>
+                <li><a href="playground.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2">Explore Labs</a></li>
             </ul>
         </div>
     </header>
@@ -146,7 +126,7 @@
             </p>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-6 mb-12 items-start md:items-center justify-between sticky top-24 z-40 bg-black/80 backdrop-blur-sm p-4 border border-white/10 btn-clip">
+        <div class="flex flex-col md:flex-row gap-6 mb-12 items-start md:items-center justify-between sticky top-20 z-40 bg-black/80 backdrop-blur-sm p-4 border border-white/10 btn-clip">
             
             <div class="relative w-full md:w-1/3 group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -336,7 +316,7 @@
             }
         });
 
-        // SANDWICH LOGIC (Mobile Menu)
+        // SANDWICH LOGIC (Matched to Reference)
         const mobileBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileIcon = mobileBtn.querySelector('i');
@@ -345,13 +325,6 @@
             // Toggle visibility
             mobileMenu.classList.toggle('hidden');
             
-            // Add animation class if opening
-            if (!mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.add('animate__animated', 'animate__fadeInDown');
-            } else {
-                mobileMenu.classList.remove('animate__animated', 'animate__fadeInDown');
-            }
-
             // Toggle Icon (Bars <-> X)
             if (mobileMenu.classList.contains('hidden')) {
                 mobileIcon.classList.remove('fa-times');
@@ -362,7 +335,7 @@
             }
         });
 
-        // Close menu when clicking outside
+        // Close menu when clicking outside (Optional but good UX)
         document.addEventListener('click', (e) => {
             if (!mobileBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
                 if(!mobileMenu.classList.contains('hidden')) {
