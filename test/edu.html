@@ -40,6 +40,7 @@
                         'float': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'type': 'type 2s steps(40, end)',
+                        'cursor-blink': 'blink 1s step-end infinite',
                     },
                     keyframes: {
                         glitch: {
@@ -57,6 +58,10 @@
                         type: {
                             'from': { width: '0' },
                             'to': { width: '100%' }
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' }
                         }
                     }
                 }
@@ -112,13 +117,46 @@
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
 
-        /* Typing Cursor */
+        /* Typing Cursor for Home Page */
         .typing-cursor::after {
             content: '_';
             animation: blink 1s step-end infinite;
         }
-        @keyframes blink { 50% { opacity: 0; } }
         
+        /* --- TERMINAL OVERLAY STYLES --- */
+        #hack-terminal {
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+        
+        .terminal-scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 60;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255, 0, 85, 0.1) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 10s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100px; }
+        }
+
+        .cmd-input {
+            background: transparent;
+            border: none;
+            color: #FF0055;
+            outline: none;
+            width: 80%;
+            font-family: 'JetBrains Mono', monospace;
+            caret-color: #FF0055;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -127,6 +165,25 @@
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
 
+    <div id="hack-terminal" class="hidden fixed inset-0 z-[100] bg-black text-green-500 p-8 overflow-hidden flex flex-col">
+        <div class="terminal-scanline"></div>
+        
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pixel-weave.png')] opacity-20 pointer-events-none"></div>
+        <div class="absolute inset-0 pointer-events-none" style="box-shadow: inset 0 0 100px rgba(0,0,0,0.9);"></div>
+
+        <div class="flex justify-between items-center border-b border-mecs-primary/50 pb-4 mb-4 z-10">
+            <div class="text-mecs-primary font-bold">MECS_SECURE_SHELL v2.4</div>
+            <button id="close-terminal" class="text-gray-500 hover:text-white">[ EXIT_SESSION ]</button>
+        </div>
+
+        <div id="terminal-output" class="flex-grow overflow-y-auto font-mono text-sm md:text-base space-y-1 pb-4 z-10 h-full">
+            </div>
+
+        <div class="flex items-center gap-2 font-mono text-sm md:text-base z-10 pt-2 border-t border-gray-900">
+            <span class="text-white">guest@mecs-node:~$</span>
+            <input type="text" id="terminal-input" class="cmd-input" autocomplete="off" spellcheck="false" autofocus>
+        </div>
+    </div>
     <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
         <div class="container mx-auto px-6 py-4 relative">
             <div class="flex justify-between items-center">
@@ -182,9 +239,9 @@
                 </p>
 
                 <div class="flex flex-wrap gap-4 mb-12">
-                    <a href="get-active.html" class="btn-clip bg-mecs-primary text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center gap-2">
-                        Get Active
-                    </a>
+                    <button id="btn-hack-mode" class="btn-clip bg-mecs-primary text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center gap-2 group">
+                        <i class="fas fa-terminal"></i> Hack my way
+                    </button>
                     <a href="#curriculum" class="btn-clip border border-white/30 text-white px-8 py-4 font-bold uppercase tracking-wider hover:border-mecs-primary hover:text-mecs-primary transition-colors">
                         Explore Modules
                     </a>
@@ -275,7 +332,7 @@
                     <div class="p-6">
                         <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Personal Defense</h3>
                         <p class="text-mecs-gray text-xs mb-6 line-clamp-2">Secure your digital perimeter. Passwords, 2FA, and basic account hardening.</p>
-                        <a href="#" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
+                        <a href="Personal_Defense.html" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
                             Start Module
                         </a>
                     </div>
@@ -291,7 +348,7 @@
                     <div class="p-6">
                         <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Phishing & Scams</h3>
                         <p class="text-mecs-gray text-xs mb-6 line-clamp-2">Spot the fake. Real-world case files on email scams and social engineering.</p>
-                        <a href="#" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
+                        <a href="Phishing_Scams.html" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
                             Start Module
                         </a>
                     </div>
@@ -307,7 +364,7 @@
                     <div class="p-6">
                         <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Network Safety</h3>
                         <p class="text-mecs-gray text-xs mb-6 line-clamp-2">Public Wi-Fi risks, VPNs, and securing your home router from intruders.</p>
-                        <a href="#" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
+                        <a href="Network_Safety.html" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
                             Start Module
                         </a>
                     </div>
@@ -323,7 +380,7 @@
                     <div class="p-6">
                         <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Privacy Operations</h3>
                         <p class="text-mecs-gray text-xs mb-6 line-clamp-2">Data minimization, tracking protection, and erasing your digital footprint.</p>
-                        <a href="#" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
+                        <a href="Privacy_OPS.html" class="w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
                             Start Module
                         </a>
                     </div>
@@ -407,6 +464,8 @@
     </footer>
 
     <script>
+        // --- EXISTING UI LOGIC ---
+
         // Reveal on Scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -434,6 +493,169 @@
                 mobileIcon.classList.add('fa-times');
             }
         });
+
+        // --- HACK MY WAY TERMINAL LOGIC ---
+
+        const terminalBtn = document.getElementById('btn-hack-mode');
+        const terminalOverlay = document.getElementById('hack-terminal');
+        const closeTerminalBtn = document.getElementById('close-terminal');
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+
+        // File System Simulation
+        const files = {
+            'personal_defense.exe': { type: 'exe', url: 'Personal_Defense.html', desc: 'Secure passwords & 2FA hardening.' },
+            'phishing_scams.exe': { type: 'exe', url: 'Phishing_Scams.html', desc: 'Identify social engineering attacks.' },
+            'network_safety.exe': { type: 'exe', url: 'Network_Safety.html', desc: 'VPNs & Router config.' },
+            'privacy_ops.exe': { type: 'exe', url: 'Privacy_OPS.html', desc: 'Digital footprint removal.' },
+            'linux_cli.exe': { type: 'exe', url: 'Linux.html', desc: 'Get comfortable with the terminal.' },
+            'mobile_sec.exe': { type: 'exe', url: 'Mobile_Sec.html', desc: 'App permissions, tracking blockers, and lost device protocols.' },
+            'readme.txt': { type: 'txt', content: 'Welcome to MECS Secure Shell.\nTo access training modules, identify the correct executable file and run it.\n\nUse command "ls" to view files.\nUse "./filename" to execute.' }
+        };
+
+        const commands = {
+            'help': 'Available commands: <br> - <span class="text-white">ls</span> (List files)<br> - <span class="text-white">cat [file]</span> (Read file)<br> - <span class="text-white">./[file]</span> (Execute module)<br> - <span class="text-white">clear</span> (Clear screen)<br> - <span class="text-white">exit</span> (Close terminal)',
+            'ls': () => {
+                let output = '<div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">';
+                for(let f in files) {
+                    const color = files[f].type === 'exe' ? 'text-mecs-primary' : 'text-white';
+                    output += `<div class="${color}">${f} <span class="text-gray-600 text-xs ml-2">// ${files[f].desc || 'Text file'}</span></div>`;
+                }
+                output += '</div>';
+                return output;
+            },
+            'clear': () => {
+                terminalOutput.innerHTML = '';
+                return '';
+            },
+            'whoami': 'guest@mecs-public-node',
+            'exit': () => {
+                toggleTerminal(false);
+                return 'Session terminated.';
+            }
+        };
+
+        function printLine(text, isCommand = false) {
+            const line = document.createElement('div');
+            if(isCommand) {
+                line.innerHTML = `<span class="text-white">guest@mecs-node:~$</span> <span class="text-white">${text}</span>`;
+            } else {
+                line.innerHTML = text;
+                line.className = "text-green-500 mb-2 leading-relaxed";
+            }
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        async function processCommand(cmdRaw) {
+            const parts = cmdRaw.trim().split(' ');
+            const cmd = parts[0].toLowerCase();
+            const arg = parts[1];
+
+            printLine(cmdRaw, true);
+
+            if(cmd === '') return;
+
+            // Handle Execution (./filename or exec filename)
+            if(cmd.startsWith('./') || cmd === 'exec') {
+                const filename = cmd.startsWith('./') ? cmd.substring(2) : arg;
+                if(files[filename] && files[filename].type === 'exe') {
+                    printLine(`[SYSTEM] Initializing ${filename}...`);
+                    printLine(`[SYSTEM] Decrypting payload...`);
+                    
+                    setTimeout(() => {
+                        printLine(`<span class="text-mecs-primary">[SUCCESS] Access Granted. Redirecting to training module...</span>`);
+                        setTimeout(() => {
+                            window.location.href = files[filename].url;
+                        }, 1500);
+                    }, 800);
+                    return;
+                } else if (files[filename]) {
+                    printLine(`Error: ${filename} is not executable. Try 'cat'.`);
+                    return;
+                } else {
+                    printLine(`Error: File not found. Type 'ls' to see available modules.`);
+                    return;
+                }
+            }
+
+            // Handle cat (read)
+            if(cmd === 'cat') {
+                if(files[arg]) {
+                    if(files[arg].type === 'txt') {
+                        printLine(files[arg].content.replace(/\n/g, '<br>'));
+                    } else {
+                        printLine(`Error: Cannot read binary file ${arg}. Try executing it with ./`);
+                    }
+                } else {
+                    printLine(`Error: File not found.`);
+                }
+                return;
+            }
+
+            // Standard Commands
+            if(commands[cmd]) {
+                const response = typeof commands[cmd] === 'function' ? commands[cmd]() : commands[cmd];
+                if(response) printLine(response);
+            } else {
+                printLine(`Command not found: ${cmd}. Type 'help' for assistance.`);
+            }
+        }
+
+        function bootSequence() {
+            terminalOutput.innerHTML = '';
+            const bootText = [
+                "Initializing MECS Kernel v2.4...",
+                "Loading security modules...",
+                "Mounting virtual file system...",
+                "Guest access granted.",
+                "------------------------------------------------",
+                "Type 'help' to view available commands.",
+                "Objective: Access the training modules."
+            ];
+
+            let delay = 0;
+            bootText.forEach((text, index) => {
+                setTimeout(() => {
+                    printLine(text);
+                }, delay);
+                delay += (Math.random() * 300) + 100;
+            });
+        }
+
+        function toggleTerminal(show) {
+            if(show) {
+                terminalOverlay.classList.remove('hidden');
+                terminalInput.focus();
+                bootSequence();
+            } else {
+                terminalOverlay.classList.add('hidden');
+            }
+        }
+
+        // Event Listeners
+        terminalBtn.addEventListener('click', () => toggleTerminal(true));
+        closeTerminalBtn.addEventListener('click', () => toggleTerminal(false));
+
+        terminalInput.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') {
+                processCommand(terminalInput.value);
+                terminalInput.value = '';
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape' && !terminalOverlay.classList.contains('hidden')) {
+                toggleTerminal(false);
+            }
+        });
+
+        // Keep focus on input
+        terminalOverlay.addEventListener('click', () => {
+            terminalInput.focus();
+        });
+
     </script>
 </body>
 </html>
