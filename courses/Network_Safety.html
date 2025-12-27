@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 03: Network Safety | MECS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#050505',
+                            surface: '#0a0a0a',
+                            border: '#222222',
+                            primary: '#00ccff', // Cyan for Network/Data
+                            accent: '#FF0055',
+                            success: '#00ff9d',
+                            warning: '#ffcc00'
+                        }
+                    },
+                    animation: {
+                        'float-right': 'floatRight 8s linear infinite',
+                    },
+                    keyframes: {
+                        floatRight: {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '10%': { opacity: '1' },
+                            '90%': { opacity: '1' },
+                            '100%': { transform: 'translateX(400%)', opacity: '0' } // Adjust based on container
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e0e0e0; overflow-x: hidden; }
+        
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50;
+        }
+
+        .section-locked {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%) blur(2px);
+            transition: all 0.5s ease;
+        }
+        
+        .section-active {
+            opacity: 1;
+            pointer-events: all;
+            filter: grayscale(0) blur(0);
+        }
+
+        .tech-border {
+            position: relative;
+            background: #0a0a0a;
+            border: 1px solid #333;
+        }
+        .tech-border::before {
+            content: ''; position: absolute; top: -1px; left: -1px; 
+            width: 10px; height: 10px; border-top: 2px solid #00ccff; border-left: 2px solid #00ccff;
+        }
+        .tech-border::after {
+            content: ''; position: absolute; bottom: -1px; right: -1px; 
+            width: 10px; height: 10px; border-bottom: 2px solid #00ccff; border-right: 2px solid #00ccff;
+        }
+
+        /* Packet Animation Classes */
+        .packet {
+            position: absolute;
+            white-space: nowrap;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            animation: movePacket 6s linear infinite;
+        }
+        @keyframes movePacket {
+            from { left: -100px; }
+            to { left: 100%; }
+        }
+
+        /* Switch Toggle */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #00ccff;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #00ccff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="scanlines"></div>
+
+    <header class="fixed w-full top-0 z-40 bg-black/95 backdrop-blur border-b border-mecs-border">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-mecs-dim hover:text-white transition group">
+                    <i class="fas fa-chevron-left group-hover:-translate-x-1 transition-transform"></i> HUB
+                </a>
+                <span class="text-mecs-border">|</span>
+                <span class="font-mono text-mecs-primary font-bold">MODULE 03: NETWORK SAFETY</span>
+            </div>
+            <div class="font-mono text-xs flex items-center gap-4">
+                <div class="border border-white/20 px-2 py-1 rounded bg-white/5">
+                    PROGRESS: <span id="progress-text" class="text-mecs-primary font-bold">0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="w-full h-1 bg-gray-900">
+            <div id="progress-bar" class="h-full bg-mecs-primary w-0 transition-all duration-500 shadow-[0_0_10px_#00ccff]"></div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pt-32 pb-24 max-w-4xl">
+
+        <div class="mb-16 animate__animated animate__fadeIn">
+            <div class="inline-block px-2 py-1 border border-mecs-primary text-mecs-primary font-mono text-xs mb-4 bg-mecs-primary/10">
+                > CONNECTION: UNSECURED
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black uppercase mb-4 leading-tight">Invisible Lines</h1>
+            <p class="text-gray-400 text-lg leading-relaxed max-w-2xl border-l-4 border-mecs-border pl-6">
+                When you connect to Wi-Fi, you are shouting your data across the room. Anyone listening can hear it.
+                <br><br>
+                <strong class="text-white">Mission:</strong> Encrypt your traffic, dodge "Evil Twins", and fortify your home router.
+            </p>
+        </div>
+
+        <section id="phase-1" class="mb-24 tech-border p-8 animate__animated animate__fadeInUp">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">01</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Coffee Shop Risk</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Understand Encryption (VPN)</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4 text-sm text-gray-300">
+                    <p><strong>Scenario:</strong> You are at a cafe. You connect to "Free Wi-Fi".</p>
+                    <p>Without a VPN, your data travels through the air in <strong>Plaintext</strong>. A hacker sitting in the corner with a $20 antenna can read your emails and passwords.</p>
+                    <p class="text-mecs-primary font-bold"> <i class="fas fa-arrow-right"></i> Activate the VPN to scramble the data.</p>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-700 p-4 rounded h-64 relative overflow-hidden flex flex-col">
+                    <div class="absolute inset-0 z-0 bg-grid-pattern opacity-10"></div>
+                    
+                    <div class="flex justify-between text-[10px] text-gray-500 font-mono mb-2 z-10 border-b border-gray-800 pb-1">
+                        <span>YOUR DEVICE</span>
+                        <span>INTERNET</span>
+                    </div>
+
+                    <div id="packet-stream" class="flex-grow relative border-b border-gray-800 mb-4 overflow-hidden bg-black/50">
+                        </div>
+
+                    <div class="z-10 flex items-center justify-between bg-black p-3 rounded border border-gray-800">
+                        <div class="text-xs font-bold text-gray-400">STATUS: <span id="vpn-status" class="text-red-500">UNENCRYPTED</span></div>
+                        
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="vpn-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-800 transition-all duration-300 left-0"/>
+                            <label for="toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-800 cursor-pointer border border-gray-700"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="p1-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(2)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 2
+            </button>
+        </section>
+
+        <section id="phase-2" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> COMPLETE PHASE 1
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">02</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Evil Twin</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Identify Fake Hotspots</span></p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 text-sm text-yellow-200 mb-6">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Hackers set up Wi-Fi hotspots with names <em>similar</em> to legitimate ones to trick you into connecting. Once connected, they steal everything.
+            </div>
+
+            <div class="bg-black border border-gray-800 rounded-xl p-6 max-w-sm mx-auto shadow-2xl">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+                    <span class="text-white font-bold"><i class="fas fa-wifi"></i> Wi-Fi Networks</span>
+                    <i class="fas fa-spinner fa-spin text-mecs-primary text-xs"></i>
+                </div>
+                
+                <div class="space-y-2">
+                    <button onclick="checkWifi(this, false)" class="w-full flex items-center justify-between p-3 bg-gray-900 hover:bg-gray-800 border border-transparent hover:border-gray-600 rounded transition group">
+                        <div class="text-left">
+                            <div class="text-sm font-bold text-white group-hover:text-mecs-primary">Starbucks_Free_WiFi</div>
+                            <div class="text-[10px] text-gray-500">Unsecured Network</div>
+                        </div>
+                        <i class="fas fa-lock-open text-gray-600"></i>
+                    </button>
+
+                    <button onclick="checkWifi(this, false)" class="w-full flex items-center justify-between p-3 bg-gray-900 hover:bg-gray-800 border border-transparent hover:border-gray-600 rounded transition group">
+                        <div class="text-left">
+                            <div class="text-sm font-bold text-white group-hover:text-mecs-primary">Starbucks_Official</div>
+                            <div class="text-[10px] text-gray-500">WPA2 Enterprise</div>
+                        </div>
+                        <i class="fas fa-lock text-white"></i>
+                    </button>
+
+                    <button onclick="checkWifi(this, true)" class="w-full flex items-center justify-between p-3 bg-gray-900 hover:bg-gray-800 border border-transparent hover:border-gray-600 rounded transition group">
+                        <div class="text-left">
+                            <div class="text-sm font-bold text-white group-hover:text-mecs-primary">Mobile Data (4G/5G)</div>
+                            <div class="text-[10px] text-gray-500">Personal Hotspot</div>
+                        </div>
+                        <i class="fas fa-shield-alt text-mecs-primary"></i>
+                    </button>
+                </div>
+                
+                <div id="wifi-feedback" class="mt-4 text-xs text-center min-h-[40px] flex items-center justify-center font-bold">
+                    Select the safest connection method.
+                </div>
+            </div>
+
+            <button id="p2-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(3)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 3
+            </button>
+        </section>
+
+        <section id="phase-3" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> COMPLETE PHASE 2
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">03</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Home Base</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Secure Admin Panel</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="text-sm text-gray-300 space-y-4">
+                    <p>Your home router is the gateway to every device in your house. If it uses default settings, hackers can hijack it in seconds.</p>
+                    <div class="bg-gray-900 p-4 border-l-2 border-mecs-primary">
+                        <h4 class="font-bold text-white mb-2">Checklist:</h4>
+                        <ul class="space-y-2 list-none" id="router-checklist">
+                            <li id="chk-pass" class="flex items-center gap-2 text-gray-500"><i class="far fa-circle"></i> Change Admin Password</li>
+                            <li id="chk-wps" class="flex items-center gap-2 text-gray-500"><i class="far fa-circle"></i> Disable WPS</li>
+                            <li id="chk-upd" class="flex items-center gap-2 text-gray-500"><i class="far fa-circle"></i> Update Firmware</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gray-200 text-black rounded shadow-lg overflow-hidden font-sans border-4 border-gray-400">
+                    <div class="bg-gray-300 p-2 border-b border-gray-400 flex items-center gap-2">
+                        <div class="flex gap-1">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        </div>
+                        <div class="bg-white px-2 py-0.5 rounded text-[10px] text-gray-600 flex-grow font-mono">192.168.0.1/admin.html</div>
+                    </div>
+
+                    <div class="flex h-[300px]">
+                        <div class="w-1/4 bg-blue-900 text-blue-100 p-2 text-[10px] flex flex-col gap-2">
+                            <div class="font-bold border-b border-blue-700 pb-1 mb-1">NET-GEAR v2</div>
+                            <div class="cursor-pointer hover:bg-blue-800 p-1 rounded" onclick="showRouterTab('status')">Status</div>
+                            <div class="cursor-pointer hover:bg-blue-800 p-1 rounded" onclick="showRouterTab('wireless')">Wireless</div>
+                            <div class="cursor-pointer hover:bg-blue-800 p-1 rounded font-bold bg-blue-800" onclick="showRouterTab('admin')">Administration</div>
+                        </div>
+
+                        <div class="w-3/4 p-4 bg-white text-gray-800 relative">
+                            
+                            <div id="tab-admin" class="space-y-3">
+                                <h3 class="font-bold border-b border-gray-300 pb-1 text-sm">Administration</h3>
+                                
+                                <div>
+                                    <label class="block text-[10px] font-bold">Router Password</label>
+                                    <div class="flex gap-2">
+                                        <input type="password" id="router-pass" value="admin" class="border border-gray-400 px-1 py-0.5 text-xs w-24">
+                                        <button onclick="updateRouterPass()" class="bg-gray-200 border border-gray-400 px-2 py-0.5 text-[10px] hover:bg-gray-300">Change</button>
+                                    </div>
+                                    <div class="text-[8px] text-red-500 mt-1" id="pass-msg">Current: Default (Unsafe)</div>
+                                </div>
+
+                                <div class="mt-4 pt-2 border-t border-gray-200">
+                                    <label class="block text-[10px] font-bold">WPS (Wi-Fi Protected Setup)</label>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <input type="radio" name="wps" id="wps-on" checked> <span class="text-[10px]">Enable</span>
+                                        <input type="radio" name="wps" id="wps-off" onclick="disableWPS()"> <span class="text-[10px]">Disable (Recommended)</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button onclick="updateFirmware()" class="bg-blue-600 text-white px-2 py-1 text-[10px] rounded hover:bg-blue-500">Check for Firmware Updates</button>
+                                    <span id="update-msg" class="text-[8px] ml-2 text-gray-500"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="p3-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(4)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Final Audit
+            </button>
+        </section>
+
+        <section id="phase-4" class="mb-24 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> COMPLETE PHASE 3
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-gray-900 to-black border border-mecs-border p-8 text-center">
+                <h2 class="text-3xl font-black uppercase mb-4 text-white">Network Secured</h2>
+                <p class="text-gray-500 mb-8">Confirm protocols to sign off.</p>
+                
+                <div class="max-w-md mx-auto space-y-4 text-left mb-8">
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I will install a VPN on my phone/laptop.</span>
+                    </label>
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I will never trust public Wi-Fi without encryption.</span>
+                    </label>
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I have changed my home router password.</span>
+                    </label>
+                </div>
+
+                <div id="finish-btn-container" class="hidden animate__animated animate__fadeInUp">
+                    <a href="index.html" class="inline-block bg-mecs-primary text-black px-12 py-4 font-bold uppercase tracking-wider hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_#00ccff]">
+                        <i class="fas fa-check-circle mr-2"></i> Module Complete
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* --- GLOBAL HELPERS --- */
+        function unlockSection(id) {
+            const section = document.getElementById(`phase-${id}`);
+            const overlay = section.querySelector('.lock-overlay');
+            if(overlay) overlay.remove();
+            section.classList.remove('section-locked');
+            section.classList.add('section-active');
+            
+            setTimeout(() => {
+                section.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }, 100);
+
+            // Update Header
+            let percent = (id-1) * 33;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').innerText = `${percent}%`;
+        }
+
+        /* --- PHASE 1: PACKET SNIFFER --- */
+        const packetStream = document.getElementById('packet-stream');
+        const vpnToggle = document.getElementById('vpn-toggle');
+        const vpnStatus = document.getElementById('vpn-status');
+        let isEncrypted = false;
+        let packetInterval;
+
+        const plainPackets = ["Pass: 12345", "CC: 4412-8888", "User: Admin", "Email: hello@me.com", "Chat: Hey!"];
+        const encryptedPackets = ["xk9#m2", "882!!aA", "001101", "ENCRYPTED", "Ax%99*"];
+
+        function createPacket() {
+            const el = document.createElement('div');
+            el.className = `packet ${isEncrypted ? 'text-green-400 border border-green-500/30' : 'text-red-500 border border-red-500/30 bg-red-500/10'}`;
+            el.innerText = isEncrypted 
+                ? encryptedPackets[Math.floor(Math.random() * encryptedPackets.length)]
+                : plainPackets[Math.floor(Math.random() * plainPackets.length)];
+            
+            // Random vertical position
+            el.style.top = Math.random() * 80 + '%';
+            // Random speed variation
+            el.style.animationDuration = (4 + Math.random() * 4) + 's';
+
+            packetStream.appendChild(el);
+
+            // Cleanup
+            setTimeout(() => { el.remove(); }, 8000);
+        }
+
+        // Start Loop
+        packetInterval = setInterval(createPacket, 800);
+
+        // Toggle Logic
+        vpnToggle.addEventListener('change', (e) => {
+            isEncrypted = e.target.checked;
+            if(isEncrypted) {
+                vpnStatus.innerText = "VPN SECURE";
+                vpnStatus.className = "text-green-400 animate-pulse";
+                document.getElementById('p1-next').classList.remove('hidden');
+                
+                // Visual flush
+                packetStream.innerHTML = "";
+                // Create a bunch of green ones instantly
+                for(let i=0; i<3; i++) createPacket();
+            } else {
+                vpnStatus.innerText = "UNENCRYPTED";
+                vpnStatus.className = "text-red-500";
+            }
+        });
+
+        /* --- PHASE 2: EVIL TWIN --- */
+        function checkWifi(btn, isCorrect) {
+            const fb = document.getElementById('wifi-feedback');
+            
+            if(isCorrect) {
+                fb.innerHTML = "<span class='text-green-400'>CORRECT.</span> When in doubt, disconnect from Wi-Fi and use your cellular data (it's encrypted by the carrier).";
+                document.getElementById('p2-next').classList.remove('hidden');
+            } else {
+                fb.innerHTML = "<span class='text-red-500'>DANGEROUS.</span> Public Wi-Fi names can be faked easily. 'Starbucks_Official' might just be a hacker's laptop name.";
+                btn.classList.add('bg-red-900/50');
+                setTimeout(() => btn.classList.remove('bg-red-900/50'), 500);
+            }
+        }
+
+        /* --- PHASE 3: ROUTER --- */
+        let routerState = { pass: false, wps: false, update: false };
+
+        function checkRouterCompletion() {
+            if(routerState.pass && routerState.wps && routerState.update) {
+                document.getElementById('p3-next').classList.remove('hidden');
+            }
+        }
+
+        function updateRouterPass() {
+            const inp = document.getElementById('router-pass');
+            if(inp.value !== 'admin' && inp.value.length > 5) {
+                document.getElementById('pass-msg').innerText = "Password Changed Successfully";
+                document.getElementById('pass-msg').className = "text-[8px] mt-1 text-green-600 font-bold";
+                document.getElementById('chk-pass').className = "flex items-center gap-2 text-green-400 font-bold";
+                document.getElementById('chk-pass').innerHTML = '<i class="fas fa-check-circle"></i> Change Admin Password';
+                routerState.pass = true;
+                checkRouterCompletion();
+            } else {
+                alert("Password too weak or same as default!");
+            }
+        }
+
+        function disableWPS() {
+            document.getElementById('chk-wps').className = "flex items-center gap-2 text-green-400 font-bold";
+            document.getElementById('chk-wps').innerHTML = '<i class="fas fa-check-circle"></i> Disable WPS';
+            routerState.wps = true;
+            checkRouterCompletion();
+        }
+
+        function updateFirmware() {
+            const msg = document.getElementById('update-msg');
+            msg.innerText = "Downloading...";
+            setTimeout(() => {
+                msg.innerText = "Up to date (v2.4.1)";
+                msg.className = "text-[8px] ml-2 text-green-600 font-bold";
+                document.getElementById('chk-upd').className = "flex items-center gap-2 text-green-400 font-bold";
+                document.getElementById('chk-upd').innerHTML = '<i class="fas fa-check-circle"></i> Update Firmware';
+                routerState.update = true;
+                checkRouterCompletion();
+            }, 1500);
+        }
+
+        /* --- PHASE 4: FINAL --- */
+        function checkFinal() {
+            const checks = document.querySelectorAll('.cyber-check:checked');
+            if(checks.length === 3) {
+                document.getElementById('finish-btn-container').classList.remove('hidden');
+                document.getElementById('progress-bar').style.width = `100%`;
+                document.getElementById('progress-text').innerText = `100%`;
+            }
+        }
+    </script>
+</body>
+</html>

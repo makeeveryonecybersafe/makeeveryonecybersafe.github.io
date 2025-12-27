@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 02: Social Engineering | MECS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#050505',
+                            surface: '#0a0a0a',
+                            border: '#222222',
+                            primary: '#ff9900', // Orange for Warning/Phishing
+                            accent: '#FF0055',
+                            success: '#00ff9d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e0e0e0; }
+        
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50;
+        }
+
+        .section-locked {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%) blur(2px);
+            transition: all 0.5s ease;
+        }
+        
+        .section-active {
+            opacity: 1;
+            pointer-events: all;
+            filter: grayscale(0) blur(0);
+        }
+
+        .tech-border {
+            position: relative;
+            background: #0a0a0a;
+            border: 1px solid #333;
+        }
+        .tech-border::before {
+            content: ''; position: absolute; top: -1px; left: -1px; 
+            width: 10px; height: 10px; border-top: 2px solid #ff9900; border-left: 2px solid #ff9900;
+        }
+        .tech-border::after {
+            content: ''; position: absolute; bottom: -1px; right: -1px; 
+            width: 10px; height: 10px; border-bottom: 2px solid #ff9900; border-right: 2px solid #ff9900;
+        }
+
+        /* Hotspot for Email Analysis */
+        .evidence-marker {
+            cursor: pointer;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+        .evidence-marker:hover { background: rgba(255, 153, 0, 0.2); }
+        .evidence-found {
+            background: rgba(255, 0, 0, 0.3) !important;
+            border: 1px solid red !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="scanlines"></div>
+
+    <header class="fixed w-full top-0 z-40 bg-black/95 backdrop-blur border-b border-mecs-border">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-mecs-dim hover:text-white transition group">
+                    <i class="fas fa-chevron-left group-hover:-translate-x-1 transition-transform"></i> HUB
+                </a>
+                <span class="text-mecs-border">|</span>
+                <span class="font-mono text-mecs-primary font-bold">MODULE 02: SOCIAL ENGINEERING</span>
+            </div>
+            <div class="font-mono text-xs flex items-center gap-4">
+                <div class="border border-white/20 px-2 py-1 rounded bg-white/5">
+                    PROGRESS: <span id="progress-text" class="text-mecs-primary font-bold">0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="w-full h-1 bg-gray-900">
+            <div id="progress-bar" class="h-full bg-mecs-primary w-0 transition-all duration-500 shadow-[0_0_10px_#ff9900]"></div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pt-32 pb-24 max-w-4xl">
+
+        <div class="mb-16 animate__animated animate__fadeIn">
+            <div class="inline-block px-2 py-1 border border-mecs-primary text-mecs-primary font-mono text-xs mb-4 bg-mecs-primary/10">
+                > THREAT_LEVEL: CRITICAL
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black uppercase mb-4 leading-tight">Spot The Fake</h1>
+            <p class="text-gray-400 text-lg leading-relaxed max-w-2xl border-l-4 border-mecs-border pl-6">
+                Hackers don't break firewalls; they break people. 90% of breaches start with a phishing email or text.
+                <br><br>
+                <strong class="text-white">Mission:</strong> Analyze evidence, identify deceptive URLs, and neutralize social engineering attempts.
+            </p>
+        </div>
+
+        <section id="phase-1" class="mb-24 tech-border p-8 animate__animated animate__fadeInUp">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">01</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Email Autopsy</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Task: <span class="text-mecs-primary">Find 3 Evidence Markers</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4 text-sm text-gray-300">
+                    <p>You have intercepted a suspicious email. It looks real, but there are flaws.</p>
+                    <p><strong>Click on the suspicious parts</strong> of the email to flag them as evidence.</p>
+                    <div class="bg-gray-900 p-3 rounded border border-gray-700">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">Evidence Collected</h4>
+                        <div id="evidence-list" class="space-y-1 font-mono text-xs text-red-500">
+                            </div>
+                        <div id="evidence-counter" class="text-right text-xs mt-2 text-white">0 / 3 Found</div>
+                    </div>
+                </div>
+
+                <div class="bg-white text-black rounded shadow-2xl overflow-hidden relative">
+                    <div class="bg-gray-100 p-4 border-b border-gray-300">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-bold text-lg">URGENT: Your account has been suspended</div>
+                            <div class="text-xs text-gray-500">Today, 9:41 AM</div>
+                        </div>
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-600">From:</span> 
+                            <span class="evidence-marker px-1" onclick="collectEvidence(this, 'Spoofed Sender Address')">"Netflix Support" &lt;support@netflix-verify-account.com&gt;</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-600">To:</span> mecs_user@company.com
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 text-sm leading-relaxed">
+                        <div class="flex justify-center mb-6">
+                            <div class="text-red-600 font-black text-2xl tracking-widest">NETFLIX</div>
+                        </div>
+                        <p class="mb-4">Dear Customer,</p>
+                        <p class="mb-4">
+                            We were unable to process your latest payment. <span class="evidence-marker bg-yellow-100 px-1" onclick="collectEvidence(this, 'Artificial Urgency')">Your account will be deleted in 24 hours</span> unless you update your billing information immediately.
+                        </p>
+                        <div class="text-center my-8">
+                            <span class="evidence-marker inline-block bg-red-600 text-white font-bold py-3 px-6 rounded" onclick="collectEvidence(this, 'Malicious Link')">
+                                Update Payment Now
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center">
+                            Netflix International B.V.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="p1-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(2)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 2
+            </button>
+        </section>
+
+        <section id="phase-2" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> COMPLETE PHASE 1
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">02</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The URL Decoder</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Identify the Root Domain</span></p>
+                </div>
+            </div>
+
+            <div class="mb-6 p-4 bg-blue-900/20 border border-blue-500/30 text-sm text-blue-200">
+                <i class="fas fa-info-circle mr-2"></i> <strong>RULE:</strong> Read from Right to Left. The word before the top-level domain (.com, .net) is the REAL website.
+                <br>
+                <span class="font-mono text-white">google.login.badsite.com</span> &rarr; You are on <span class="text-red-500 font-bold">badsite.com</span>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-black border border-gray-700 p-6 rounded">
+                    <div class="text-gray-500 text-xs font-mono mb-2 uppercase">Browser Address Bar</div>
+                    
+                    <div id="url-chal-1" class="mb-6">
+                        <div class="bg-gray-800 p-3 rounded flex items-center gap-2 mb-2">
+                            <i class="fas fa-lock text-green-500 text-xs"></i>
+                            <span class="font-mono text-white text-sm truncate">https://secure-login.paypal.account-verify.net/login</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-2">Where does this link go?</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="failUrl(this)" class="bg-gray-800 hover:bg-gray-700 p-2 text-xs font-mono rounded border border-gray-600">paypal.com</button>
+                            <button onclick="passUrl(1)" class="bg-gray-800 hover:bg-gray-700 p-2 text-xs font-mono rounded border border-gray-600">account-verify.net</button>
+                        </div>
+                    </div>
+
+                    <div id="url-chal-2" class="hidden mb-6 animate__animated animate__fadeIn">
+                        <div class="bg-gray-800 p-3 rounded flex items-center gap-2 mb-2">
+                            <i class="fas fa-lock text-green-500 text-xs"></i>
+                            <span class="font-mono text-white text-sm truncate">https://microsoft-online.com.security-check.io/auth</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-2">Where does this link go?</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="passUrl(2)" class="bg-gray-800 hover:bg-gray-700 p-2 text-xs font-mono rounded border border-gray-600">security-check.io</button>
+                            <button onclick="failUrl(this)" class="bg-gray-800 hover:bg-gray-700 p-2 text-xs font-mono rounded border border-gray-600">microsoft-online.com</button>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="text-sm text-gray-400">
+                    <div id="url-feedback" class="h-32 p-4 border border-dashed border-gray-700 flex items-center justify-center text-center italic">
+                        Select an option to analyze the domain structure.
+                    </div>
+                </div>
+            </div>
+
+            <button id="p2-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(3)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 3
+            </button>
+        </section>
+
+        <section id="phase-3" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> COMPLETE PHASE 2
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">03</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The CEO Fraud</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Handle Social Engineering</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden flex flex-col h-[400px]">
+                    <div class="bg-gray-800 p-3 border-b border-gray-700 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-xs">JS</div>
+                        <div>
+                            <div class="text-sm font-bold text-white">John Smith (CEO)</div>
+                            <div class="text-[10px] text-gray-400">Via SMS • +1 (555) 019-2834</div>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-history" class="flex-grow p-4 space-y-4 overflow-y-auto">
+                        <div class="flex flex-col items-start animate__animated animate__fadeInLeft">
+                            <div class="bg-gray-800 text-gray-200 text-xs p-3 rounded-2xl rounded-tl-none max-w-[80%]">
+                                Are you at your desk? I'm in a conference call and can't talk.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-black border-t border-gray-800">
+                        <div id="chat-options" class="grid grid-cols-1 gap-2">
+                            <button onclick="chatResponse(1)" class="bg-gray-800 hover:bg-gray-700 text-left text-xs p-3 rounded border border-gray-600 transition">
+                                "Yes John, I'm here. What do you need?"
+                            </button>
+                            <button onclick="chatResponse(2)" class="bg-gray-800 hover:bg-gray-700 text-left text-xs p-3 rounded border border-gray-600 transition">
+                                "This is a strange number. Who is this?"
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-sm text-gray-300 space-y-4">
+                    <h3 class="font-bold text-white">Spear Phishing Analysis</h3>
+                    <p>Attackers research the company hierarchy. They spoof the CEO or Upper Management to create <strong>Pressure</strong>.</p>
+                    <ul class="list-disc pl-4 space-y-2 text-gray-400">
+                        <li><strong>Urgency:</strong> "I'm in a meeting" (prevents you from calling them).</li>
+                        <li><strong>Request:</strong> Usually Wire Transfers or Gift Cards.</li>
+                        <li><strong>The Defense:</strong> Verify Out-of-Band (Call them on their *internal* office line).</li>
+                    </ul>
+                    <div id="chat-feedback" class="hidden p-4 border-l-4 border-red-500 bg-red-500/10 mt-4">
+                        </div>
+                </div>
+            </div>
+
+            <button id="p3-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(4)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Final Exam
+            </button>
+        </section>
+
+         <section id="phase-4" class="mb-24 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> COMPLETE PHASE 3
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-gray-900 to-black border border-mecs-border p-8 text-center">
+                <h2 class="text-3xl font-black uppercase mb-4 text-white">Rapid Fire Defense</h2>
+                <p class="text-gray-500 mb-8">Decide: LEGIT or SCAM. 3 Correct to pass.</p>
+                
+                <div class="max-w-md mx-auto bg-black border border-white/10 p-8 rounded-lg relative overflow-hidden">
+                    
+                    <div id="quiz-container">
+                        <div class="mb-6">
+                            <span class="text-xs font-mono text-mecs-primary" id="quiz-counter">QUESTION 1/3</span>
+                            <h3 class="text-xl font-bold text-white mt-2" id="quiz-question">
+                                You receive a text from "USPS": <br> 
+                                <span class="text-blue-400 underline text-sm">usps-track-package-delivery.info</span>
+                            </h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="answerQuiz('scam')" class="py-4 border border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition">SCAM</button>
+                            <button onclick="answerQuiz('legit')" class="py-4 border border-green-500 text-green-500 font-bold hover:bg-green-500 hover:text-black transition">LEGIT</button>
+                        </div>
+                    </div>
+
+                    <div id="quiz-success" class="hidden">
+                        <i class="fas fa-shield-check text-5xl text-mecs-success mb-4"></i>
+                        <h3 class="text-2xl font-bold text-white">MODULE COMPLETE</h3>
+                        <p class="text-gray-400 mb-6">You have mastered Social Engineering Defense.</p>
+                        <a href="index.html" class="inline-block bg-mecs-primary text-black px-8 py-3 font-bold uppercase tracking-wider hover:bg-white transition-all shadow-[0_0_20px_#ff9900]">
+                            Return to Hub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* --- GLOBAL HELPERS --- */
+        let currentProgress = 0;
+        
+        function unlockSection(id) {
+            const section = document.getElementById(`phase-${id}`);
+            const overlay = section.querySelector('.lock-overlay');
+            if(overlay) overlay.remove();
+            section.classList.remove('section-locked');
+            section.classList.add('section-active');
+            
+            setTimeout(() => {
+                section.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }, 100);
+
+            // Update Header Bar
+            let percent = (id-1) * 25;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').innerText = `${percent}%`;
+        }
+
+        /* --- PHASE 1: EMAIL AUTOPSY --- */
+        let evidenceFound = 0;
+        const totalEvidence = 3;
+        
+        function collectEvidence(el, type) {
+            if (el.classList.contains('evidence-found')) return; // Already found
+
+            el.classList.add('evidence-found');
+            evidenceFound++;
+            
+            // Update List
+            const list = document.getElementById('evidence-list');
+            list.innerHTML += `<div>[!] DETECTED: ${type}</div>`;
+            document.getElementById('evidence-counter').innerText = `${evidenceFound} / ${totalEvidence} Found`;
+
+            if (evidenceFound === totalEvidence) {
+                document.getElementById('p1-next').classList.remove('hidden');
+                document.getElementById('evidence-counter').className = "text-right text-xs mt-2 text-mecs-success font-bold";
+                document.getElementById('evidence-counter').innerText = "ANALYSIS COMPLETE";
+            }
+        }
+
+        /* --- PHASE 2: URL DECODER --- */
+        function failUrl(btn) {
+            const fb = document.getElementById('url-feedback');
+            fb.innerHTML = "<span class='text-red-500 font-bold'>INCORRECT.</span><br>Hackers use subdomains to fool you. Look at what comes immediately before '.com' or '.net'.";
+            fb.className = "h-32 p-4 border border-red-500 bg-red-500/10 flex flex-col items-center justify-center text-center animate__animated animate__shakeX";
+            
+            setTimeout(() => {
+                 fb.className = "h-32 p-4 border border-dashed border-gray-700 flex items-center justify-center text-center italic";
+            }, 2000);
+        }
+
+        function passUrl(level) {
+            const fb = document.getElementById('url-feedback');
+            fb.innerHTML = "<span class='text-green-500 font-bold'>CORRECT.</span><br>You identified the root domain.";
+            fb.className = "h-32 p-4 border border-green-500 bg-green-500/10 flex flex-col items-center justify-center text-center";
+
+            if(level === 1) {
+                setTimeout(() => {
+                    document.getElementById('url-chal-1').classList.add('hidden');
+                    document.getElementById('url-chal-2').classList.remove('hidden');
+                    fb.innerHTML = "Select an option to analyze the domain structure.";
+                    fb.className = "h-32 p-4 border border-dashed border-gray-700 flex items-center justify-center text-center italic";
+                }, 1500);
+            } else {
+                document.getElementById('p2-next').classList.remove('hidden');
+            }
+        }
+
+        /* --- PHASE 3: CEO SIMULATOR --- */
+        function chatResponse(option) {
+            const history = document.getElementById('chat-history');
+            const opts = document.getElementById('chat-options');
+            const feedback = document.getElementById('chat-feedback');
+
+            // User msg
+            let userMsgText = option === 1 ? "Yes John, I'm here. What do you need?" : "This is a strange number. Who is this?";
+            history.innerHTML += `
+                <div class="flex flex-col items-end animate__animated animate__fadeInRight">
+                    <div class="bg-blue-600 text-white text-xs p-3 rounded-2xl rounded-tr-none max-w-[80%]">
+                        ${userMsgText}
+                    </div>
+                </div>
+            `;
+
+            // Bot Response
+            setTimeout(() => {
+                let botMsg = "";
+                if (option === 1) {
+                    botMsg = "I need you to buy 5 Apple Gift Cards for a client gift. I'll reimburse you. Send photos of the codes ASAP.";
+                    history.innerHTML += `
+                        <div class="flex flex-col items-start animate__animated animate__fadeInLeft">
+                            <div class="bg-gray-800 text-gray-200 text-xs p-3 rounded-2xl rounded-tl-none max-w-[80%]">
+                                ${botMsg}
+                            </div>
+                        </div>
+                    `;
+                    // Offer 2nd round options
+                    opts.innerHTML = `
+                        <button onclick="failChat()" class="bg-gray-800 hover:bg-gray-700 text-left text-xs p-3 rounded border border-gray-600 transition">"Sure, on it."</button>
+                        <button onclick="passChat()" class="bg-gray-800 hover:bg-gray-700 text-left text-xs p-3 rounded border border-gray-600 transition">"I will call your office line to confirm."</button>
+                    `;
+                } else {
+                    botMsg = "It's my personal cell. Look, I don't have time for this. Just help me out.";
+                    history.innerHTML += `
+                        <div class="flex flex-col items-start animate__animated animate__fadeInLeft">
+                            <div class="bg-gray-800 text-gray-200 text-xs p-3 rounded-2xl rounded-tl-none max-w-[80%]">
+                                ${botMsg}
+                            </div>
+                        </div>
+                    `;
+                     opts.innerHTML = `
+                        <button onclick="failChat()" class="bg-gray-800 hover:bg-gray-700 text-left text-xs p-3 rounded border border-gray-600 transition">"Sorry sir, what do you need?"</button>
+                        <button onclick="passChat()" class="bg-gray-800 hover:bg-gray-700 text-left text-xs p-3 rounded border border-gray-600 transition">"I cannot verify this number. I'm calling reception."</button>
+                    `;
+                }
+                
+                // Auto Scroll
+                const container = document.getElementById('chat-simulator').parentElement; // rough scroll fix
+                history.scrollTop = history.scrollHeight;
+            }, 1000);
+        }
+
+        function failChat() {
+            const fb = document.getElementById('chat-feedback');
+            fb.classList.remove('hidden');
+            fb.innerHTML = "<strong class='text-red-500'>COMPROMISED.</strong><br>You just fell for the scam. Never trust urgency. Always verify requests for money/data on a different channel (Voice/Slack).";
+            
+            // Reset button
+             document.getElementById('chat-options').innerHTML = `
+                <button onclick="location.reload()" class="bg-red-600 text-white text-center w-full text-xs p-3 rounded font-bold uppercase">Restart Module</button>
+            `;
+        }
+
+        function passChat() {
+            const fb = document.getElementById('chat-feedback');
+            fb.classList.remove('hidden');
+            fb.className = "p-4 border-l-4 border-green-500 bg-green-500/10 mt-4";
+            fb.innerHTML = "<strong class='text-green-500'>ATTACK NEUTRALIZED.</strong><br>Correct. By taking the conversation 'Out of Band' (calling the office), you break the hacker's illusion.";
+            document.getElementById('chat-options').innerHTML = `<div class='text-center text-gray-500 text-xs'>Session Terminated</div>`;
+            document.getElementById('p3-next').classList.remove('hidden');
+        }
+
+        /* --- PHASE 4: THE GAUNTLET --- */
+        const questions = [
+            { q: "Text from 'USPS': <span class='text-blue-400 underline'>usps-track-package-delivery.info</span>", a: "scam" },
+            { q: "Email from 'IT': <span class='text-blue-400 underline'>microsoft.com/auth/login</span>", a: "legit" }, // microsoft.com is root
+            { q: "Boss asks for your cell number via work email.", a: "legit" }, 
+            { q: "Boss asks for Gift Card codes via text.", a: "scam" }
+        ];
+        let qIndex = 0;
+        let score = 0;
+
+        function answerQuiz(ans) {
+            // Logic for demo: first question is scam (usps...)
+            // Simplification for the static demo:
+            if(qIndex === 0 && ans === 'scam') nextQ();
+            else if(qIndex === 1 && ans === 'legit') nextQ();
+            else if(qIndex === 2 && ans === 'legit') nextQ();
+            else if(qIndex === 3 && ans === 'scam') finishQuiz();
+            else {
+                // Shake effect for wrong
+                const container = document.getElementById('quiz-container');
+                container.classList.add('animate__animated', 'animate__shakeX');
+                setTimeout(()=>container.classList.remove('animate__animated', 'animate__shakeX'), 500);
+            }
+        }
+
+        function nextQ() {
+            qIndex++;
+            if(qIndex < 4) {
+                document.getElementById('quiz-counter').innerText = `QUESTION ${qIndex+1}/4`;
+                document.getElementById('quiz-question').innerHTML = questions[qIndex].q;
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-success').classList.remove('hidden');
+            document.getElementById('progress-bar').style.width = `100%`;
+            document.getElementById('progress-text').innerText = `100%`;
+        }
+
+    </script>
+</body>
+</html>
