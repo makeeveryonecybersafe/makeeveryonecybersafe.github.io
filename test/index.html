@@ -58,83 +58,20 @@
 
     /* --- GLITCH TRANSITION OVERLAY --- */
     #glitch-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #000;
-        z-index: 9999;
-        opacity: 0;
-        pointer-events: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        transition: opacity 0.1s ease;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #000; z-index: 9999; opacity: 0;
+        pointer-events: none; display: flex; align-items: center; justify-content: center;
+        overflow: hidden; transition: opacity 0.1s ease;
     }
-
-    /* Active State (Triggered via JS) */
-    #glitch-overlay.active {
-        opacity: 1;
-        pointer-events: all;
-    }
-
-    .glitch-text {
-        font-family: 'Space Grotesk', monospace;
-        font-size: 2rem;
-        font-weight: 900;
-        color: #fff;
-        opacity: 0;
-        letter-spacing: 5px;
-        text-transform: uppercase;
-    }
-
-    #glitch-overlay.active .glitch-text {
-        opacity: 1;
-        animation: text-flicker 0.5s infinite;
-    }
-
-    #glitch-overlay::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            var(--primary) 2px,
-            var(--primary) 4px
-        );
-        opacity: 0;
-        background-size: 100% 4px;
-    }
-
-    #glitch-overlay.active::before {
-        animation: scanline-move 0.2s linear infinite;
-        opacity: 0.15;
-    }
-
-    .glitch-layer {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: #000;
-    }
-
-    #glitch-overlay.active .glitch-layer:nth-child(1) {
-        clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
-        animation: glitch-anim-1 0.4s infinite linear alternate-reverse;
-    }
-    #glitch-overlay.active .glitch-layer:nth-child(2) {
-        clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
-        animation: glitch-anim-2 0.4s infinite linear alternate-reverse;
-    }
-    #glitch-overlay.active .glitch-layer:nth-child(3) {
-        background: transparent;
-        clip-path: polygon(0 30%, 100% 30%, 100% 60%, 0 60%);
-        animation: glitch-anim-1 0.3s infinite linear alternate-reverse;
-    }
-
+    #glitch-overlay.active { opacity: 1; pointer-events: all; }
+    .glitch-text { font-family: 'Space Grotesk', monospace; font-size: 2rem; font-weight: 900; color: #fff; opacity: 0; letter-spacing: 5px; text-transform: uppercase; }
+    #glitch-overlay.active .glitch-text { opacity: 1; animation: text-flicker 0.5s infinite; }
+    #glitch-overlay::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--primary) 2px, var(--primary) 4px); opacity: 0; background-size: 100% 4px; }
+    #glitch-overlay.active::before { animation: scanline-move 0.2s linear infinite; opacity: 0.15; }
+    .glitch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; }
+    #glitch-overlay.active .glitch-layer:nth-child(1) { clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%); animation: glitch-anim-1 0.4s infinite linear alternate-reverse; }
+    #glitch-overlay.active .glitch-layer:nth-child(2) { clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%); animation: glitch-anim-2 0.4s infinite linear alternate-reverse; }
+    #glitch-overlay.active .glitch-layer:nth-child(3) { background: transparent; clip-path: polygon(0 30%, 100% 30%, 100% 60%, 0 60%); animation: glitch-anim-1 0.3s infinite linear alternate-reverse; }
     @keyframes scanline-move { 0% { transform: translateY(0); } 100% { transform: translateY(100px); } }
     @keyframes text-flicker { 0% { opacity: 0.1; } 20% { opacity: 1; } 40% { opacity: 0.1; } 60% { opacity: 1; } 80% { opacity: 0.5; } 100% { opacity: 0.1; } }
     @keyframes glitch-anim-1 { 0% { transform: translate(0); } 20% { transform: translate(-10px, 10px); } 40% { transform: translate(-10px, -10px); } 60% { transform: translate(10px, 10px); } 80% { transform: translate(10px, -10px); } 100% { transform: translate(0); } }
@@ -187,6 +124,7 @@
       100% { transform: translate(0) }
     }
 
+    /* Desktop Navigation */
     .nav-links {
       display: flex;
       gap: 2rem;
@@ -217,12 +155,36 @@
       transition: width 0.3s ease;
     }
 
-    .nav-links a:hover::before {
-      width: 100%;
+    .nav-links a:hover::before { width: 100%; }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Mobile Menu Dropdown Styles */
+    #mobile-menu {
+        display: none; /* Hidden by default */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        border-bottom: 2px solid var(--primary);
+        backdrop-filter: blur(10px);
+        padding: 1rem 0;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
     }
 
-    .nav-links a:hover {
-      color: var(--primary);
+    #mobile-menu.active {
+        display: flex; /* Show when active */
+    }
+
+    #mobile-menu a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 1rem;
+        letter-spacing: 1px;
     }
 
     /* --- HERO --- */
@@ -607,20 +569,14 @@
     
     @media (max-width: 768px) {
       .hamburger { display: flex; }
-      .nav-links {
-        position: fixed; top: 0; left: -100%; width: 100%; height: 100vh;
-        background: #000; flex-direction: column; justify-content: center; align-items: center;
-        transition: 0.3s; z-index: 999;
-      }
-      .nav-links.active { left: 0; }
-      .nav-links a { font-size: 1.5rem; }
+      
+      /* Hide regular nav links on mobile */
+      .nav-links { display: none; }
       
       .hero { padding-top: 4rem; padding-bottom: 2rem; }
-      
       .social-grid { grid-template-columns: 1fr; }
       .cta-buttons { flex-direction: column; width: 100%; }
       .btn { width: 100%; }
-      
       .marquee-container { transform: rotate(0deg) scale(1); width: 100%; margin-left: 0; }
     }
   </style>
@@ -631,22 +587,33 @@
       <div class="glitch-layer"></div>
       <div class="glitch-layer"></div>
       <div class="glitch-layer"></div>
-      <div class="glitch-text">NAVIGATING...</div>
+      <div class="glitch-text">INITIALIZING...</div>
   </div>
 
   <header class="header">
     <nav class="nav-container">
       <div class="logo">#MECS</div>
-      <ul class="nav-links" id="nav-links">
+      
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="edu.html">Education</a></li>
         <li><a href="playground.html">Playground</a></li>
         <li><a href="mirror.html">Digital Mirror</a></li>
       </ul>
+
       <div class="hamburger" id="hamburger">
         <span></span><span></span><span></span>
       </div>
     </nav>
+
+    <div id="mobile-menu">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="edu.html">Education</a>
+        <a href="playground.html">Playground</a>
+        <a href="mirror.html">Digital Mirror</a>
+    </div>
   </header>
 
   <section id="home" class="hero">
@@ -765,12 +732,14 @@
   <script>
     // --- Mobile Menu Logic ---
     const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('nav-links');
+    const mobileMenu = document.getElementById('mobile-menu');
     
     hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+      
+      // Animate hamburger
       const spans = hamburger.querySelectorAll('span');
-      if(navLinks.classList.contains('active')) {
+      if(mobileMenu.classList.contains('active')) {
         spans[0].style.transform = "rotate(45deg) translate(5px, 5px)";
         spans[1].style.opacity = "0";
         spans[2].style.transform = "rotate(-45deg) translate(5px, -5px)";
@@ -781,9 +750,10 @@
       }
     });
 
-    document.querySelectorAll('.nav-links a').forEach(link => {
+    // Close menu when clicking a link
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
       link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
+        mobileMenu.classList.remove('active');
         const spans = hamburger.querySelectorAll('span');
         spans[0].style.transform = "none";
         spans[1].style.opacity = "1";
