@@ -128,14 +128,14 @@
 <body class="min-h-screen flex flex-col">
 
     <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-        <div class="container mx-auto px-6 py-4">
+        <div class="container mx-auto px-6 py-4 relative">
             <div class="flex justify-between items-center">
                 <a href="index.html" class="group flex items-center gap-2">
                     <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
                         <i class="fas fa-shield-alt text-black text-sm"></i>
                     </div>
                     <span class="text-xl font-bold tracking-tighter uppercase">
-                        #MECS</span>
+                        #MECS
                     </span>
                 </a>
 
@@ -146,10 +146,19 @@
                         <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Explore Labs</a></li>
                     </ul>
                 </nav>
-                <button class="md:hidden text-white text-xl">
+
+                <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-primary backdrop-blur-md md:hidden animate__animated animate__fadeInDown">
+            <ul class="flex flex-col p-6 space-y-6 text-center">
+                <li><a href="training.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2 border-b border-white/10">Training</a></li>
+                <li><a href="resources.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2 border-b border-white/10">Resources</a></li>
+                <li><a href="playground.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2">Explore Labs</a></li>
+            </ul>
         </div>
     </header>
 
@@ -408,6 +417,23 @@
         }, { threshold: 0.1 });
 
         document.querySelectorAll('.mecs-card').forEach(el => observer.observe(el));
+
+        // Mobile Menu Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileIcon.classList.remove('fa-times');
+                mobileIcon.classList.add('fa-bars');
+            } else {
+                mobileIcon.classList.remove('fa-bars');
+                mobileIcon.classList.add('fa-times');
+            }
+        });
     </script>
 </body>
 </html>
