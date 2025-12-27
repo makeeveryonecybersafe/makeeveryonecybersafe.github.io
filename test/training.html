@@ -91,16 +91,17 @@
 <body class="min-h-screen flex flex-col">
 
     <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-        <div class="container mx-auto px-6 py-4">
+        <div class="container mx-auto px-6 py-4 relative">
             <div class="flex justify-between items-center">
                 <a href="index.html" class="group flex items-center gap-2">
                     <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
                         <i class="fas fa-shield-alt text-black text-sm"></i>
                     </div>
                     <span class="text-xl font-bold tracking-tighter uppercase">
-                        #MECS</span>
+                        #MECS
                     </span>
                 </a>
+                
                 <nav class="hidden md:block">
                     <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
                         <li><a href="#" class="text-mecs-primary">Training</a></li>
@@ -108,10 +109,31 @@
                         <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Explore Labs</a></li>
                     </ul>
                 </nav>
-                <button class="md:hidden text-white text-xl">
-                    <i class="fas fa-bars"></i>
+
+                <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none">
+                    <i class="fas fa-bars transition-transform duration-300"></i>
                 </button>
             </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-mecs-surface border-b border-mecs-primary/50 shadow-[0_10px_50px_rgba(255,0,85,0.2)]">
+            <ul class="flex flex-col p-6 space-y-4 font-mono text-sm">
+                <li>
+                    <a href="#" class="block text-mecs-primary border-l-2 border-mecs-primary pl-4 py-1 bg-white/5">
+                        > TRAINING_DATABASE
+                    </a>
+                </li>
+                <li>
+                    <a href="resources.html" class="block text-gray-400 hover:text-white border-l-2 border-transparent hover:border-white pl-4 py-1 transition-all">
+                        > RESOURCES
+                    </a>
+                </li>
+                <li>
+                    <a href="playground.html" class="block text-gray-400 hover:text-white border-l-2 border-transparent hover:border-white pl-4 py-1 transition-all">
+                        > EXPLORE_LABS
+                    </a>
+                </li>
+            </ul>
         </div>
     </header>
 
@@ -154,15 +176,11 @@
                 <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Personal Defense</h3>
                     <p class="text-mecs-gray text-xs mb-4 line-clamp-3">The foundation of your digital safety. Learn password managers, 2FA setup, and account locking.</p>
-                    
                     <div class="mt-auto pt-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
                         <span><i class="far fa-clock mr-1"></i> 45m</span>
                         <span>0/5 Lessons</span>
                     </div>
-                    
-                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
-                        Launch
-                    </a>
+                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">Launch</a>
                 </div>
             </div>
 
@@ -176,15 +194,11 @@
                 <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Phishing & Scams</h3>
                     <p class="text-mecs-gray text-xs mb-4 line-clamp-3">Identify social engineering attacks. Analyze email headers and spot fake domains.</p>
-                    
                     <div class="mt-auto pt-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
                         <span><i class="far fa-clock mr-1"></i> 30m</span>
                         <span>0/3 Lessons</span>
                     </div>
-                    
-                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
-                        Launch
-                    </a>
+                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">Launch</a>
                 </div>
             </div>
 
@@ -198,15 +212,11 @@
                 <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Network Safety</h3>
                     <p class="text-mecs-gray text-xs mb-4 line-clamp-3">Secure your home router, understand VPNs, and browse safely on public Wi-Fi.</p>
-                    
                     <div class="mt-auto pt-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
                         <span><i class="far fa-clock mr-1"></i> 60m</span>
                         <span>0/6 Lessons</span>
                     </div>
-                    
-                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
-                        Launch
-                    </a>
+                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">Launch</a>
                 </div>
             </div>
 
@@ -220,15 +230,11 @@
                 <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Privacy Operations</h3>
                     <p class="text-mecs-gray text-xs mb-4 line-clamp-3">Data minimization strategies, browser fingerprinting defense, and OSINT awareness.</p>
-                    
                     <div class="mt-auto pt-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
                         <span><i class="far fa-clock mr-1"></i> 90m</span>
                         <span>0/8 Lessons</span>
                     </div>
-                    
-                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
-                        Launch
-                    </a>
+                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">Launch</a>
                 </div>
             </div>
             
@@ -242,15 +248,11 @@
                 <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Linux CLI Intro</h3>
                     <p class="text-mecs-gray text-xs mb-4 line-clamp-3">Get comfortable with the terminal. Basic commands, file permissions, and scripting.</p>
-                    
                     <div class="mt-auto pt-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
                         <span><i class="far fa-clock mr-1"></i> 120m</span>
                         <span>0/10 Lessons</span>
                     </div>
-                    
-                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
-                        Launch
-                    </a>
+                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">Launch</a>
                 </div>
             </div>
 
@@ -264,15 +266,11 @@
                 <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors">Mobile Security</h3>
                     <p class="text-mecs-gray text-xs mb-4 line-clamp-3">Hardening iOS and Android. App permissions, tracking blockers, and lost device protocols.</p>
-                    
                     <div class="mt-auto pt-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500 font-mono">
                         <span><i class="far fa-clock mr-1"></i> 40m</span>
                         <span>0/4 Lessons</span>
                     </div>
-                    
-                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">
-                        Launch
-                    </a>
+                    <a href="#" class="mt-4 w-full block text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all">Launch</a>
                 </div>
             </div>
 
@@ -298,7 +296,7 @@
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 // Remove active class from all
-                filterBtns.forEach(b => b.classList.remove('active', 'bg-mecs-primary', 'text-black', 'border-mecs-primary'));
+                filterBtns.forEach(b => b.classList.remove('active'));
                 
                 // Add active to clicked
                 btn.classList.add('active');
@@ -323,22 +321,55 @@
             
             modules.forEach(module => {
                 const title = module.getAttribute('data-title').toLowerCase();
-                const isVisibleByFilter = module.style.display !== 'none';
-                
-                // Only search within currently visible items (if you want combined logic, remove isVisibleByFilter check)
-                // For simple UX, let's search everything regardless of tab, OR reset tab to 'All' on search.
-                // Here is a simple "search everything" approach:
                 
                 if (title.includes(searchText)) {
                     module.style.display = 'flex';
+                    module.classList.add('animate__animated', 'animate__fadeIn');
                 } else {
                     module.style.display = 'none';
                 }
             });
             
-            // Optional: Reset filter buttons visual state if searching
+            // Reset filter buttons visual state if searching
             if(searchText.length > 0) {
                  filterBtns.forEach(b => b.classList.remove('active'));
+            }
+        });
+
+        // SANDWICH LOGIC (Mobile Menu)
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            // Toggle visibility
+            mobileMenu.classList.toggle('hidden');
+            
+            // Add animation class if opening
+            if (!mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('animate__animated', 'animate__fadeInDown');
+            } else {
+                mobileMenu.classList.remove('animate__animated', 'animate__fadeInDown');
+            }
+
+            // Toggle Icon (Bars <-> X)
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileIcon.classList.remove('fa-times');
+                mobileIcon.classList.add('fa-bars');
+            } else {
+                mobileIcon.classList.remove('fa-bars');
+                mobileIcon.classList.add('fa-times');
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                if(!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    mobileIcon.classList.remove('fa-times');
+                    mobileIcon.classList.add('fa-bars');
+                }
             }
         });
     </script>
