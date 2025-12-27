@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 01: Identity Defense | MECS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#050505',
+                            surface: '#0a0a0a',
+                            border: '#222222',
+                            primary: '#FF0055', 
+                            success: '#00ff9d',
+                            warning: '#ffcc00'
+                        }
+                    },
+                    animation: {
+                        'scan': 'scan 2s linear infinite',
+                    },
+                    keyframes: {
+                        scan: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e0e0e0; }
+        
+        /* CRT Scanline */
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50;
+        }
+
+        .section-locked {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%) blur(2px);
+            transition: all 0.5s ease;
+        }
+        
+        .section-active {
+            opacity: 1;
+            pointer-events: all;
+            filter: grayscale(0) blur(0);
+        }
+
+        /* Tech Borders */
+        .tech-border {
+            position: relative;
+            background: #0a0a0a;
+            border: 1px solid #333;
+        }
+        .tech-border::before {
+            content: ''; position: absolute; top: -1px; left: -1px; 
+            width: 10px; height: 10px; border-top: 2px solid #FF0055; border-left: 2px solid #FF0055;
+        }
+        .tech-border::after {
+            content: ''; position: absolute; bottom: -1px; right: -1px; 
+            width: 10px; height: 10px; border-bottom: 2px solid #FF0055; border-right: 2px solid #FF0055;
+        }
+
+        /* Checkbox Custom */
+        .cyber-check { appearance: none; width: 20px; height: 20px; border: 2px solid #555; background: black; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+        .cyber-check:checked { border-color: #FF0055; background: #FF0055; }
+        .cyber-check:checked::after { content: '✔'; color: black; font-weight: bold; font-size: 12px; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="scanlines"></div>
+
+    <header class="fixed w-full top-0 z-40 bg-black/95 backdrop-blur border-b border-mecs-border">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-mecs-dim hover:text-white transition group">
+                    <i class="fas fa-chevron-left group-hover:-translate-x-1 transition-transform"></i> HUB
+                </a>
+                <span class="text-mecs-border">|</span>
+                <span class="font-mono text-mecs-primary font-bold">MODULE 01: IDENTITY DEFENSE</span>
+            </div>
+            <div class="font-mono text-xs flex items-center gap-4">
+                <span class="hidden md:inline text-gray-500">SESSION_ID: <span class="text-white">USER_8492</span></span>
+                <div class="border border-white/20 px-2 py-1 rounded bg-white/5">
+                    PROGRESS: <span id="progress-text" class="text-mecs-primary font-bold">0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="w-full h-1 bg-gray-900">
+            <div id="progress-bar" class="h-full bg-mecs-primary w-0 transition-all duration-500 shadow-[0_0_10px_#FF0055]"></div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pt-32 pb-24 max-w-4xl">
+
+        <div class="mb-16 animate__animated animate__fadeIn">
+            <div class="inline-block px-2 py-1 border border-mecs-primary text-mecs-primary font-mono text-xs mb-4 bg-mecs-primary/10">
+                > PROTOCOL_INITIATED
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black uppercase mb-4 leading-tight">Secure The <br> Perimeter</h1>
+            <p class="text-gray-400 text-lg leading-relaxed max-w-2xl border-l-4 border-mecs-border pl-6">
+                Most breaches don't happen because of "hacking." They happen because your front door is unlocked. 
+                <br><br>
+                <strong class="text-white">Mission:</strong> Complete the 6-phase hardening protocol to secure your digital identity.
+            </p>
+        </div>
+
+        <section id="phase-1" class="mb-24 tech-border p-8 animate__animated animate__fadeInUp">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">01</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Leak Check</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Understand Data Persistence</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4 text-gray-300 text-sm">
+                    <p>Before we secure your accounts, you must understand: <strong>Your data is likely already out there.</strong></p>
+                    <p>When a company like Adobe or LinkedIn gets hacked, your email and password enter "The Database." Hackers use scripts to try that same email/password combo on every other site (Credential Stuffing).</p>
+                    <p class="text-xs text-gray-500 italic">This is a simulation, but it reflects real-world OSINT tools.</p>
+                </div>
+
+                <div class="bg-black border border-gray-800 p-4 rounded font-mono text-xs h-64 flex flex-col relative overflow-hidden">
+                    <div class="absolute inset-0 bg-green-500/5 pointer-events-none"></div>
+                    <div id="breach-output" class="flex-grow overflow-y-auto space-y-1 text-green-500/80 mb-2 p-2">
+                        <div>> SYSTEM READY...</div>
+                        <div>> WAITING FOR INPUT...</div>
+                    </div>
+                    <div class="flex gap-2 border-t border-gray-800 pt-2">
+                        <span class="text-green-500">root@scan:~$</span>
+                        <input type="text" id="email-input" placeholder="Enter any email..." class="bg-transparent text-white outline-none flex-grow">
+                        <button onclick="runBreachScan()" class="text-white hover:text-mecs-primary">EXECUTE</button>
+                    </div>
+                </div>
+            </div>
+            <button id="p1-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black hover:border-mecs-primary transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(2)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 2
+            </button>
+        </section>
+
+        <section id="phase-2" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> LOCKED
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">02</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Password Fallacy</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Master Entropy</span></p>
+                </div>
+            </div>
+
+            <div class="bg-[#111] p-6 border border-white/10 rounded relative overflow-hidden">
+                <h3 class="text-white font-bold mb-4">Create a High-Entropy Password</h3>
+                <p class="text-xs text-gray-500 mb-4">
+                    Length > Complexity. Use a phrase of 4 random words. <br>
+                    <strong>Goal:</strong> Achieve a crack time of > 100 Years.
+                </p>
+                
+                <input type="text" id="pass-input" placeholder="Type here..." class="w-full bg-black border border-gray-700 p-3 text-white font-mono focus:border-mecs-primary outline-none transition-colors mb-2">
+                
+                <div class="text-xs font-mono space-y-1">
+                    <div class="flex justify-between">
+                        <span>Time to Crack:</span>
+                        <span id="crack-time" class="text-red-500">0 seconds</span>
+                    </div>
+                    <div class="w-full bg-gray-800 h-1 mt-2">
+                        <div id="strength-bar" class="h-full bg-red-500 w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+            <button id="p2-next" disabled class="mt-6 w-full py-3 bg-gray-800 text-gray-500 font-bold uppercase tracking-widest text-sm cursor-not-allowed transition-all" onclick="unlockSection(3)">
+                LOCKED (REQUIRE > 100 YEARS)
+            </button>
+        </section>
+
+        <section id="phase-3" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> LOCKED
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">03</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The Vault Protocol</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Password Manager Sim</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="text-sm text-gray-300">
+                    <p class="mb-4">You cannot memorize 50 complex passwords. If you try, you will reuse them. That is how you get hacked.</p>
+                    <p class="mb-4"><strong>The Strategy:</strong> Memorize ONE master password (Phase 2), and let a "Vault" generate the rest.</p>
+                    <p class="text-mecs-primary font-bold">Try the Simulator &rarr;</p>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-2">
+                        <span class="text-blue-400 font-bold"><i class="fas fa-shield-alt"></i> MyVault</span>
+                        <i class="fas fa-cog text-gray-500"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[10px] text-gray-500 uppercase">Website</label>
+                            <input type="text" value="bank-of-mecs.com" disabled class="w-full bg-black border border-gray-700 text-gray-400 text-xs p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-500 uppercase">Username</label>
+                            <input type="text" value="user_01" disabled class="w-full bg-black border border-gray-700 text-gray-400 text-xs p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-500 uppercase">Password</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="vault-pass-display" placeholder="Empty" disabled class="w-full bg-black border border-gray-700 text-white text-xs p-2 rounded font-mono">
+                                <button onclick="generateVaultPass()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 rounded text-xs"><i class="fas fa-sync"></i></button>
+                            </div>
+                        </div>
+                        <button id="vault-save-btn" onclick="saveVault()" disabled class="w-full bg-gray-700 text-gray-500 py-2 rounded text-xs font-bold mt-2">SAVE ENTRY</button>
+                    </div>
+                </div>
+            </div>
+            <button id="p3-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(4)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 4
+            </button>
+        </section>
+
+        <section id="phase-4" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> LOCKED
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">04</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">Multi-Factor Armor</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Setup App-Based 2FA</span></p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="relative w-[240px] h-[400px] bg-gray-900 rounded-[2rem] border-4 border-gray-800 mx-auto shadow-2xl flex flex-col overflow-hidden">
+                    <div class="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-b-xl z-20"></div>
+                    
+                    <div id="phone-screen-1" class="flex-grow flex flex-col items-center justify-center bg-gray-800 text-center p-4">
+                        <i class="fas fa-qrcode text-4xl text-white mb-4"></i>
+                        <p class="text-xs text-gray-400 mb-4">Add new account</p>
+                        <button onclick="sim2FAScan()" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-1 rounded text-xs font-bold">Scan QR</button>
+                    </div>
+
+                    <div id="phone-screen-2" class="hidden flex-grow flex-col items-center justify-center bg-black text-center p-4">
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">MECS_SECURE</div>
+                        <div class="text-3xl text-blue-500 font-mono font-bold tracking-wider animate-pulse">924 108</div>
+                        <div class="w-full bg-gray-800 h-1 mt-4 rounded">
+                            <div class="bg-blue-500 h-full w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-[#111] p-4 border border-white/10">
+                        <h4 class="text-white font-bold text-sm mb-2">1. Authenticate</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="2fa-input" placeholder="000 000" maxlength="7" class="bg-black border border-gray-700 text-white p-2 w-full font-mono text-center tracking-widest outline-none focus:border-blue-500">
+                            <button onclick="verify2FA()" class="bg-gray-700 hover:bg-white hover:text-black text-white px-4 text-xs font-bold uppercase transition">Verify</button>
+                        </div>
+                        <div id="2fa-msg" class="mt-2 text-xs font-mono h-4"></div>
+                    </div>
+
+                    <div id="recovery-codes-section" class="hidden bg-yellow-500/10 p-4 border border-yellow-500/30">
+                        <h4 class="text-yellow-500 font-bold text-sm mb-2"><i class="fas fa-exclamation-triangle"></i> CRITICAL: Backup Codes</h4>
+                        <p class="text-xs text-gray-400 mb-3">If you lose your phone, these are the ONLY way back in.</p>
+                        <button onclick="downloadCodes()" id="dl-codes-btn" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-2 font-bold text-xs uppercase flex items-center justify-center gap-2">
+                            <i class="fas fa-download"></i> Save Recovery Codes
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button id="p4-next" class="hidden mt-6 w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(5)">
+                <i class="fas fa-arrow-down mr-2"></i> Proceed to Phase 5
+            </button>
+        </section>
+
+        <section id="phase-5" class="mb-24 tech-border p-8 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> LOCKED
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="bg-gray-800 text-white w-10 h-10 flex items-center justify-center font-bold rounded font-mono">05</div>
+                <div>
+                    <h2 class="text-2xl font-bold uppercase">The OSINT Trap</h2>
+                    <p class="text-sm text-gray-400 font-mono mt-1">Objective: <span class="text-mecs-primary">Defeat Security Questions</span></p>
+                </div>
+            </div>
+
+            <div class="bg-red-500/10 border border-red-500/30 p-4 mb-6 text-sm text-red-200">
+                <i class="fas fa-user-secret mr-2"></i> <strong>HACKER CHALLENGE:</strong> Can you break into this account using only public information?
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white text-black p-4 rounded max-w-sm mx-auto shadow-lg rotate-1 transform hover:rotate-0 transition-all duration-500">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                        <div class="text-xs font-bold">sarah_adventure_99</div>
+                    </div>
+                    <div class="bg-gray-200 h-48 w-full mb-3 flex items-center justify-center text-gray-400">
+                        <i class="fas fa-dog text-4xl"></i>
+                    </div>
+                    <div class="text-xs">
+                        <span class="font-bold">sarah_adventure_99</span> Happy 3rd Birthday to my best boy <strong>Max</strong>! 🐕 Can't believe we've been hiking buddies for 3 years. #GoldenRetriever #BestFriend
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-700 p-6 rounded flex flex-col justify-center">
+                    <h3 class="text-white font-bold mb-4 border-b border-gray-700 pb-2">Account Recovery</h3>
+                    <div class="mb-4">
+                        <label class="text-[10px] text-gray-500 uppercase">Security Question</label>
+                        <div class="text-gray-300 text-sm italic">"What is the name of your first pet?"</div>
+                    </div>
+                    <input type="text" id="osint-answer" placeholder="Answer..." class="bg-black border border-gray-600 text-white p-2 w-full mb-2 focus:border-red-500 outline-none">
+                    <button onclick="checkOsint()" class="bg-red-600 hover:bg-red-500 text-white w-full py-2 text-xs font-bold uppercase">Hack Account</button>
+                    <div id="osint-msg" class="mt-2 text-xs font-bold h-4"></div>
+                </div>
+            </div>
+
+            <div id="p5-content" class="hidden mt-6 border-t border-white/10 pt-4 animate__animated animate__fadeIn">
+                <p class="text-green-400 text-sm mb-4">
+                    <strong>LESSON:</strong> Never use real answers for security questions. If you post about your life, the answers are public. <br>
+                    <em>Correct Strategy: Treat security questions like passwords. Use a password manager to generate a random answer.</em>
+                </p>
+                <button class="w-full py-3 bg-white/10 border border-white/20 hover:bg-mecs-primary hover:text-black transition-all font-bold uppercase tracking-widest text-sm" onclick="unlockSection(6)">
+                    <i class="fas fa-arrow-down mr-2"></i> Proceed to Final Audit
+                </button>
+            </div>
+        </section>
+
+        <section id="phase-6" class="mb-24 section-locked relative">
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm lock-overlay">
+                <div class="border border-mecs-primary p-3 flex items-center gap-2 text-mecs-primary font-mono text-sm">
+                    <i class="fas fa-lock"></i> LOCKED
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-gray-900 to-black border border-mecs-border p-8 text-center">
+                <h2 class="text-3xl font-black uppercase mb-2 text-white">System Hardening Complete</h2>
+                <p class="text-gray-500 mb-8">Confirm implementation to sign off.</p>
+                
+                <div class="max-w-md mx-auto space-y-4 text-left mb-8">
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I have checked my email for breaches.</span>
+                    </label>
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I have installed a Password Manager.</span>
+                    </label>
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I have enabled 2FA & saved backup codes.</span>
+                    </label>
+                    <label class="flex items-center gap-4 bg-[#0a0a0a] p-3 border border-white/5 cursor-pointer hover:border-mecs-primary/50 transition">
+                        <input type="checkbox" class="cyber-check" onchange="checkFinal()">
+                        <span class="text-sm text-gray-300">I will lie on Security Questions.</span>
+                    </label>
+                </div>
+
+                <div id="finish-btn-container" class="hidden animate__animated animate__fadeInUp">
+                    <a href="index.html" class="inline-block bg-mecs-primary text-black px-12 py-4 font-bold uppercase tracking-wider hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_#FF0055]">
+                        <i class="fas fa-check-circle mr-2"></i> Mission Complete
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* --- GLOBAL HELPERS --- */
+        let currentProgress = 0;
+        const totalPhases = 6;
+
+        function updateProgress(phaseNum) {
+            const percent = Math.round((phaseNum / totalPhases) * 100);
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').innerText = `${percent}%`;
+        }
+
+        function unlockSection(id) {
+            const section = document.getElementById(`phase-${id}`);
+            const overlay = section.querySelector('.lock-overlay');
+            
+            if(overlay) overlay.remove();
+            section.classList.remove('section-locked');
+            section.classList.add('section-active');
+            
+            // Auto scroll
+            setTimeout(() => {
+                section.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }, 100);
+            
+            updateProgress(id-1);
+        }
+
+        /* --- PHASE 1: BREACH SIM --- */
+        function runBreachScan() {
+            const output = document.getElementById('breach-output');
+            const email = document.getElementById('email-input').value;
+            
+            if(!email) return;
+
+            output.innerHTML += `<div>> SCANNING: ${email}</div>`;
+            output.innerHTML += `<div class='animate-pulse text-yellow-500'>[SEARCHING DARK WEB...]</div>`;
+            output.scrollTop = output.scrollHeight;
+
+            setTimeout(() => {
+                const results = [
+                    "2019: Collection #1 (Email/Pass)",
+                    "2016: LinkedIn Dump (SHA1 Hash)",
+                    "2020: Cit0Day (Plaintext)",
+                    "2013: Adobe Systems (Hint/Pass)"
+                ];
+                
+                output.innerHTML = "";
+                results.forEach((r, i) => {
+                    setTimeout(() => {
+                        output.innerHTML += `<div class='text-red-500 font-bold'>[!] FOUND: ${r}</div>`;
+                        output.scrollTop = output.scrollHeight;
+                    }, i * 500);
+                });
+
+                setTimeout(() => {
+                    output.innerHTML += `<div class='text-white mt-2 border-t border-gray-700 pt-1'>ANALYSIS: YOUR DATA IS COMPROMISED.</div>`;
+                    document.getElementById('p1-next').classList.remove('hidden');
+                    output.scrollTop = output.scrollHeight;
+                }, 2500);
+            }, 1500);
+        }
+
+        /* --- PHASE 2: ENTROPY --- */
+        const passInput = document.getElementById('pass-input');
+        const crackTimeText = document.getElementById('crack-time');
+        const strengthBar = document.getElementById('strength-bar');
+        const p2Next = document.getElementById('p2-next');
+
+        passInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            let score = 0;
+            
+            // Simplified Entropy Logic
+            if (val.length > 5) score += 10;
+            if (val.length > 10) score += 20;
+            if (val.length > 15) score += 40; // Length wins
+            if (val.match(/[0-9]/)) score += 10;
+            if (val.match(/[^a-zA-Z0-9]/)) score += 20;
+
+            let msg = "Instant";
+            let color = "bg-red-500";
+            
+            if (score > 30) msg = "3 Days";
+            if (score > 50) { msg = "12 Years"; color = "bg-yellow-500"; }
+            if (score > 80) { msg = "400 Centuries"; color = "bg-green-500"; }
+
+            crackTimeText.innerText = msg;
+            strengthBar.className = `h-full transition-all duration-300 ${color}`;
+            strengthBar.style.width = `${Math.min(score, 100)}%`;
+
+            if (score > 80) {
+                p2Next.disabled = false;
+                p2Next.className = "mt-6 w-full py-3 bg-mecs-primary text-black font-bold uppercase tracking-widest text-sm hover:bg-white transition-all";
+                p2Next.innerHTML = "<i class='fas fa-unlock'></i> UNLOCK PHASE 3";
+            }
+        });
+
+        /* --- PHASE 3: VAULT --- */
+        function generateVaultPass() {
+            const chars = "AaBbCcDdEeFfGgHh!@#$%^&*()1234567890";
+            let pass = "";
+            for(let i=0; i<20; i++) pass += chars[Math.floor(Math.random()*chars.length)];
+            
+            document.getElementById('vault-pass-display').value = pass;
+            const btn = document.getElementById('vault-save-btn');
+            btn.disabled = false;
+            btn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded text-xs font-bold mt-2 animate-pulse";
+        }
+
+        function saveVault() {
+            const btn = document.getElementById('vault-save-btn');
+            btn.innerText = "SAVED TO VAULT";
+            btn.className = "w-full bg-green-500 text-black py-2 rounded text-xs font-bold mt-2";
+            btn.disabled = true;
+            document.getElementById('p3-next').classList.remove('hidden');
+        }
+
+        /* --- PHASE 4: 2FA --- */
+        function sim2FAScan() {
+            document.getElementById('phone-screen-1').classList.add('hidden');
+            document.getElementById('phone-screen-2').classList.remove('hidden');
+            document.getElementById('phone-screen-2').classList.add('flex');
+        }
+
+        function verify2FA() {
+            const val = document.getElementById('2fa-input').value.replace(/\s/g,'');
+            if (val === '924108') {
+                document.getElementById('2fa-msg').innerHTML = "<span class='text-green-500'>SUCCESS.</span>";
+                document.getElementById('recovery-codes-section').classList.remove('hidden');
+            } else {
+                document.getElementById('2fa-msg').innerHTML = "<span class='text-red-500'>INVALID CODE.</span>";
+            }
+        }
+
+        function downloadCodes() {
+            const btn = document.getElementById('dl-codes-btn');
+            btn.innerHTML = "<i class='fas fa-check'></i> CODES SAVED";
+            btn.className = "w-full bg-green-500 text-black py-2 font-bold text-xs uppercase flex items-center justify-center gap-2";
+            document.getElementById('p4-next').classList.remove('hidden');
+        }
+
+        /* --- PHASE 5: OSINT --- */
+        function checkOsint() {
+            const val = document.getElementById('osint-answer').value.toLowerCase();
+            if(val.includes('max')) {
+                document.getElementById('osint-msg').innerHTML = "<span class='text-green-500'>ACCESS GRANTED (You successfully hacked the account)</span>";
+                document.getElementById('p5-content').classList.remove('hidden');
+            } else {
+                document.getElementById('osint-msg').innerHTML = "<span class='text-red-500'>ACCESS DENIED</span>";
+            }
+        }
+
+        /* --- PHASE 6: FINAL --- */
+        function checkFinal() {
+            const checks = document.querySelectorAll('.cyber-check:checked');
+            if(checks.length === 4) {
+                document.getElementById('finish-btn-container').classList.remove('hidden');
+                updateProgress(6);
+            }
+        }
+    </script>
+</body>
+</html>
