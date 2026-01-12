@@ -1,38 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FaceTrace | MECS Intelligence Tool</title>
+    <title>MakeEveryoneCyberSafe</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['"Inter"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] },
-                    colors: { 
-                        mecs: { 
-                            bg: '#000000', 
-                            surface: '#0a0a0a', 
-                            primary: '#FF0055', 
-                            primaryDim: 'rgba(255, 0, 85, 0.1)',
-                            text: '#ffffff', 
-                            dim: '#333' 
-                        } 
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#000000',
+                            surface: '#0a0a0a',
+                            surfaceLight: '#111111',
+                            grid: '#151515',
+                            primary: '#FF0055',
+                            primaryHover: '#D40047',
+                            dark: '#990033',
+                            text: '#ffffff',
+                            gray: '#aaaaaa'
+                        }
                     },
                     animation: {
-                        'scan-vertical': 'scanVertical 1.5s linear infinite',
+                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'marquee': 'marquee 25s linear infinite',
                     },
                     keyframes: {
-                        scanVertical: {
-                            '0%': { top: '0%' },
-                            '50%': { top: '100%' },
-                            '51%': { top: '100%' },
-                            '100%': { top: '0%' }
+                        glitch: {
+                            '0%': { transform: 'translate(0)' },
+                            '20%': { transform: 'translate(-2px, 2px)' },
+                            '40%': { transform: 'translate(-2px, -2px)' },
+                            '60%': { transform: 'translate(2px, 2px)' },
+                            '80%': { transform: 'translate(2px, -2px)' },
+                            '100%': { transform: 'translate(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-100%)' }
                         }
                     }
                 }
@@ -40,550 +64,457 @@
         }
     </script>
     <style>
-        body { background: #000000; color: white; overflow-x: hidden; }
-        
-        .grid-bg { 
-            background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px); 
-            background-size: 50px 50px; position: fixed; inset: 0; z-index: -1;
+        /* --- CORE VISUALS --- */
+        body {
+            background-color: #000000;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1a050a 0%, transparent 70%),
+                linear-gradient(#151515 1px, transparent 1px),
+                linear-gradient(90deg, #151515 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            color: #ffffff;
         }
 
-        .lang-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .lang-scroll::-webkit-scrollbar { display: none; }
-
-        .legal-scroll::-webkit-scrollbar { width: 6px; }
-        .legal-scroll::-webkit-scrollbar-track { background: #111; }
-        .legal-scroll::-webkit-scrollbar-thumb { background: #FF0055; border-radius: 4px; }
-        
-        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
-        .faq-active .faq-answer { max-height: 500px; }
-        .faq-active i { transform: rotate(180deg); }
-
-        .scan-line {
-            position: absolute; left: 0; width: 100%; height: 2px; background: #FF0055;
-            box-shadow: 0 0 20px #FF0055; z-index: 11;
-            animation: scanVertical 1.5s ease-in-out infinite;
+        /* Utilities */
+        .hover-glitch:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #FF0055;
+            text-shadow: 2px 2px #990033;
         }
 
-        .alert-mode { background-color: #1a0000 !important; transition: background-color 0.5s; }
-        .btn-glow:hover { box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); }
+        .mecs-card {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            transition: all 0.3s ease;
+        }
+        
+        .card-header-gradient {
+            background: linear-gradient(135deg, #111 0%, #1a050a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mecs-card:hover {
+            border-color: #FF0055;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(255, 0, 85, 0.2);
+        }
+
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        /* Terminal Scanline */
+        .terminal-scanline {
+            width: 100%; height: 100px; z-index: 60;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255, 0, 85, 0.1) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1; position: absolute; bottom: 100%;
+            animation: scanline 10s linear infinite; pointer-events: none;
+        }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100px; } }
+        
+        /* Marquee Container */
+        .marquee-wrapper {
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF0055; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
+<body class="min-h-screen flex flex-col overflow-x-hidden font-sans">
 
-    <div class="grid-bg"></div>
-
-    <nav class="w-full p-6 flex justify-between items-center z-40 border-b border-white/10 bg-black/80 backdrop-blur-sm">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-mecs-primary rounded flex items-center justify-center text-black text-sm shadow-[0_0_10px_rgba(255,0,85,0.5)]">
-                <i class="fas fa-fingerprint"></i>
-            </div>
-            <div class="leading-tight">
-                <div class="font-bold text-xl tracking-tighter text-white">FACE<span class="text-mecs-primary">TRACE</span></div>
-                <div class="text-[10px] text-gray-500 tracking-widest uppercase">By MECS</div>
-            </div>
-        </div>
-        <div class="text-xs font-mono text-gray-500 hidden md:block">FaceTrace v1.0</div>
-    </nav>
-
-    <div id="main-content" class="flex-grow flex flex-col items-center pt-8 pb-20">
+    <div id="hack-terminal" class="hidden fixed inset-0 z-[100] bg-black text-green-500 p-8 overflow-hidden flex flex-col font-mono">
+        <div class="terminal-scanline"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pixel-weave.png')] opacity-20 pointer-events-none"></div>
         
-        <div class="container mx-auto px-4 text-center max-w-3xl mb-12 animate__animated animate__fadeIn">
-            <span class="inline-block py-1 px-3 rounded-full bg-mecs-primaryDim text-mecs-primary border border-mecs-primary/30 text-xs font-mono mb-6" data-key="badge">
-                <i class="fas fa-check-circle mr-2"></i>FaceTrace | By MECS
-            </span>
-            
-            <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight text-white" data-key="title">
-                Who is using your <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-mecs-primary">face?</span>
-            </h1>
-            
-            <p class="text-gray-400 text-base md:text-lg mb-10 leading-relaxed" data-key="subtitle">
-                The internet is forever. Our proprietary DeepSearch™ engine scans over 30 billion images across the Surface Web, Dark Web, and surveillance databases to find where your biometrics are being stored.
-            </p>
-            
-            <button onclick="openModal()" class="btn-glow group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-mecs-primary font-sans rounded-lg focus:outline-none hover:bg-white hover:text-black hover:scale-105 border border-transparent hover:border-mecs-primary">
-                <span class="mr-2 text-lg"><i class="fas fa-search"></i></span>
-                <span data-key="cta">START SECURE SCAN</span>
-            </button>
-            
-            <p class="mt-4 text-[10px] text-gray-600 font-mono" data-key="disclaimer">
-                <i class="fas fa-lock mr-1"></i> MECS Secured. 256-bit Encryption. Client-Side Hashing.
-            </p>
+        <div class="flex justify-between items-center border-b border-mecs-primary/50 pb-4 mb-4 z-10">
+            <div class="text-mecs-primary font-bold">MECS_SECURE_SHELL v2.5</div>
+            <button id="close-terminal" class="text-gray-500 hover:text-white">[ EXIT_SESSION ]</button>
         </div>
 
-        <div class="w-full border-y border-white/5 bg-black/50 backdrop-blur-sm mb-16 py-4">
-            <div class="container mx-auto px-4">
-                <p class="text-center text-xs text-gray-600 font-mono mb-3 uppercase tracking-widest">We are Available in Multiple Languages</p>
-                <div class="flex gap-4 overflow-x-auto lang-scroll justify-start md:justify-center px-4 pb-2">
-                    
-                    <button onclick="setLang('en')" class="flex-shrink-0 flex items-center gap-3 px-5 py-3 rounded border border-white/10 hover:border-mecs-primary hover:bg-mecs-primaryDim transition-all min-w-[150px] bg-mecs-surface">
-                        <span class="text-2xl">🇺🇸</span> <span class="text-sm font-bold text-gray-200">English</span>
-                    </button>
-                    
-                    <button onclick="setLang('es')" class="flex-shrink-0 flex items-center gap-3 px-5 py-3 rounded border border-white/10 hover:border-mecs-primary hover:bg-mecs-primaryDim transition-all min-w-[150px] bg-mecs-surface">
-                        <span class="text-2xl">🇪🇸</span> <span class="text-sm font-bold text-gray-200">Español</span>
-                    </button>
-                    
-                    <button onclick="setLang('fr')" class="flex-shrink-0 flex items-center gap-3 px-5 py-3 rounded border border-white/10 hover:border-mecs-primary hover:bg-mecs-primaryDim transition-all min-w-[150px] bg-mecs-surface">
-                        <span class="text-2xl">🇫🇷</span> <span class="text-sm font-bold text-gray-200">Français</span>
-                    </button>
-                    
-                    <button onclick="setLang('de')" class="flex-shrink-0 flex items-center gap-3 px-5 py-3 rounded border border-white/10 hover:border-mecs-primary hover:bg-mecs-primaryDim transition-all min-w-[150px] bg-mecs-surface">
-                        <span class="text-2xl">🇩🇪</span> <span class="text-sm font-bold text-gray-200">Deutsch</span>
-                    </button>
+        <div id="terminal-output" class="flex-grow overflow-y-auto text-sm md:text-base space-y-1 pb-4 z-10 h-full"></div>
 
-                </div>
-            </div>
+        <div class="flex items-center gap-2 text-sm md:text-base z-10 pt-2 border-t border-gray-900">
+            <span class="text-white">guest@mecs-node:~$</span>
+            <input type="text" id="terminal-input" class="bg-transparent border-none text-mecs-primary outline-none w-full font-mono caret-mecs-primary" autocomplete="off" spellcheck="false">
         </div>
-
-        <div class="container mx-auto px-4 mb-20 text-center">
-            <p class="text-xs text-gray-600 font-mono uppercase tracking-widest mb-8">Verified & Audited By</p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 hover:opacity-100">
-                <div class="border border-white/10 p-4 rounded bg-mecs-surface flex flex-col items-center hover:border-mecs-primary">
-                    <i class="fas fa-shield-halved text-3xl text-gray-400 mb-2"></i>
-                    <span class="font-bold text-xs text-gray-300">MECS Secure<br>Standard</span>
-                </div>
-                <div class="border border-white/10 p-4 rounded bg-mecs-surface flex flex-col items-center hover:border-mecs-primary">
-                    <i class="fas fa-globe text-3xl text-gray-400 mb-2"></i>
-                    <span class="font-bold text-xs text-gray-300">Global Bio-Auth<br>Alliance</span>
-                </div>
-                <div class="border border-white/10 p-4 rounded bg-mecs-surface flex flex-col items-center hover:border-mecs-primary">
-                    <i class="fas fa-database text-3xl text-gray-400 mb-2"></i>
-                    <span class="font-bold text-xs text-gray-300">Open Data<br>Integrity Org</span>
-                </div>
-                <div class="border border-white/10 p-4 rounded bg-mecs-surface flex flex-col items-center hover:border-mecs-primary">
-                    <i class="fas fa-file-contract text-3xl text-gray-400 mb-2"></i>
-                    <span class="font-bold text-xs text-gray-300">GDPR/CCPA<br>Compliant</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="container mx-auto px-4 max-w-5xl mb-20">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-3xl font-bold mb-6 text-white" data-key="why_title">Why MECS built FaceTrace?</h2>
-                    <p class="text-gray-400 mb-4 leading-relaxed text-sm" data-key="why_text">
-                        Identity theft is no longer just about financial data. In 2024 alone, biometric spoofing attacks increased by 400%. Your face is your password, yet it is public. <br><br>
-                        MECS (MakeEveryoneCyberSafe) developed this tool to allow everyday users to audit their digital footprint. We believe you have the right to know if your face is being used to train unauthorized AI models or being sold on darknet marketplaces.
-                    </p>
-                    <div class="flex gap-4 mt-6">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-mecs-primary">30B+</div>
-                            <div class="text-[10px] text-gray-500 font-mono uppercase" data-key="stat_img">Images Indexed</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-mecs-primary">0.2s</div>
-                            <div class="text-[10px] text-gray-500 font-mono uppercase" data-key="stat_spd">Search Speed</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid gap-4">
-                    <div class="bg-mecs-surface p-5 rounded border-l-2 border-mecs-primary hover:bg-white/5 transition">
-                        <h3 class="font-bold text-lg mb-1 text-white" data-key="feat1">Deep Web Spidering</h3>
-                        <p class="text-xs text-gray-500" data-key="feat1_d">Accesses non-indexed layers of the internet.</p>
-                    </div>
-                    <div class="bg-mecs-surface p-5 rounded border-l-2 border-white hover:bg-white/5 transition">
-                        <h3 class="font-bold text-lg mb-1 text-white" data-key="feat2">AI Clone Detection</h3>
-                        <p class="text-xs text-gray-500" data-key="feat2_d">Identifies Deepfakes using your likeness.</p>
-                    </div>
-                    <div class="bg-mecs-surface p-5 rounded border-l-2 border-gray-500 hover:bg-white/5 transition">
-                        <h3 class="font-bold text-lg mb-1 text-white" data-key="feat3">Breach Alert</h3>
-                        <p class="text-xs text-gray-500" data-key="feat3_d">Instant notification of compromised IDs.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="container mx-auto px-4 max-w-3xl mb-20">
-            <h2 class="text-2xl font-bold mb-8 text-center text-white" data-key="faq_header">Technical Documentation & FAQ</h2>
-            <div id="faq-container" class="space-y-3">
-                </div>
-        </div>
-
-        <footer class="w-full text-center py-8 border-t border-white/10 text-gray-600 text-xs font-mono">
-            <p>&copy; 2025 #MakeEveryoneCyberSafe Initiative. All rights reserved.</p>
-            <p class="mt-2 opacity-50 hover:text-mecs-primary cursor-pointer">Privacy Policy | Terms of Service | Biometric Data Act</p>
-        </footer>
-
     </div>
 
-    <div id="tc-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-mecs-surface border border-gray-800 max-w-lg w-full rounded-xl shadow-2xl overflow-hidden flex flex-col h-[75vh]">
-            
-            <div class="p-5 border-b border-gray-800 bg-black flex justify-between items-center">
-                <div>
-                    <h3 class="font-bold text-white text-sm" data-key="tc_header">TERMS OF SERVICE</h3>
-                    <p class="text-[10px] text-gray-500 font-mono">DOC ID: MECS-LEGAL-8821</p>
+    <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+        <div class="container mx-auto px-6 py-4 relative">
+            <div class="flex justify-between items-center">
+                <a href="#" class="text-2xl font-black tracking-tighter uppercase hover-glitch text-white">
+                    #MECS
+                </a>
+
+                <nav class="hidden md:block">
+                    <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest text-white">
+                        <li><a href="#about" class="hover:text-mecs-primary transition-colors">About</a></li>
+                        <li><a href="training.html" class="hover:text-mecs-primary transition-colors">Education</a></li>
+                        <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Playground</a></li>
+                        <li><a href="mirror.html" class="hover:text-mecs-primary transition-colors">Digital Mirror</a></li>
+                        <li><a href="image.html" class="hover:text-mecs-primary transition-colors">FaceTrace</a></li>
+                    </ul>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors p-2">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
             </div>
-            
-            <div class="p-6 overflow-y-auto legal-scroll text-gray-400 text-[11px] font-mono leading-relaxed text-justify">
-                <p class="mb-4" data-key="tc_p1"><strong>1. DATA PROCESSING AGREEMENT.</strong> By uploading an image...</p>
-                <p class="mb-4" data-key="tc_p2"><strong>2. PRIVACY & ANONYMITY.</strong> MECS takes privacy seriously...</p>
-                <p class="mb-4" data-key="tc_p3"><strong>3. LIMITATION OF LIABILITY.</strong> The Service is provided "as is"...</p>
+        </div>
 
-                <p class="mb-4" data-key="tc_trap"><strong>4. USER ACKNOWLEDGEMENT.</strong> The user acknowledges...</p>
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-primary backdrop-blur-md md:hidden animate__animated animate__fadeInDown">
+            <ul class="flex flex-col p-6 space-y-6 text-center">
+                <li><a href="#about" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2 border-b border-white/10">About</a></li>
+                <li><a href="training.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2 border-b border-white/10">Education</a></li>
+                <li><a href="playground.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2">Playground</a></li>
+                <li><a href="mirror.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2">Digital Mirror</a></li>
+                <li><a href="image.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2">FaceTrace</a></li>
+            </ul>
+        </div>
+    </header>
 
-                <p class="mb-4" data-key="tc_p5"><strong>5. INDEMNIFICATION.</strong> You agree to hold harmless...</p>
-                <p class="mb-4" data-key="tc_p6"><strong>6. API USAGE.</strong> Automated scraping is prohibited...</p>
-                <p data-key="tc_p7"><strong>7. COOKIES.</strong> We use cookies...</p>
-            </div>
-
-            <div class="p-5 border-t border-gray-800 bg-black flex flex-col gap-3">
-                <div class="flex items-center">
-                    <input type="checkbox" id="agree-check" class="w-4 h-4 rounded border-gray-600 text-mecs-primary focus:ring-offset-black focus:ring-mecs-primary bg-gray-800 accent-mecs-primary">
-                    <label for="agree-check" class="ml-2 text-xs text-gray-400 hover:text-white cursor-pointer" data-key="tc_agree_label">I have read and accept the Terms & Conditions</label>
+    <main class="flex-grow pt-28">
+        
+        <section class="container mx-auto px-6 mb-20 md:mb-32 flex flex-col md:flex-row items-center justify-between gap-12 relative">
+            <div class="md:w-1/2 z-10 animate__animated animate__fadeInLeft">
+                <div class="inline-flex items-center gap-2 px-3 py-1 border border-mecs-primary/50 bg-mecs-primary/10 text-mecs-primary text-xs font-bold uppercase tracking-widest mb-6">
+                    <span class="w-2 h-2 rounded-full bg-mecs-primary animate-pulse"></span>
+                    Cybersecurity For All
                 </div>
                 
-                <div class="flex gap-3">
-                    <button onclick="closeModal()" class="px-6 py-3 border border-gray-700 text-gray-400 text-xs font-bold hover:text-white hover:border-white transition-colors rounded" data-key="tc_cancel">
-                        CANCEL
-                    </button>
-                    <button onclick="triggerFileSelect()" class="flex-grow py-3 bg-white text-black text-xs font-bold hover:bg-mecs-primary hover:text-white transition-colors rounded uppercase tracking-wider" data-key="tc_upload">
-                        VERIFY & UPLOAD
-                    </button>
+                <h1 class="text-5xl md:text-7xl font-black mb-6 leading-none uppercase text-white">
+                    Make <br> Everyone <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-mecs-primary to-white">CyberSafe</span>
+                </h1>
+                
+                <p class="text-mecs-gray text-lg mb-8 max-w-xl border-l-2 border-mecs-primary pl-4 leading-relaxed">
+                    Turning complex cyber threats into clear, actionable guidance. A public initiative to help everyone protect themselves online, free from jargon.
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="training.html" class="btn-clip bg-mecs-primary text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center gap-2 group">
+                        <i class="fas fa-terminal"></i> Start Learning
+                    </a>
+                    
+                    <a href="https://aathithya-shanmuga-sundaram.github.io" class="btn-clip border border-white/30 text-white px-8 py-4 font-bold uppercase tracking-wider hover:border-mecs-primary hover:text-mecs-primary transition-colors">
+                        About the Founder
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <input type="file" id="file-input" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp" onchange="handleFile(this)">
-
-    <div id="scan-screen" class="hidden fixed inset-0 bg-black z-50 flex flex-col items-center justify-center">
-        <div class="relative w-full max-w-md aspect-square mx-6 bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-[0_0_100px_rgba(255,0,85,0.2)]">
-            <img id="scan-preview" class="w-full h-full object-cover opacity-40 filter grayscale contrast-125">
-            <div class="scan-line"></div>
-            <div class="absolute inset-0 border-[2px] border-mecs-primary/30 m-4 rounded-xl"></div>
-            
-            <div class="absolute top-8 left-8 text-mecs-primary font-mono text-xs">ID: <span id="scan-id">...</span></div>
-            <div class="absolute bottom-8 right-8 text-mecs-primary font-mono text-xs animate-pulse">STATUS: MATCHING</div>
-        </div>
-        
-        <div class="w-full max-w-md mx-6 mt-6 font-mono text-[10px] text-gray-500 h-40 overflow-hidden" id="terminal"></div>
-    </div>
-
-    <div id="reveal-screen" class="hidden fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 text-center">
-        <div class="mb-6 text-mecs-primary animate__animated animate__fadeInDown">
-            <i class="fas fa-exclamation-triangle text-6xl mb-4"></i>
-        </div>
-        
-        <h1 class="text-5xl md:text-8xl font-black text-white mb-2 uppercase tracking-tighter leading-none animate__animated animate__pulse">
-            <span data-key="fail_title">YOU FAILED.</span>
-        </h1>
-        
-        <div class="bg-gray-900/80 border border-gray-800 p-8 max-w-2xl mt-8 rounded-xl backdrop-blur-lg">
-            <div class="font-mono text-mecs-primary text-xs uppercase tracking-widest mb-4 border-b border-gray-800 pb-2" data-key="fail_subtitle">MECS Cyber Awareness Lesson</div>
-            
-            <p class="text-xl font-bold text-white mb-4" data-key="fail_q">
-                Did you read Section 4 of the Terms you just signed?
-            </p>
-            
-            <div class="bg-black/50 p-4 rounded text-left mb-6 border-l-4 border-red-600">
-                <p class="text-gray-400 font-mono text-xs italic" data-key="fail_quote">
-                    "The User acknowledges that this website is a simulation..."
-                </p>
-            </div>
-
-            <p class="text-gray-300 text-sm leading-relaxed mb-6" data-key="fail_exp">
-                You trusted a professional design, fake certificates, and a "Secure" button. 
-                <strong class="text-white">You just uploaded your face to a server you know nothing about.</strong>
-                <br><br>
-                Real hackers don't look like hackers. They look like this website.
-            </p>
-
-            <button onclick="location.reload()" class="bg-white text-black px-6 py-2 text-xs font-bold font-mono rounded hover:bg-mecs-primary hover:text-white transition-colors" data-key="fail_restart">
-                [ RESTART LESSON ]
-            </button>
-        </div>
-        
-        <p class="mt-8 text-green-500 text-[10px] font-mono max-w-md opacity-70" data-key="fail_safe">
-            * SAFETY NOTICE: This runs entirely in your browser (Client-Side). No data was actually sent to any server. You are safe.
-        </p>
-    </div>
-
-    <script>
-        // --- 1. LANGUAGE & CONTENT ---
-        const content = {
-            en: {
-                badge: "FaceTrace | By MECS",
-                title: "Who is using your <span class='text-transparent bg-clip-text bg-gradient-to-r from-white to-mecs-primary'>face?</span>",
-                subtitle: "The internet is forever. Our proprietary DeepSearch™ engine scans over 30 billion images across the Surface Web, Dark Web, and surveillance databases.",
-                cta: "START SECURE SCAN",
-                disclaimer: "MECS Secured. 256-bit Encryption. Client-Side Hashing.",
-                why_title: "Why MECS built FaceTrace?",
-                why_text: "Identity theft is no longer just about financial data. MECS (MakeEveryoneCyberSafe) developed this tool to allow everyday users to audit their digital footprint.",
-                stat_img: "Images Indexed", stat_spd: "Search Speed",
-                feat1: "Deep Web Spidering", feat1_d: "Accesses non-indexed layers.",
-                feat2: "AI Clone Detection", feat2_d: "Identifies Deepfakes.",
-                feat3: "Breach Alert", feat3_d: "Instant notifications.",
-                faq_header: "Technical Documentation & FAQ",
-                q1: "How does the search algorithm work?", 
-                a1: "Our engine utilizes a convolutional neural network (CNN) trained on a dataset of 30 billion vectors. It maps 128 nodal points on your face to create a unique hash string. <strong>Please note: This interface is a simulation created by MECS to demonstrate how easily users surrender data to trustworthy-looking sites.</strong> The hash is then compared against our indexed clusters for matches.",
-                q2: "Is my biometric data stored?", 
-                a2: "We adhere to strict ephemeral processing standards. Your image is held in volatile memory (RAM) only for the duration of the session and is cryptographically wiped immediately after the vectorization process.",
-                q3: "Why is this tool free?", 
-                a3: "MECS is a non-profit initiative funded by global cybersecurity grants. We believe privacy is a human right. However, enterprise-grade bulk searches require a paid API license.",
-                q4: "What happens if I find a match?", 
-                a4: "FaceTrace provides automated DMCA takedown request generation. We also partner with legal firms to help you reclaim your identity rights.",
-                // TC
-                tc_header: "TERMS OF SERVICE",
-                tc_p1: "<strong>1. DATA PROCESSING AGREEMENT.</strong> By uploading an image to FaceTrace (the \"Service\"), you grant MECS and its affiliates a worldwide, royalty-free license to analyze, hash, and process the biometric data contained therein. We utilize SHA-256 hashing to ensure data integrity during transit.",
-                tc_p2: "<strong>2. PRIVACY & ANONYMITY.</strong> MECS takes privacy seriously. We employ ephemeral processing pipelines. However, data may be retained in volatile memory for the duration of the session to facilitate the deep-learning matching algorithm.",
-                tc_p3: "<strong>3. LIMITATION OF LIABILITY.</strong> The Service is provided \"as is\". MECS is not liable for any distress caused by the results of the search, including but not limited to discovering unauthorized use of your likeness on adult or illegal platforms.",
-                tc_trap: "<strong>4. USER ACKNOWLEDGEMENT & SIMULATION PROTOCOLS.</strong> 4.1. The User acknowledges that this document constitutes a binding agreement. 4.2. By clicking \"I Agree\", the User explicitly admits that they did not read this specific paragraph. The User acknowledges that this website is a simulation designed by MECS to demonstrate social engineering vulnerability. 4.3. FaceTrace does not actually search the internet. It searches for people who click buttons without reading. 4.4. If this were a real malicious actor, your biometric data would now be sold.",
-                tc_p5: "<strong>5. INDEMNIFICATION.</strong> You agree to hold harmless MECS for any realization of poor cybersecurity hygiene resulting from this experience.",
-                tc_p6: "<strong>6. API USAGE.</strong> Automated scraping of this tool is prohibited without an enterprise API key.",
-                tc_p7: "<strong>7. COOKIES.</strong> We use cookies to measure how fast you scroll past this text.",
-                tc_agree_label: "I have read and accept the Terms & Conditions",
-                tc_cancel: "CANCEL",
-                tc_upload: "VERIFY & UPLOAD",
-                // FAIL
-                fail_title: "YOU <span class='text-red-600'>FAILED.</span>",
-                fail_subtitle: "MECS Cyber Awareness Lesson",
-                fail_q: "Did you read Section 4 of the Terms you just signed?",
-                fail_quote: "\"The User acknowledges that this website is a simulation designed by MECS... By clicking 'I Agree', the User explicitly admits that they did not read this specific paragraph.\"",
-                fail_exp: "You trusted a professional design, fake certificates, and a \"Secure\" button. <strong class=\"text-white\">You just uploaded your face to a server you know nothing about.</strong><br><br>Real hackers don't look like hackers. They look like this website.",
-                fail_restart: "[ RESTART LESSON ]",
-                fail_safe: "* SAFETY NOTICE: This runs entirely in your browser (Client-Side). No data was actually sent to any server. You are safe."
-            },
-            es: {
-                badge: "FaceTrace | De MECS",
-                title: "¿Quién usa tu <span class='text-transparent bg-clip-text bg-gradient-to-r from-white to-mecs-primary'>cara?</span>",
-                subtitle: "Internet es para siempre. Nuestro motor DeepSearch™ escanea más de 30 mil millones de imágenes en la Surface Web y Dark Web.",
-                cta: "INICIAR ESCANEO SEGURO",
-                disclaimer: "MECS Seguro. Encriptación 256-bit.",
-                why_title: "¿Por qué MECS creó FaceTrace?",
-                why_text: "El robo de identidad ha evolucionado. MECS (MakeEveryoneCyberSafe) desarrolló esta herramienta para permitir a los usuarios auditar su huella digital.",
-                stat_img: "Imágenes Indexadas", stat_spd: "Velocidad",
-                feat1: "Rastreo Deep Web", feat1_d: "Accede a capas no indexadas.",
-                feat2: "Detección de Clones", feat2_d: "Identifica Deepfakes.",
-                feat3: "Alerta de Brecha", feat3_d: "Notificaciones instantáneas.",
-                faq_header: "Documentación Técnica y FAQ",
-                q1: "¿Cómo funciona el algoritmo?", 
-                a1: "Nuestro motor utiliza una red neuronal convolucional. <strong>Tenga en cuenta: Esta interfaz es una simulación creada por MECS para demostrar la vulnerabilidad del usuario.</strong> El hash se compara con nuestros clústeres indexados.",
-                q2: "¿Se guardan mis datos?", 
-                a2: "Cumplimos con estándares estrictos. Su imagen se mantiene en memoria volátil (RAM) solo durante el proceso y se borra criptográficamente.",
-                q3: "¿Por qué es gratis?", 
-                a3: "MECS es una iniciativa sin fines de lucro. Sin embargo, las búsquedas masivas empresariales requieren una licencia API.",
-                q4: "¿Qué pasa si encuentro una coincidencia?", 
-                a4: "FaceTrace proporciona generación automática de solicitudes de eliminación DMCA.",
-                // TC
-                tc_header: "TÉRMINOS DE SERVICIO",
-                tc_p1: "<strong>1. ACUERDO DE PROCESAMIENTO.</strong> Al cargar una imagen, usted otorga a MECS una licencia mundial libre de regalías para analizar y procesar los datos biométricos. Utilizamos hash SHA-256 para garantizar la integridad.",
-                tc_p2: "<strong>2. PRIVACIDAD Y ANONIMATO.</strong> MECS toma en serio la privacidad. Usamos procesos efímeros. Sin embargo, los datos pueden retenerse en memoria volátil durante la sesión para facilitar el algoritmo.",
-                tc_p3: "<strong>3. LIMITACIÓN DE RESPONSABILIDAD.</strong> El servicio se proporciona \"tal cual\". MECS no es responsable de ninguna angustia causada por los resultados de la búsqueda.",
-                tc_trap: "<strong>4. RECONOCIMIENTO DEL USUARIO Y PROTOCOLOS.</strong> 4.1. El Usuario reconoce que este documento es vinculante. 4.2. Al hacer clic en \"Acepto\", el Usuario admite explícitamente que no leyó este párrafo. El Usuario reconoce que este sitio web es una simulación diseñada por MECS para demostrar vulnerabilidad en ingeniería social. 4.3. FaceTrace no busca en internet. Busca personas que hacen clic sin leer. 4.4. Si esto fuera un actor malicioso real, sus datos biométricos ya habrían sido vendidos.",
-                tc_p5: "<strong>5. INDEMNIZACIÓN.</strong> Usted acepta eximir de responsabilidad a MECS por cualquier realización de mala higiene de ciberseguridad resultante de esta experiencia.",
-                tc_p6: "<strong>6. USO DE API.</strong> El scraping automatizado está prohibido sin clave API.",
-                tc_p7: "<strong>7. COOKIES.</strong> Usamos cookies para medir qué tan rápido pasas este texto.",
-                tc_agree_label: "He leído y acepto los Términos y Condiciones",
-                tc_cancel: "CANCELAR",
-                tc_upload: "VERIFICAR Y SUBIR",
-                // FAIL
-                fail_title: "HAS <span class='text-red-600'>FALLADO.</span>",
-                fail_subtitle: "Lección de Conciencia Cibernética MECS",
-                fail_q: "¿Leíste la Sección 4 de los Términos que acabas de firmar?",
-                fail_quote: "\"El Usuario reconoce que este sitio web es una simulación diseñada por MECS... Al hacer clic en 'Acepto', el Usuario admite explícitamente que no leyó este párrafo.\"",
-                fail_exp: "Confiaste en un diseño profesional, certificados falsos y un botón \"Seguro\". <strong class=\"text-white\">Acabas de subir tu cara a un servidor del que no sabes nada.</strong><br><br>Los hackers reales no parecen hackers. Se parecen a este sitio web.",
-                fail_restart: "[ REINICIAR LECCIÓN ]",
-                fail_safe: "* AVISO DE SEGURIDAD: Esto se ejecuta completamente en su navegador (lado del cliente). No se enviaron datos a ningún servidor. Estás a salvo."
-            },
-            fr: {
-                badge: "FaceTrace | Par MECS",
-                title: "Qui utilise votre <span class='text-transparent bg-clip-text bg-gradient-to-r from-white to-mecs-primary'>visage?</span>",
-                subtitle: "Internet est éternel. Notre moteur DeepSearch™ scanne plus de 30 milliards d'images sur le Web et le Dark Web.",
-                cta: "LANCER LE SCAN SÉCURISÉ",
-                disclaimer: "Sécurisé par MECS. Chiffrement 256 bits.",
-                why_title: "Pourquoi FaceTrace?",
-                why_text: "Le vol d'identité a évolué. MECS (MakeEveryoneCyberSafe) a développé cet outil pour permettre aux utilisateurs d'auditer leur empreinte numérique.",
-                stat_img: "Images Indexées", stat_spd: "Vitesse",
-                feat1: "Exploration Deep Web", feat1_d: "Accède aux couches non indexées.",
-                feat2: "Détection de Clones", feat2_d: "Identifie les Deepfakes.",
-                feat3: "Alerte de Violation", feat3_d: "Notifications instantanées.",
-                faq_header: "FAQ et Documentation",
-                q1: "Comment fonctionne l'algorithme?", 
-                a1: "Notre moteur utilise un réseau neuronal. <strong>Notez : Cette interface est une simulation créée par MECS pour démontrer la vulnérabilité des utilisateurs.</strong> Le hachage est ensuite comparé à nos index.",
-                q2: "Mes données sont-elles stockées?", 
-                a2: "Nous adhérons à des normes strictes. Votre image est conservée en mémoire vive (RAM) uniquement pendant le processus.",
-                q3: "Pourquoi est-ce gratuit?", 
-                a3: "MECS est une initiative à but non lucratif. Nous croyons que la confidentialité est un droit humain.",
-                q4: "Et si je trouve une correspondance?", 
-                a4: "FaceTrace fournit une génération automatique de demandes de retrait DMCA.",
-                // TC
-                tc_header: "CONDITIONS D'UTILISATION",
-                tc_p1: "<strong>1. ACCORD DE TRAITEMENT.</strong> En téléchargeant une image, vous accordez à MECS une licence mondiale pour analyser et traiter les données biométriques. Nous utilisons le hachage SHA-256.",
-                tc_p2: "<strong>2. CONFIDENTIALITÉ.</strong> MECS prend la confidentialité au sérieux. Cependant, les données peuvent être conservées en mémoire volatile pendant la session pour l'algorithme.",
-                tc_p3: "<strong>3. LIMITATION DE RESPONSABILITÉ.</strong> Le Service est fourni \"tel quel\". MECS n'est pas responsable de la détresse causée par les résultats de la recherche.",
-                tc_trap: "<strong>4. RECONNAISSANCE ET PROTOCOLES.</strong> 4.1. L'Utilisateur reconnaît que ce document est contraignant. 4.2. En cliquant sur \"J'accepte\", l'Utilisateur admet explicitement ne pas avoir lu ce paragraphe. L'Utilisateur reconnaît que ce site est une simulation conçue par MECS pour démontrer la vulnérabilité à l'ingénierie sociale. 4.3. FaceTrace ne cherche pas sur internet. Il cherche les gens qui cliquent sans lire. 4.4. S'il s'agissait d'un vrai pirate, vos données seraient vendues.",
-                tc_p5: "<strong>5. INDEMNISATION.</strong> Vous acceptez de dégager MECS de toute responsabilité pour toute réalisation d'une mauvaise hygiène de cybersécurité résultant de cette expérience.",
-                tc_p6: "<strong>6. API.</strong> Le scraping automatisé est interdit sans clé API.",
-                tc_p7: "<strong>7. COOKIES.</strong> Nous utilisons des cookies pour mesurer la vitesse à laquelle vous ignorez ce texte.",
-                tc_agree_label: "J'ai lu et j'accepte les conditions",
-                tc_cancel: "ANNULER",
-                tc_upload: "VÉRIFIER ET TÉLÉCHARGER",
-                // FAIL
-                fail_title: "VOUS AVEZ <span class='text-red-600'>ÉCHOUÉ.</span>",
-                fail_subtitle: "Leçon de Cybersécurité MECS",
-                fail_q: "Avez-vous lu la section 4 des conditions que vous venez de signer ?",
-                fail_quote: "\"L'Utilisateur reconnaît que ce site est une simulation conçue par MECS... En cliquant sur 'J'accepte', l'Utilisateur admet explicitement ne pas avoir lu ce paragraphe.\"",
-                fail_exp: "Vous avez fait confiance à un design professionnel et un bouton \"Sécurisé\". <strong class=\"text-white\">Vous venez de télécharger votre visage sur un serveur que vous ne connaissez pas.</strong><br><br>Les vrais pirates ne ressemblent pas à des pirates. Ils ressemblent à ce site web.",
-                fail_restart: "[ RECOMMENCER LA LEÇON ]",
-                fail_safe: "* AVIS DE SÉCURITÉ : Ceci s'exécute entièrement dans votre navigateur (côté client). Aucune donnée n'a été envoyée. Vous êtes en sécurité."
-            },
-            de: {
-                badge: "FaceTrace | von MECS",
-                title: "Wer benutzt dein <span class='text-transparent bg-clip-text bg-gradient-to-r from-white to-mecs-primary'>Gesicht?</span>",
-                subtitle: "Das Internet vergisst nie. Unser DeepSearch™-System scannt über 30 Milliarden Bilder im Surface Web und Dark Web.",
-                cta: "SICHEREN SCAN STARTEN",
-                disclaimer: "MECS Gesichert. 256-Bit-Verschlüsselung.",
-                why_title: "Warum FaceTrace?",
-                why_text: "Identitätsdiebstahl betrifft nicht mehr nur Finanzdaten. MECS (MakeEveryoneCyberSafe) hat dieses Tool entwickelt, um Ihren digitalen Fußabdruck zu prüfen.",
-                stat_img: "Bilder Indiziert", stat_spd: "Geschwindigkeit",
-                feat1: "Deep Web Scan", feat1_d: "Zugriff auf nicht indizierte Schichten.",
-                feat2: "Klon-Erkennung", feat2_d: "Identifiziert Deepfakes.",
-                feat3: "Sicherheitswarnung", feat3_d: "Sofortige Benachrichtigung.",
-                faq_header: "FAQ und Technik",
-                q1: "Wie funktioniert der Algorithmus?", 
-                a1: "Unser System nutzt ein neuronales Netzwerk. <strong>Hinweis: Dies ist eine Simulation von MECS, um Sicherheitslücken aufzuzeigen.</strong> Der Hash wird mit unseren Datenbanken abgeglichen.",
-                q2: "Werden Daten gespeichert?", 
-                a2: "Wir speichern Daten nur flüchtig im RAM. Nach der Vektorisierung werden sie sofort kryptografisch gelöscht.",
-                q3: "Warum ist das kostenlos?", 
-                a3: "MECS ist eine gemeinnützige Initiative. Wir glauben, dass Privatsphäre ein Menschenrecht ist.",
-                q4: "Was bei einem Treffer?", 
-                a4: "FaceTrace erstellt automatische DMCA-Löschanfragen für gefundene Übereinstimmungen.",
-                // TC
-                tc_header: "NUTZUNGSBEDINGUNGEN",
-                tc_p1: "<strong>1. DATENVERARBEITUNG.</strong> Durch das Hochladen eines Bildes gewähren Sie MECS eine weltweite Lizenz zur Analyse biometrischer Daten. Wir verwenden SHA-256-Hashing.",
-                tc_p2: "<strong>2. DATENSCHUTZ.</strong> MECS nimmt den Datenschutz ernst. Daten werden jedoch für die Dauer der Sitzung im flüchtigen Speicher gehalten.",
-                tc_p3: "<strong>3. HAFTUNGSBESCHRÄNKUNG.</strong> Der Service wird \"wie besehen\" bereitgestellt. MECS haftet nicht für Stress durch Suchergebnisse.",
-                tc_trap: "<strong>4. BENUTZERBESTÄTIGUNG & SIMULATION.</strong> 4.1. Der Benutzer erkennt an, dass dies bindend ist. 4.2. Durch Klicken auf \"Ich stimme zu\" gibt der Benutzer zu, diesen Absatz nicht gelesen zu haben. Der Benutzer erkennt an, dass diese Website eine Simulation von MECS ist, um Social-Engineering-Schwachstellen zu zeigen. 4.3. FaceTrace sucht nicht im Internet. Es sucht nach Leuten, die nicht lesen. 4.4. Wäre dies ein echter Hacker, wären Ihre Daten jetzt verkauft.",
-                tc_p5: "<strong>5. SCHADLOSHALTUNG.</strong> Sie stimmen zu, MECS für jede Erkenntnis über schlechte Cybersicherheitshygiene schadlos zu halten.",
-                tc_p6: "<strong>6. API-NUTZUNG.</strong> Automatisiertes Scraping ist verboten.",
-                tc_p7: "<strong>7. COOKIES.</strong> Wir messen, wie schnell Sie diesen Text überspringen.",
-                tc_agree_label: "Ich habe die Bedingungen gelesen und akzeptiere sie",
-                tc_cancel: "ABBRECHEN",
-                tc_upload: "ÜBERPRÜFEN & HOCHLADEN",
-                // FAIL
-                fail_title: "SIE HABEN <span class='text-red-600'>VERSAGT.</span>",
-                fail_subtitle: "MECS Cybersicherheits-Lektion",
-                fail_q: "Haben Sie Abschnitt 4 der Bedingungen gelesen?",
-                fail_quote: "\"Der Benutzer erkennt an, dass diese Website eine Simulation von MECS ist... Durch Klicken auf 'Ich stimme zu', gibt der Benutzer zu, diesen Absatz nicht gelesen zu haben.\"",
-                fail_exp: "Sie haben einem professionellen Design und einem \"Sicher\"-Button vertraut. <strong class=\"text-white\">Sie haben gerade Ihr Gesicht auf einen Server hochgeladen, den Sie nicht kennen.</strong><br><br>Echte Hacker sehen nicht wie Hacker aus. Sie sehen aus wie diese Website.",
-                fail_restart: "[ LEKTION NEU STARTEN ]",
-                fail_safe: "* SICHERHEITSHINWEIS: Dies läuft komplett in Ihrem Browser (Client-Side). Keine Daten wurden gesendet. Sie sind sicher."
-            }
-        };
-
-        function setLang(lang) {
-            const data = content[lang];
-            document.querySelectorAll('[data-key]').forEach(el => {
-                if(data[el.getAttribute('data-key')]) {
-                    el.innerHTML = data[el.getAttribute('data-key')];
-                }
-            });
-            renderFAQ(lang);
-        }
-
-        function renderFAQ(lang) {
-            const data = content[lang];
-            const container = document.getElementById('faq-container');
-            container.innerHTML = '';
-            for(let i=1; i<=4; i++) {
-                container.innerHTML += `
-                    <div class="border border-white/10 rounded bg-mecs-surface overflow-hidden">
-                        <button class="w-full text-left p-4 flex justify-between items-center hover:bg-white/5 transition" onclick="this.parentElement.classList.toggle('faq-active')">
-                            <span class="font-bold text-sm text-gray-200">${data['q'+i]}</span>
-                            <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-300"></i>
-                        </button>
-                        <div class="faq-answer px-4 bg-black/50">
-                            <div class="py-4 text-gray-400 text-xs leading-relaxed font-mono">
-                                ${data['a'+i]}
+            <div class="md:w-5/12 relative z-10 animate__animated animate__fadeInRight hidden md:block">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-mecs-primary/20 rounded-full blur-[80px] animate-pulse-slow"></div>
+                <div class="relative bg-mecs-surface border border-white/10 p-2 btn-clip animate-float shadow-2xl">
+                    <div class="bg-[#050505] relative overflow-hidden btn-clip h-[340px] flex flex-col font-mono text-sm">
+                        <div class="bg-[#111] px-4 py-3 flex items-center gap-2 border-b border-white/5">
+                            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            <div class="ml-auto text-[10px] text-gray-600 uppercase tracking-widest">root@mecs-public:~</div>
+                        </div>
+                        <div class="p-6 text-gray-300 space-y-3 flex-grow overflow-hidden">
+                            <div><span class="text-mecs-primary">root@mecs:~$</span> ./check_security_status</div>
+                            <div class="text-gray-500 text-xs">
+                                > Scanning personal data...<br>
+                                > [WARNING] 3 Passwords comprised.<br>
+                                > [WARNING] 2FA not enabled on Email.<br>
                             </div>
+                            <div class="border-l-2 border-mecs-primary pl-3 py-1 my-2 bg-mecs-primary/5">
+                                <span class="text-white font-bold">ACTION REQUIRED:</span><br>
+                                <span class="text-red-500">● Fix Immediate Threats</span><br>
+                            </div>
+                            <div><span class="text-mecs-primary">root@mecs:~$</span> start_module "Personal Defense"</div>
                         </div>
                     </div>
-                `;
-            }
-        }
+                </div>
+            </div>
+        </section>
 
-        // --- 2. LOGIC ---
-        function openModal() { document.getElementById('tc-modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('tc-modal').classList.add('hidden'); }
+        <section id="stats" class="container mx-auto px-6 mb-24">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="mecs-card p-8 text-center relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-mecs-primary group-hover:w-full transition-all duration-500 opacity-10"></div>
+                    <div class="text-4xl md:text-6xl font-black text-mecs-primary mb-2 tabular-nums stat-counter" data-target="1000">0</div>
+                    <div class="text-sm font-bold uppercase tracking-widest text-gray-400">People Protected</div>
+                </div>
+                <div class="mecs-card p-8 text-center relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-mecs-primary group-hover:w-full transition-all duration-500 opacity-10"></div>
+                    <div class="text-4xl md:text-6xl font-black text-mecs-primary mb-2 tabular-nums stat-counter" data-target="50">0</div>
+                    <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Trusted Users</div>
+                </div>
+                <div class="mecs-card p-8 text-center relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-mecs-primary group-hover:w-full transition-all duration-500 opacity-10"></div>
+                    <div class="text-4xl md:text-6xl font-black text-mecs-primary mb-2 tabular-nums stat-counter" data-target="6">0</div>
+                    <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Education Modules</div>
+                </div>
+            </div>
+        </section>
 
-        function triggerFileSelect() {
-            if(!document.getElementById('agree-check').checked) {
-                alert("Please acknowledge the Terms of Service.");
-                return;
-            }
-            closeModal();
-            document.getElementById('file-input').click();
-        }
+        <section id="about" class="container mx-auto px-6 mb-24">
+            <div class="mb-12 border-b border-white/10 pb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="h-0.5 w-8 bg-mecs-primary"></div>
+                    <span class="text-mecs-primary font-bold uppercase tracking-widest text-xs">Who We Are</span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-black uppercase text-white">Mission Brief</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="mecs-card p-8 group">
+                    <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-mecs-primary group-hover:text-black transition-colors text-2xl">🎯</div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-4">Our Purpose</h3>
+                    <p class="text-mecs-gray text-sm leading-relaxed">MakeEveryoneCyberSafe exists to demystify cybersecurity for everyday people. We break down complex threats into practical, real-world guidance.</p>
+                </div>
+                <div class="mecs-card p-8 group">
+                    <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-mecs-primary group-hover:text-black transition-colors text-2xl">⚡</div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-4">What We Solve</h3>
+                    <p class="text-mecs-gray text-sm leading-relaxed">In a world where cyber threats grow daily, we bridge the gap between complex security concepts and practical protection for everyone.</p>
+                </div>
+                <div class="mecs-card p-8 group">
+                    <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-mecs-primary group-hover:text-black transition-colors text-2xl">🚀</div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-4">Our Vision</h3>
+                    <p class="text-mecs-gray text-sm leading-relaxed">A future where cybersecurity is simple, understood, and practiced by everyone. Where people navigate the digital world with confidence.</p>
+                </div>
+            </div>
+        </section>
 
-        function handleFile(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                if (!file.type.startsWith('image/')) {
-                    alert("SECURITY WARNING: Invalid File Type. Please upload a standard image file (JPG/PNG). Executables are blocked.");
-                    return;
+        <section id="courses" class="container mx-auto px-6 mb-24">
+            <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="h-0.5 w-8 bg-mecs-primary"></div>
+                        <span class="text-mecs-primary font-bold uppercase tracking-widest text-xs">Curriculum</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-black uppercase text-white">Free Modules</h2>
+                </div>
+                <div class="hidden md:block text-mecs-gray text-xs font-mono">
+                    > STATUS: <span class="text-green-500">AVAILABLE</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="mecs-card group relative">
+                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
+                        <i class="fas fa-user-shield text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Personal Defense</h3>
+                        <p class="text-mecs-gray text-xs mb-6">Passwords, 2FA, and basic account hardening.</p>
+                        <a href="courses/Personal_Defense.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
+                    </div>
+                </div>
+                <div class="mecs-card group relative">
+                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
+                        <i class="fas fa-envelope-open-text text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Phishing & Scams</h3>
+                        <p class="text-mecs-gray text-xs mb-6">Spot the fake. Real-world case files on email scams.</p>
+                        <a href="404.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
+                    </div>
+                </div>
+                <div class="mecs-card group relative">
+                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
+                        <i class="fas fa-wifi text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Network Safety</h3>
+                        <p class="text-mecs-gray text-xs mb-6">Public Wi-Fi risks, VPNs, and Router security.</p>
+                        <a href="404.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
+                    </div>
+                </div>
+                <div class="mecs-card group relative">
+                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
+                        <i class="fas fa-user-secret text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Privacy Ops</h3>
+                        <p class="text-mecs-gray text-xs mb-6">Data minimization and tracking protection.</p>
+                        <a href="404.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="initiatives" class="container mx-auto px-6 mb-32">
+            <div class="mb-12 border-b border-white/10 pb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="h-0.5 w-8 bg-mecs-primary"></div>
+                    <span class="text-mecs-primary font-bold uppercase tracking-widest text-xs">Community</span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-black uppercase text-white">Active Operations</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="https://instagram.com/makeeveryonecybersafe" class="mecs-card p-8 group block relative overflow-hidden">
+                    <div class="text-6xl font-black text-white/5 absolute top-2 right-4 group-hover:text-mecs-primary/20 transition-colors">01</div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 group-hover:text-mecs-primary transition-colors">Myth Busting</h3>
+                    <p class="text-mecs-gray text-sm mb-4">Weekly breakdowns debunking common cybersecurity myths with facts.</p>
+                    <span class="text-xs font-bold text-mecs-primary uppercase tracking-widest group-hover:underline">View Instagram →</span>
+                </a>
+                <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" class="mecs-card p-8 group block relative overflow-hidden">
+                    <div class="text-6xl font-black text-white/5 absolute top-2 right-4 group-hover:text-mecs-primary/20 transition-colors">02</div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 group-hover:text-mecs-primary transition-colors">Case Files</h3>
+                    <p class="text-mecs-gray text-sm mb-4">Real-world breakdowns of scams and breaches—showing exactly how they happened.</p>
+                    <span class="text-xs font-bold text-mecs-primary uppercase tracking-widest group-hover:underline">Read Cases →</span>
+                </a>
+                <a href="events.html" class="mecs-card p-8 group block relative overflow-hidden">
+                    <div class="text-6xl font-black text-white/5 absolute top-2 right-4 group-hover:text-mecs-primary/20 transition-colors">03</div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 group-hover:text-mecs-primary transition-colors">Events</h3>
+                    <p class="text-mecs-gray text-sm mb-4">Workshops and webinars designed to spread cybersecurity awareness.</p>
+                    <span class="text-xs font-bold text-mecs-primary uppercase tracking-widest group-hover:underline">Check Schedule →</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-black border-t border-mecs-primary py-12 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-mecs-primary to-transparent opacity-50"></div>
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-3xl font-black uppercase tracking-tighter text-white mb-4">#MECS</h3>
+            <p class="text-gray-500 text-sm max-w-md mx-auto mb-8">A public awareness initiative making cybersecurity accessible to all. No Jargon. Just Protection.</p>
+            
+            <div class="flex justify-center gap-6 mb-8">
+                <a href="https://instagram.com/makeeveryonecybersafe" class="w-10 h-10 border border-white/20 flex items-center justify-center rounded-full text-white hover:bg-mecs-primary hover:border-mecs-primary hover:text-black transition-all">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://linkedin.com/in/aathithya-shanmuga-sundaram" class="w-10 h-10 border border-white/20 flex items-center justify-center rounded-full text-white hover:bg-mecs-primary hover:border-mecs-primary hover:text-black transition-all">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="https://github.com/Aathithya-Shanmuga-Sundaram" class="w-10 h-10 border border-white/20 flex items-center justify-center rounded-full text-white hover:bg-mecs-primary hover:border-mecs-primary hover:text-black transition-all">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+
+            <div class="border-t border-white/10 pt-8">
+                <p class="text-gray-600 text-[10px] uppercase tracking-wider">
+                    &copy; 2025 MakeEveryoneCyberSafe. #MECS.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. SCROLL REVEAL ANIMATION ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                    observer.unobserve(entry.target);
                 }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('main-content').classList.add('hidden');
-                    document.querySelector('nav').classList.add('hidden');
-                    document.querySelector('.grid-bg').classList.add('hidden');
-                    document.getElementById('scan-screen').classList.remove('hidden');
-                    document.getElementById('scan-preview').src = e.target.result;
-                    document.getElementById('scan-id').innerText = Math.random().toString(36).substring(7).toUpperCase();
-                    runTerminal();
-                }
-                reader.readAsDataURL(file);
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.mecs-card, h1, h2').forEach(el => observer.observe(el));
+
+        // --- 2. NUMBER COUNTER (STATS) ---
+        const statsSection = document.getElementById('stats');
+        const counters = document.querySelectorAll('.stat-counter');
+        let hasCounted = false;
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !hasCounted) {
+                hasCounted = true;
+                counters.forEach(counter => {
+                    const target = +counter.getAttribute('data-target');
+                    const duration = 2000;
+                    const increment = target / (duration / 16);
+                    let current = 0;
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            counter.innerText = Math.ceil(current) + (target > 50 ? "+" : "");
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.innerText = target + (target > 50 ? "+" : "");
+                        }
+                    };
+                    updateCounter();
+                });
+            }
+        }, { threshold: 0.5 });
+        if(statsSection) statsObserver.observe(statsSection);
+
+        // --- 3. MOBILE MENU ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileIcon.classList.remove('fa-times');
+                mobileIcon.classList.add('fa-bars');
+            } else {
+                mobileIcon.classList.remove('fa-bars');
+                mobileIcon.classList.add('fa-times');
+            }
+        });
+
+        // --- 4. HACK TERMINAL LOGIC ---
+        const terminalBtns = [document.getElementById('btn-hack-hero'), document.getElementById('btn-hack-nav')];
+        const terminalOverlay = document.getElementById('hack-terminal');
+        const closeTerminalBtn = document.getElementById('close-terminal');
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+
+        const commands = {
+            'help': 'Commands: <span class="text-white">ls</span>, <span class="text-white">whoami</span>, <span class="text-white">clear</span>, <span class="text-white">exit</span>',
+            'ls': '<div class="text-mecs-primary">modules/</div><div class="text-white">config.sys</div><div class="text-white">readme.txt</div>',
+            'whoami': 'guest@mecs-public-node',
+            'clear': () => { terminalOutput.innerHTML = ''; return ''; },
+            'exit': () => { toggleTerminal(false); return ''; }
+        };
+
+        function printLine(text) {
+            const line = document.createElement('div');
+            line.innerHTML = text;
+            line.className = "text-green-500 mb-1 font-mono text-sm";
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function toggleTerminal(show) {
+            if(show) {
+                terminalOverlay.classList.remove('hidden');
+                terminalInput.focus();
+                printLine("Initializing MECS Secure Shell...");
+                printLine("Type 'help' for commands.");
+            } else {
+                terminalOverlay.classList.add('hidden');
             }
         }
 
-        function runTerminal() {
-            const logs = [
-                "Establishing secure TLS handshake...",
-                "Connecting to MECS-Node-Alpha...",
-                "Uploading Payload [100% Encrypted]...",
-                "Generating Biometric Hash Map...",
-                "Search: SURFACE WEB [Scanning...]",
-                "Search: SOCIAL MEDIA DB [Scanning...]",
-                "Search: DARKNET MARKETPLACES [Scanning...]",
-                "Validating User Consent (Doc ID 8821)...",
-                "Cross-referencing Section 4...",
-                "ERROR: HUMAN ERROR DETECTED.",
-                "INITIATING SECURITY LESSON..."
-            ];
-            const term = document.getElementById('terminal');
-            let i = 0;
-            function print() {
-                if (i < logs.length) {
-                    const line = document.createElement('div');
-                    line.className = i > 8 ? "text-mecs-primary font-bold" : "mb-1";
-                    line.innerText = "> " + logs[i];
-                    term.appendChild(line);
-                    term.scrollTop = term.scrollHeight;
-                    i++;
-                    let speed = Math.random() * 300 + 100;
-                    if (i > 8) speed = 800; 
-                    setTimeout(print, speed);
-                } else {
-                    setTimeout(triggerReveal, 500);
+        terminalBtns.forEach(btn => btn?.addEventListener('click', () => toggleTerminal(true)));
+        closeTerminalBtn.addEventListener('click', () => toggleTerminal(false));
+
+        terminalInput.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') {
+                const val = terminalInput.value.trim().toLowerCase();
+                printLine(`<span class="text-white">guest@node:~$</span> ${val}`);
+                
+                if(commands[val]) {
+                    const resp = typeof commands[val] === 'function' ? commands[val]() : commands[val];
+                    if(resp) printLine(resp);
+                } else if (val !== '') {
+                    printLine(`Command not found: ${val}`);
                 }
+                terminalInput.value = '';
             }
-            print();
-        }
-
-        function triggerReveal() {
-            document.body.classList.add('alert-mode');
-            document.getElementById('scan-screen').classList.add('hidden');
-            document.getElementById('reveal-screen').classList.remove('hidden');
-            if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
-        }
-
-        // Initialize
-        setLang('en');
+        });
+        
+        // Escape key closes terminal
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') toggleTerminal(false);
+        });
     </script>
 </body>
 </html>
+
