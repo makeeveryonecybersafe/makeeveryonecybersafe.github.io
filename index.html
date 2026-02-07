@@ -32,7 +32,8 @@
                             primaryHover: '#D40047',
                             dark: '#990033',
                             text: '#ffffff',
-                            gray: '#aaaaaa'
+                            gray: '#aaaaaa',
+                            alert: '#FF5F1F'
                         }
                     },
                     animation: {
@@ -343,6 +344,34 @@
             </div>
         </section>
 
+        <section id="helpline" class="container mx-auto px-6 mb-24">
+            <div class="bg-gradient-to-r from-[#0a0a0a] to-[#150a0a] border border-orange-500/30 p-8 md:p-12 btn-clip relative overflow-hidden group">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-600/10 rounded-full blur-[80px] group-hover:bg-orange-600/20 transition-all duration-700"></div>
+                
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                    <div class="md:w-2/3">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+                            </span>
+                            <span class="text-orange-500 font-bold uppercase tracking-widest text-xs">Security Response Center</span>
+                        </div>
+                        <h2 class="text-3xl md:text-5xl font-black uppercase text-white mb-6 leading-tight">Facing a Cyber Threat? <br><span class="text-orange-500">We are Here to Guide You.</span></h2>
+                        <p class="text-mecs-gray text-lg mb-0 max-w-xl">
+                            If you've been scammed, hacked, or noticed suspicious activity, don't panic. Reach out to our response team for immediate guidance on your next steps.
+                        </p>
+                    </div>
+                    <div class="md:w-1/3 flex flex-col items-center">
+                        <a href="https://instagram.com/makeeveryonecybersafe" target="_blank" class="w-full text-center btn-clip bg-orange-600 text-white px-8 py-5 font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] flex items-center justify-center gap-3 group/btn">
+                            <i class="fab fa-instagram text-xl"></i> Open Support Ticket
+                        </a>
+                        <p class="mt-4 text-[10px] text-orange-500/60 font-mono uppercase tracking-widest">Response time: ~24 Hours</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="initiatives" class="container mx-auto px-6 mb-32">
             <div class="mb-12 border-b border-white/10 pb-6">
                 <div class="flex items-center gap-2 mb-2">
@@ -412,7 +441,7 @@
                 }
             });
         }, { threshold: 0.1 });
-        document.querySelectorAll('.mecs-card, h1, h2').forEach(el => observer.observe(el));
+        document.querySelectorAll('.mecs-card, #helpline, h1, h2').forEach(el => observer.observe(el));
 
         // --- 2. NUMBER COUNTER (STATS) ---
         const statsSection = document.getElementById('stats');
