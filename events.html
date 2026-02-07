@@ -19,12 +19,13 @@
       --text-color: #ffffff;
       --primary: #FF0055;
       --grid-color: #151515;
+      --completed: #555555; /* Gray for completed state */
     }
 
     html, body {
       width: 100%;
       max-width: 100%;
-      overflow-x: hidden; /* Force cut off any overflow */
+      overflow-x: hidden;
       background-color: var(--bg-color);
       color: var(--text-color);
       font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -90,7 +91,7 @@
       width: 100%;
       max-width: 900px;
       margin: 0 auto;
-      padding: 3rem 1.5rem; /* Safe padding */
+      padding: 3rem 1.5rem;
     }
 
     .page-header {
@@ -100,12 +101,11 @@
     }
 
     h1 {
-      /* Clamp ensures font size scales with width without breaking */
       font-size: clamp(2rem, 8vw, 4rem);
       text-transform: uppercase;
       font-weight: 900;
       line-height: 1.1;
-      overflow-wrap: break-word; /* Prevents long words pushing width */
+      overflow-wrap: break-word;
       word-break: break-word;
     }
     
@@ -114,70 +114,6 @@
       font-size: 1rem;
       margin-top: 1rem;
       line-height: 1.5;
-    }
-
-    /* --- EMPTY STATE --- */
-    .empty-state {
-      border: 1px solid #333;
-      padding: 3rem 1rem;
-      background: rgba(10,10,10,0.8);
-      text-align: center;
-      position: relative;
-      overflow: hidden; /* Contains the scan animation */
-      border-radius: 4px;
-      width: 100%;
-    }
-
-    /* Scan line animation */
-    .empty-state::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: var(--primary);
-      box-shadow: 0 0 10px var(--primary);
-      animation: scan 3s linear infinite;
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    @keyframes scan {
-      0% { top: 0%; }
-      100% { top: 100%; }
-    }
-
-    .status-badge {
-      display: inline-block;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 0.4rem 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      margin-bottom: 1.5rem;
-      animation: blink 2s infinite;
-    }
-    
-    @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0.5;} }
-
-    .empty-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .notify-btn {
-      background: var(--primary);
-      color: #000;
-      padding: 1rem 1.5rem;
-      text-transform: uppercase;
-      font-weight: 800;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 0.9rem;
-      margin-top: 1.5rem;
-      max-width: 100%;
     }
 
     /* --- EVENT CARDS --- */
@@ -193,6 +129,12 @@
       border: 1px solid #333;
       padding: 1.5rem;
       width: 100%;
+      position: relative;
+    }
+
+    .event-card.completed {
+        border-color: #222;
+        opacity: 0.7;
     }
 
     .event-title {
@@ -201,7 +143,7 @@
       margin: 0.5rem 0;
       color: #fff;
       text-transform: uppercase;
-      word-break: break-word; /* Essential for mobile */
+      word-break: break-word;
     }
 
     .event-date {
@@ -212,11 +154,26 @@
       letter-spacing: 1px;
     }
 
+    .event-card.completed .event-date {
+        color: var(--completed);
+    }
+
     .event-details {
       color: #aaa;
       font-size: 1rem;
       margin-bottom: 1.5rem;
       line-height: 1.5;
+    }
+
+    .status-tag {
+        display: inline-block;
+        font-size: 0.6rem;
+        padding: 2px 8px;
+        border: 1px solid var(--completed);
+        color: var(--completed);
+        text-transform: uppercase;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
     }
 
     .join-btn {
@@ -230,6 +187,13 @@
       text-decoration: none;
       font-weight: 800;
       text-transform: uppercase;
+    }
+
+    .join-btn.disabled {
+        border-color: #333;
+        color: #555;
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
     /* --- DESKTOP ENHANCEMENTS --- */
@@ -267,7 +231,8 @@
         date: "DEC 26, 2025 • 10:00 AM IST",
         title: "DECODING MODERN CYBER MYTHS",
         desc: "An interactive session breaking modern cyber myths and exposing how everyday online habits quietly compromise security.",
-        link: "https://meet.google.com/uvi-bpna-bxx" 
+        link: "#",
+        completed: true 
       },
     ];
 
@@ -289,11 +254,14 @@
       let html = '<div class="events-list">';
       events.forEach(event => {
         html += `
-          <div class="event-card">
+          <div class="event-card ${event.completed ? 'completed' : ''}">
+            ${event.completed ? '<span class="status-tag">COMPLETED</span><br>' : ''}
             <span class="event-date">${event.date}</span>
             <h3 class="event-title">${event.title}</h3>
             <p class="event-details">${event.desc}</p>
-            <a href="${event.link}" target="_blank" class="join-btn">Register →</a>
+            <a href="${event.link}" class="join-btn ${event.completed ? 'disabled' : ''}">
+                ${event.completed ? 'SESSION ENDED' : 'Register →'}
+            </a>
           </div>
         `;
       });
@@ -303,4 +271,3 @@
   </script>
 </body>
 </html>
-
