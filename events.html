@@ -226,20 +226,23 @@
 
   <script>
     // --- EVENT DATA CONTROL ---
+    // You can now add a 'btnText' property to any live event to customize the button label.
     const events = [
       {
         date: "Forever",
         title: "TRACE: A 72 HOURS OSINT CHALLENGE",
         desc: "Everything you're Looking for is already Available",
-        link: "https://makeeveryonecybersafe.github.io/CTF.html",
-        completed: false 
+        link: "CTF.html",
+        completed: false,
+        btnText: "START CHALLENGE" 
       },
       {
         date: "MAR 10, 2026 • 09:00 AM IST",
         title: "Cyber Metaphors",
         desc: "A Triple Collab with MECSxAPEXxMr3DBlender, to promote Cyber Education in a unique way",
         link: "files/metaphors.pdf",
-        completed: false 
+        completed: false,
+        btnText: "GET PDF"
       },
       {
         date: "FEB 22, 2026 • 09:00 AM IST",
@@ -274,6 +277,15 @@
     } else {
       let html = '<div class="events-list">';
       events.forEach(event => {
+        // Handle logic for button text
+        let buttonLabel;
+        if (event.completed) {
+            buttonLabel = 'SESSION ENDED';
+        } else {
+            // Use btnText if defined, otherwise default to Register
+            buttonLabel = event.btnText || 'Register →';
+        }
+
         html += `
           <div class="event-card ${event.completed ? 'completed' : ''}">
             ${event.completed ? '<span class="status-tag">COMPLETED</span><br>' : ''}
@@ -281,7 +293,7 @@
             <h3 class="event-title">${event.title}</h3>
             <p class="event-details">${event.desc}</p>
             <a href="${event.link}" class="join-btn ${event.completed ? 'disabled' : ''}">
-                ${event.completed ? 'SESSION ENDED' : 'Register →'}
+                ${buttonLabel}
             </a>
           </div>
         `;
@@ -292,9 +304,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
