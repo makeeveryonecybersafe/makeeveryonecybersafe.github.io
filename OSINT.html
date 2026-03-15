@@ -1,315 +1,1522 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MECS - OSINT Simulation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MECS OSINT Lab — Module 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #000000;
+  --s1: #04080d;
+  --s2: #07101a;
+  --b1: #0c1a26;
+  --b2: #142030;
+  --red: #ff1a3c;
+  --red2: #99001f;
+  --amber: #ff9900;
+  --green: #00e87a;
+  --cyan: #00bbdd;
+  --text: #d4e4f0;
+  --muted: #4a6475;
+  --dim: #0e1c28;
+}
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Space Grotesk"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        mecs: {
-                            bg: '#000000',
-                            surface: '#0a0a0a',
-                            surfaceLight: '#111111',
-                            grid: '#151515',
-                            primary: '#FF0055',
-                            primaryHover: '#D40047',
-                            dark: '#990033',
-                            text: '#ffffff',
-                            gray: '#aaaaaa',
-                            neonGreen: '#00ff41'
-                        }
-                    },
-                    animation: {
-                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #000000;
-            background-image: 
-                linear-gradient(#151515 1px, transparent 1px),
-                linear-gradient(90deg, #151515 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: #ffffff;
-        }
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'IBM Plex Mono',monospace;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-user-select:none;
+  user-select:none;
+}
+input,textarea{-webkit-user-select:text;user-select:text;}
 
-        .btn-clip {
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-        }
+/* Scanlines */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none;z-index:9999;
+}
 
-        .mecs-card {
-            background: #0a0a0a;
-            border: 1px solid #222;
-        }
+/* Noise */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;
+  pointer-events:none;z-index:9998;
+}
 
-        .terminal-input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #333;
-            color: #00ff41;
-            font-family: 'JetBrains Mono', monospace;
-            width: 100%;
-            padding: 0.5rem 0;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .terminal-input:focus {
-            border-color: #FF0055;
-        }
-        
-        /* Post Styling */
-        .data-packet {
-            border-left: 2px solid #333;
-            padding-left: 1rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s;
-        }
-        .data-packet:hover {
-            border-left-color: #FF0055;
-            background: linear-gradient(90deg, rgba(255,0,85,0.05), transparent);
-        }
-    </style>
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--red);}
+
+/* ===== KEYFRAMES ===== */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes fadein{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes xp-pop{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-56px) scale(1.1);opacity:0}}
+@keyframes badge-reveal{0%{transform:scale(0) rotate(-15deg);opacity:0}60%{transform:scale(1.08) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(255,26,60,0.4)}50%{box-shadow:0 0 16px 4px rgba(255,26,60,0.12)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes ticker{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+@keyframes loading-step{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes score-fill{from{stroke-dashoffset:283}to{stroke-dashoffset:var(--dash)}}
+
+
+/* ===== UTILITY ===== */
+.hidden{display:none!important;}
+.red{color:var(--red);}
+.green{color:var(--green);}
+.amber{color:var(--amber);}
+.cyan{color:var(--cyan);}
+.muted{color:var(--muted);}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.syne{font-family:'Syne',sans-serif;}
+.bebas{font-family:'Bebas Neue',sans-serif;}
+
+/* ===== BTN ===== */
+.btn{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:11px 22px;border:1px solid;
+  cursor:pointer;background:transparent;
+  transition:all 0.2s;
+  clip-path:polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px);
+  display:inline-block;text-decoration:none;
+}
+.btn-red{border-color:var(--red);color:var(--red);}
+.btn-red:hover{background:var(--red);color:#000;}
+.btn-green{border-color:var(--green);color:var(--green);}
+.btn-green:hover{background:var(--green);color:#000;}
+.btn-amber{border-color:var(--amber);color:var(--amber);}
+.btn-amber:hover{background:var(--amber);color:#000;}
+.btn-ghost{border-color:var(--b2);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--text);color:var(--text);}
+
+/* ===== HEADER ===== */
+#app-header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:52px;
+  background:rgba(0,0,0,0.97);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+}
+.header-logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:white;
+}
+.header-logo-mark{
+  width:30px;height:30px;background:var(--red);
+  clip-path:polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  animation:pulse-red 2.5s infinite;
+}
+.header-right{display:flex;align-items:center;gap:14px;}
+.live-pill{
+  display:flex;align-items:center;gap:5px;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--red);border:1px solid var(--red2);padding:3px 10px;
+}
+.live-dot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:blink 1s infinite;}
+.xp-widget{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.xp-label{font-size:8px;letter-spacing:1px;color:var(--amber);}
+.xp-row{display:flex;align-items:center;gap:8px;}
+.xp-track{width:90px;height:3px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.xp-bar{height:100%;background:linear-gradient(90deg,var(--amber),var(--red));transition:width 0.5s ease;border-radius:2px;}
+.xp-val{font-size:10px;font-weight:600;color:var(--amber);}
+
+/* ===== SCREEN: INTRO ===== */
+#screen-intro{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:72px 24px 48px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.intro-radial{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,26,60,0.09) 0%,transparent 65%);
+  pointer-events:none;
+}
+.intro-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(var(--dim) 1px,transparent 1px),linear-gradient(90deg,var(--dim) 1px,transparent 1px);
+  background-size:48px 48px;opacity:0.35;pointer-events:none;
+}
+.module-tag{
+  font-size:9px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--b2);padding:4px 14px;
+  margin-bottom:20px;display:inline-block;
+}
+.intro-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,11vw,108px);
+  line-height:0.88;letter-spacing:3px;
+  color:white;margin-bottom:12px;
+}
+.intro-title .accent{color:var(--red);}
+.intro-subtitle{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:28px;
+}
+.intro-briefing{
+  max-width:500px;font-size:12px;line-height:1.9;color:var(--muted);
+  margin-bottom:28px;
+  border-left:2px solid var(--red);padding-left:16px;text-align:left;
+}
+.briefing-label{
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--red);margin-bottom:8px;display:block;
+}
+.warning-strip{
+  max-width:500px;width:100%;
+  border:1px solid rgba(255,153,0,0.25);background:rgba(255,153,0,0.04);
+  padding:12px 16px;font-size:10px;line-height:1.7;
+  color:rgba(255,153,0,0.8);margin-bottom:32px;text-align:left;
+}
+.mission-info-row{
+  display:flex;gap:32px;margin-bottom:36px;flex-wrap:wrap;justify-content:center;
+}
+.mi-item{text-align:center;}
+.mi-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--red);line-height:1;}
+.mi-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.intro-start-btn{font-size:13px;padding:14px 48px;letter-spacing:3px;}
+.target-crosshair{
+  position:relative;width:110px;height:110px;margin:0 auto 28px;
+}
+.ch-ring{position:absolute;border-radius:50%;border:1px solid;}
+.ch-r1{inset:0;border-color:rgba(255,26,60,0.5);animation:float 3s infinite;}
+.ch-r2{inset:14px;border-color:rgba(255,26,60,0.3);animation:float 3s 0.4s infinite;}
+.ch-r3{inset:28px;border-color:rgba(255,26,60,0.15);animation:float 3s 0.8s infinite;}
+.ch-center{
+  position:absolute;inset:38px;background:rgba(255,26,60,0.12);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.ch-lines::before,.ch-lines::after{
+  content:'';position:absolute;background:rgba(255,26,60,0.25);
+}
+.ch-lines{position:absolute;inset:0;border-radius:50%;}
+.ch-lines::before{top:50%;left:10%;right:10%;height:1px;transform:translateY(-50%);}
+.ch-lines::after{left:50%;top:10%;bottom:10%;width:1px;transform:translateX(-50%);}
+
+/* ===== SCREEN: LOADING ===== */
+#screen-loading{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:24px;
+}
+.loading-icon{font-size:48px;margin-bottom:20px;animation:float 2s infinite;}
+.loading-headline{
+  font-family:'Syne',sans-serif;font-size:20px;font-weight:800;
+  color:white;margin-bottom:4px;
+}
+.loading-sub{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:32px;}
+.loading-steps{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px;}
+.ls-item{
+  display:flex;align-items:center;gap:12px;
+  font-size:11px;color:var(--muted);opacity:0;
+  transition:all 0.3s;
+}
+.ls-item.active{opacity:1;color:var(--amber);}
+.ls-item.done{opacity:1;color:var(--green);}
+.ls-icon{width:18px;text-align:center;font-size:12px;}
+.loading-progress{width:100%;max-width:380px;margin-top:28px;}
+.lp-track{height:2px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.lp-fill{height:100%;background:var(--red);width:0;transition:width 0.3s ease;}
+.lp-pct{text-align:right;font-size:9px;color:var(--red);margin-top:5px;}
+
+/* ===== MAIN GAME ===== */
+#screen-game{padding-top:52px;padding-bottom:72px;min-height:100vh;}
+
+/* HUD */
+#hud{
+  position:fixed;bottom:0;left:0;right:0;z-index:900;
+  background:rgba(0,0,0,0.97);border-top:1px solid var(--b1);
+  padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.hud-block{display:flex;align-items:center;gap:8px;}
+.hud-lbl{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.hud-v{font-size:11px;font-weight:700;}
+.chip-row{display:flex;gap:3px;flex-wrap:wrap;}
+.chip{
+  width:20px;height:20px;border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;color:var(--dim);transition:all 0.3s;
+}
+.chip.done{border-color:var(--green);color:var(--green);background:rgba(0,232,122,0.08);}
+
+/* TARGET BANNER */
+.target-banner{
+  background:var(--s1);border-bottom:1px solid var(--b1);
+  padding:16px 20px;display:flex;gap:16px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.target-banner::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--red),transparent);
+}
+.t-avatar{
+  width:60px;height:60px;flex-shrink:0;
+  background:var(--s2);border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  position:relative;
+}
+.t-avatar::after{
+  content:'🎯';position:absolute;bottom:-4px;right:-4px;
+  font-size:11px;background:var(--red);width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  clip-path:polygon(3px 0%,100% 0%,100% calc(100% - 3px),calc(100% - 3px) 100%,0% 100%,0% 3px);
+}
+.t-info{}
+.t-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:2px;}
+.t-role{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.t-id{display:inline-block;font-size:8px;color:var(--red);border:1px solid var(--red2);padding:2px 8px;letter-spacing:1px;}
+.t-status-badge{
+  margin-left:auto;font-size:9px;letter-spacing:1px;
+  color:var(--red);border:1px solid var(--red2);padding:4px 10px;
+  white-space:nowrap;align-self:center;
+}
+
+/* TICKER */
+.ticker-wrap{
+  overflow:hidden;border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);
+  padding:6px 0;background:var(--s1);
+}
+.ticker-inner{
+  display:inline-block;white-space:nowrap;
+  font-size:9px;letter-spacing:2px;color:var(--muted);
+  animation:ticker 30s linear infinite;padding-right:40px;
+}
+
+/* TABS */
+.tabs{
+  background:var(--s1);border-bottom:1px solid var(--b1);
+  display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.tab{
+  padding:13px 18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;transition:all 0.2s;
+  background:none;border-left:none;border-right:none;border-top:none;
+  font-family:'IBM Plex Mono',monospace;
+  display:flex;align-items:center;gap:6px;
+}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--red);border-bottom-color:var(--red);}
+.tab-count{
+  background:var(--red);color:black;
+  font-size:8px;padding:1px 5px;min-width:16px;text-align:center;
+  font-weight:700;
+}
+.tab-panel{display:none;padding:16px;}
+.tab-panel.active{display:block;animation:fadein 0.3s ease;}
+
+/* BROWSER FRAME */
+.browser-frame{
+  background:var(--s2);border:1px solid var(--b2);
+  border-radius:6px 6px 0 0;overflow:hidden;margin-bottom:0;
+}
+.browser-chrome{
+  background:var(--s1);padding:8px 12px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--b1);
+}
+.browser-dots{display:flex;gap:4px;}
+.bd{width:7px;height:7px;border-radius:50%;}
+.browser-url{
+  flex:1;background:var(--bg);border:1px solid var(--b1);
+  border-radius:3px;padding:4px 10px;
+  font-size:10px;color:var(--green);font-family:'IBM Plex Mono',monospace;
+}
+.browser-content{
+  background:white;
+  overflow:hidden;
+  height:520px;
+  position:relative;
+}
+.browser-content iframe{
+  width:100%;height:100%;border:none;
+  pointer-events:auto;
+}
+
+/* INSTAGRAM */
+.ig-wrap{background:#fafafa;color:#111;}
+.ig-topbar{
+  background:white;border-bottom:1px solid #dbdbdb;
+  padding:10px 16px;display:flex;justify-content:space-between;align-items:center;
+}
+.ig-logo-text{font-size:18px;font-family:'Syne',sans-serif;font-weight:800;color:#111;}
+.ig-profile-area{background:white;padding:14px;border-bottom:1px solid #dbdbdb;}
+.ig-ph{display:flex;gap:18px;align-items:center;margin-bottom:10px;}
+.ig-ava{
+  width:68px;height:68px;flex-shrink:0;border-radius:50%;
+  background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+  display:flex;align-items:center;justify-content:center;font-size:30px;
+}
+.ig-stats{display:flex;gap:18px;}
+.ig-st-n{font-weight:700;font-size:14px;text-align:center;}
+.ig-st-l{font-size:10px;color:#666;text-align:center;}
+.ig-bio{font-size:11px;line-height:1.6;color:#111;}
+.ig-bio-name{font-weight:700;font-size:12px;margin-bottom:3px;}
+.ig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:#dbdbdb;}
+.ig-post{
+  aspect-ratio:1;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:32px;position:relative;overflow:hidden;transition:all 0.2s;
+}
+.ig-post-hover{
+  position:absolute;inset:0;background:rgba(0,0,0,0.5);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;transition:0.2s;font-size:9px;color:white;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:1px;padding:8px;text-align:center;
+}
+.ig-post:hover .ig-post-hover{opacity:1;}
+
+/* LINKEDIN */
+.li-wrap{background:#f3f2ef;color:#111;font-family:-apple-system,'Segoe UI',sans-serif;}
+.li-nav{background:white;border-bottom:1px solid #ddd;padding:10px 16px;display:flex;justify-content:space-between;}
+.li-nav-logo{font-size:20px;font-weight:900;color:#0a66c2;}
+.li-card-base{background:white;border:1px solid #ddd;border-radius:6px;margin:10px;overflow:hidden;}
+.li-cover{height:72px;background:linear-gradient(135deg,#0a66c2,#004182);}
+.li-prow{padding:0 16px 14px;}
+.li-pava{
+  width:64px;height:64px;border:3px solid white;border-radius:50%;
+  background:linear-gradient(135deg,#0a66c2,#004182);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin-top:-32px;margin-bottom:8px;
+}
+.li-pname{font-size:16px;font-weight:700;margin-bottom:3px;}
+.li-pheadline{font-size:11px;color:#444;margin-bottom:3px;}
+.li-ploc{font-size:10px;color:#666;}
+.li-sect{padding:14px;border-top:1px solid #eee;}
+.li-sect-title{font-size:13px;font-weight:700;margin-bottom:10px;}
+.li-exp{display:flex;gap:10px;margin-bottom:14px;}
+.li-exp-icon{width:36px;height:36px;background:#e8edf0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.li-exp-title{font-size:12px;font-weight:600;}
+.li-exp-co{font-size:11px;color:#444;}
+.li-exp-date{font-size:10px;color:#666;}
+.li-exp-desc{font-size:10px;color:#555;margin-top:3px;line-height:1.5;}
+.li-post{font-size:11px;color:#333;padding:10px;border:1px solid #eee;border-radius:4px;margin-bottom:8px;line-height:1.6;}
+.li-post-meta{font-size:9px;color:#999;margin-top:4px;}
+.li-skills{display:flex;flex-wrap:wrap;gap:6px;}
+.li-skill{background:#e8f0fe;color:#1a73e8;font-size:10px;padding:3px 10px;border-radius:10px;}
+
+/* MODAL */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.92);z-index:2000;
+  align-items:center;justify-content:center;padding:16px;
+}
+.modal-bg.open{display:flex;animation:fadein 0.2s ease;}
+.modal-card{
+  background:white;max-width:440px;width:100%;
+  border-radius:4px;overflow:hidden;max-height:88vh;overflow-y:auto;
+}
+.modal-img{
+  height:220px;display:flex;align-items:center;justify-content:center;
+  font-size:72px;
+}
+.modal-body{padding:14px;}
+.modal-username{font-weight:700;font-size:12px;color:#111;margin-bottom:6px;}
+.modal-caption{font-size:11px;line-height:1.7;color:#111;margin-bottom:8px;}
+.modal-tags{font-size:11px;color:#1976d2;margin-bottom:6px;}
+.modal-loc{font-size:10px;color:#888;margin-bottom:5px;}
+.modal-date{font-size:10px;color:#aaa;margin-bottom:10px;}
+.modal-close-btn{
+  position:fixed;top:20px;right:20px;color:white;font-size:22px;
+  cursor:pointer;background:none;border:none;z-index:2001;
+  font-family:'IBM Plex Mono',monospace;
+}
+
+/* INTEL CONSOLE */
+.intel-wrap{
+  background:var(--s1);border:1px solid var(--b2);
+}
+.intel-header{
+  background:var(--s2);border-bottom:1px solid var(--b1);
+  padding:10px 16px;display:flex;align-items:center;gap:8px;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+}
+.intel-body{padding:16px;}
+.intel-intro{
+  font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:20px;
+  border-left:2px solid var(--b2);padding-left:12px;
+}
+.q-block{margin-bottom:22px;animation:fadein 0.4s ease;}
+.q-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:8px;}
+.q-num{
+  width:22px;height:22px;background:var(--red);color:black;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;flex-shrink:0;
+  clip-path:polygon(3px 0%,100% 0%,100% calc(100% - 3px),calc(100% - 3px) 100%,0% 100%,0% 3px);
+}
+.q-text{font-size:12px;color:var(--text);line-height:1.6;}
+.q-input-row{display:flex;gap:8px;}
+.q-input{
+  flex:1;background:var(--bg);border:1px solid var(--b2);
+  color:var(--green);font-family:'IBM Plex Mono',monospace;
+  font-size:12px;padding:10px 12px;outline:none;transition:border-color 0.2s;
+  -webkit-user-select:text;user-select:text;
+}
+.q-input:focus{border-color:var(--red);}
+.q-input.ok{border-color:var(--green);background:rgba(0,232,122,0.04);}
+.q-input.err{border-color:var(--red);animation:shake 0.4s ease;}
+.q-submit{padding:0 14px;font-size:10px;}
+.q-fb{font-size:10px;margin-top:5px;height:14px;}
+.q-fb.ok{color:var(--green);}
+.q-fb.err{color:var(--red);}
+
+/* HINTS */
+.hints-wrap{background:var(--s1);border:1px solid var(--b2);}
+.hint-item{
+  padding:14px 16px;border-bottom:1px solid var(--b1);
+  display:flex;gap:12px;align-items:flex-start;
+}
+.hint-item:last-child{border-bottom:none;}
+.hint-body{flex:1;}
+.hint-for{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.hint-text{font-size:11px;color:var(--text);line-height:1.6;}
+.hint-blurred{filter:blur(5px);pointer-events:none;color:var(--muted);}
+.hint-side{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px;padding:16px;}
+.badge-card{
+  background:var(--s2);border:1px solid var(--b1);
+  padding:16px 8px;text-align:center;transition:all 0.3s;
+}
+.badge-card.earned{border-color:var(--amber);background:rgba(255,153,0,0.06);animation:badge-reveal 0.5s ease;}
+.badge-icon{font-size:30px;margin-bottom:6px;}
+.badge-name{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.badge-card.earned .badge-name{color:var(--amber);}
+.badge-grey{filter:grayscale(1);opacity:0.25;}
+
+/* XP POPUP */
+.xp-popup{
+  position:fixed;top:64px;right:18px;
+  background:var(--amber);color:black;
+  font-size:12px;font-weight:700;padding:5px 14px;
+  clip-path:polygon(7px 0%,100% 0%,100% calc(100% - 7px),calc(100% - 7px) 100%,0% 100%,0% 7px);
+  z-index:4000;pointer-events:none;
+  animation:xp-pop 1.6s ease forwards;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:1px;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:80px;left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--s1);border:1px solid var(--b2);
+  padding:8px 20px;font-size:10px;letter-spacing:1px;
+  z-index:3000;opacity:0;transition:all 0.3s;
+  white-space:nowrap;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.green{border-color:var(--green);color:var(--green);}
+.toast.red{border-color:var(--red);color:var(--red);}
+.toast.amber{border-color:var(--amber);color:var(--amber);}
+
+/* ===== FINAL SCREEN ===== */
+#screen-final{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  padding:80px 20px 60px;background:var(--bg);
+}
+.final-header{text-align:center;margin-bottom:36px;}
+.final-skull{font-size:72px;animation:float 2.5s infinite;margin-bottom:20px;display:block;}
+.final-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,8vw,80px);
+  color:var(--red);line-height:0.9;margin-bottom:8px;
+}
+.final-sub{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+
+/* SCORE RING */
+.score-ring-wrap{margin:0 auto 32px;position:relative;width:120px;height:120px;}
+.score-ring-svg{width:120px;height:120px;}
+.score-ring-bg{fill:none;stroke:var(--b2);stroke-width:6;}
+.score-ring-fill{fill:none;stroke:var(--green);stroke-width:6;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:283;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1.5s ease 0.5s;}
+.score-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-pct{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--green);line-height:1;}
+.score-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);}
+
+/* DOSSIER */
+.dossier{
+  background:var(--s1);border:1px solid var(--b2);
+  max-width:480px;width:100%;margin-bottom:24px;
+}
+.dossier-head{
+  background:var(--s2);border-bottom:1px solid var(--b1);
+  padding:10px 16px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);
+}
+.dossier-body{padding:16px;}
+.dossier-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:6px 0;border-bottom:1px solid var(--b1);font-size:11px;gap:16px;
+}
+.dossier-row:last-child{border-bottom:none;}
+.dossier-k{color:var(--muted);flex-shrink:0;min-width:120px;}
+.dossier-v{color:var(--green);font-weight:600;text-align:right;}
+.dossier-v.critical{color:var(--red);}
+
+/* WAKE UP */
+.wakeup-box{
+  max-width:480px;width:100%;
+  border:1px solid rgba(255,26,60,0.3);background:rgba(255,26,60,0.04);
+  padding:20px;margin-bottom:24px;
+}
+.wakeup-title{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--red);font-weight:700;margin-bottom:12px;
+}
+.wakeup-text{font-size:12px;line-height:1.9;color:var(--muted);}
+.wakeup-text strong{color:white;}
+.wakeup-text .highlight{color:var(--red);}
+
+
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:500px){
+  .ig-grid{grid-template-columns:1fr 1fr;}
+  .mission-info-row{gap:20px;}
+  .dossier-k{min-width:100px;}
+}
+</style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="group flex items-center gap-2">
-                    <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
-                        <i class="fas fa-crosshairs text-black text-sm"></i>
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter uppercase">
-                        #MECS</span>
-                    </span>
-                </a>
-                
-                <div class="hidden md:block">
-                    <div class="flex items-center gap-2 text-xs font-mono text-red-500 border border-red-900/50 bg-red-900/10 px-3 py-1 rounded-sm">
-                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                        LIVE TARGET ACTIVE
-                    </div>
-                </div>
+<!-- HEADER -->
+<header id="app-header">
+  <div class="header-logo">
+    <div class="header-logo-mark">🎯</div>
+    <span class="syne">#MECS</span>
+    <span style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-left:4px">// OSINT LAB</span>
+  </div>
+  <div class="header-right">
+    <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+    <div class="xp-widget" id="xp-widget" style="display:none">
+      <div class="xp-label">INTEL XP</div>
+      <div class="xp-row">
+        <div class="xp-track"><div class="xp-bar" id="xp-bar-fill" style="width:0%"></div></div>
+        <div class="xp-val" id="xp-val-display">0</div>
+      </div>
+    </div>
+  </div>
+</header>
 
-                <a href="playground.html" class="text-xs font-bold uppercase text-mecs-gray hover:text-white transition-colors">
-                    <i class="fas fa-times mr-1"></i> Abort Mission
-                </a>
-            </div>
+<!-- =============================== -->
+<!-- INTRO SCREEN                    -->
+<!-- =============================== -->
+<div id="screen-intro">
+  <div class="intro-radial"></div>
+  <div class="intro-grid"></div>
+
+  <div class="target-crosshair">
+    <div class="ch-ring ch-r1"></div>
+    <div class="ch-ring ch-r2"></div>
+    <div class="ch-ring ch-r3"></div>
+    <div class="ch-center">👤</div>
+    <div class="ch-lines"></div>
+  </div>
+
+  <div class="module-tag">Module 01 — Passive Recon</div>
+
+  <h1 class="intro-title">
+    OPERATION<br><span class="accent">OPEN SOURCE</span>
+  </h1>
+  <div class="intro-subtitle">MECS OSINT Training Lab</div>
+
+  <div class="intro-briefing">
+    <span class="briefing-label">Mission Briefing</span>
+    You've been assigned to conduct a full OSINT audit on <strong style="color:white">Jeffery Alexander</strong>, Co-Founder of MakeEveryoneCyberSafe.<br><br>
+    His public digital footprint is your only tool. No hacking. No breaches. Only what he left in the open.<br><br>
+    Explore every surface. Build a threat dossier. Answer the Intel Console.
+  </div>
+
+  <div class="warning-strip">
+    ⚠ TRAINING ENVIRONMENT — All profiles, data, and scenarios are fictitious and designed for cybersecurity awareness education. No real persons are involved.
+  </div>
+
+  <div class="mission-info-row">
+    <div class="mi-item"><div class="mi-val">3</div><div class="mi-label">Sources</div></div>
+    <div class="mi-item"><div class="mi-val">10</div><div class="mi-label">Questions</div></div>
+    <div class="mi-item"><div class="mi-val">4</div><div class="mi-label">Badges</div></div>
+    <div class="mi-item"><div class="mi-val">∞</div><div class="mi-label">Replays</div></div>
+  </div>
+
+  <button class="btn btn-red intro-start-btn" onclick="startLoading()">▶ BEGIN AUDIT</button>
+</div>
+
+<!-- =============================== -->
+<!-- LOADING SCREEN                  -->
+<!-- =============================== -->
+<div id="screen-loading" class="hidden">
+  <div class="loading-icon">🔍</div>
+  <div class="loading-headline syne">Initialising...</div>
+  <div class="loading-sub">OSINT MODULE 01 — PASSIVE RECON</div>
+  <div class="loading-steps" id="ls-container">
+    <div class="ls-item" id="ls0"><span class="ls-icon">⬜</span>Resolving target identity</div>
+    <div class="ls-item" id="ls1"><span class="ls-icon">⬜</span>Indexing portfolio site</div>
+    <div class="ls-item" id="ls2"><span class="ls-icon">⬜</span>Scraping social profiles</div>
+    <div class="ls-item" id="ls3"><span class="ls-icon">⬜</span>Analysing metadata layers</div>
+    <div class="ls-item" id="ls4"><span class="ls-icon">⬜</span>Loading Intel Console</div>
+  </div>
+  <div class="loading-progress">
+    <div class="lp-track"><div class="lp-fill" id="lp-fill"></div></div>
+    <div class="lp-pct" id="lp-pct">0%</div>
+  </div>
+</div>
+
+<!-- =============================== -->
+<!-- GAME SCREEN                     -->
+<!-- =============================== -->
+<div id="screen-game" class="hidden">
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-block">
+      <span class="hud-lbl">XP</span>
+      <span class="hud-v amber" id="hud-xp">0</span>
+    </div>
+    <div class="hud-block">
+      <span class="hud-lbl">Intel</span>
+      <div class="chip-row" id="chip-row"></div>
+    </div>
+    <div class="hud-block">
+      <span class="hud-lbl">Score</span>
+      <span class="hud-v green" id="hud-score">0/10</span>
+    </div>
+  </div>
+
+  <!-- TARGET BANNER -->
+  <div class="target-banner">
+    <div class="t-avatar">🧑‍💻</div>
+    <div class="t-info">
+      <div class="t-name syne">Jeffery Alexander</div>
+      <div class="t-role">Co-Founder — MakeEveryoneCyberSafe</div>
+      <div class="t-id">ID: JA-MECS-01</div>
+    </div>
+    <div class="t-status-badge">◉ TARGET ACTIVE</div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      PASSIVE RECON ACTIVE &nbsp;·&nbsp; NO HACKING REQUIRED &nbsp;·&nbsp; ALL DATA IS PUBLICLY AVAILABLE &nbsp;·&nbsp; OSINT MODULE 01 &nbsp;·&nbsp; EXPLORE ALL THREE SOURCES &nbsp;·&nbsp; BUILD THE DOSSIER &nbsp;·&nbsp; PASSIVE RECON ACTIVE &nbsp;·&nbsp; NO HACKING REQUIRED &nbsp;·&nbsp;
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" id="tab-portfolio" onclick="switchTab('portfolio')">🌐 Portfolio</button>
+    <button class="tab" id="tab-instagram" onclick="switchTab('instagram')">📸 Instagram</button>
+    <button class="tab" id="tab-linkedin" onclick="switchTab('linkedin')">💼 LinkedIn</button>
+    <button class="tab" id="tab-intel" onclick="switchTab('intel')">🖥 Intel <span class="tab-count" id="tab-intel-count">0/10</span></button>
+    <button class="tab" id="tab-hints" onclick="switchTab('hints')">💡 Hints</button>
+    <button class="tab" id="tab-badges" onclick="switchTab('badges')">🏅 Badges</button>
+  </div>
+
+  <!-- ========== PORTFOLIO TAB ========== -->
+  <div class="tab-panel active" id="panel-portfolio">
+    <div class="browser-frame">
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="bd" style="background:#ff5f57"></div>
+          <div class="bd" style="background:#febc2e"></div>
+          <div class="bd" style="background:#28c840"></div>
         </div>
-    </header>
+        <div class="browser-url">🔒 makeeveryonecybersafe.github.io/co-founder.html</div>
+      </div>
+      <div class="browser-content">
+        <iframe id="portfolio-iframe" src="co-founder.html" title="Jeffery Alexander — Portfolio" sandbox="allow-same-origin allow-scripts allow-top-navigation-by-user-activation"></iframe>
+      </div>
+    </div>
+    <div style="padding:10px 0;font-size:9px;color:var(--muted);text-align:center;letter-spacing:1px;">
+      ↑ Scroll inside the frame to explore the portfolio
+    </div>
+  </div>
 
-    <main class="flex-grow pt-32 px-4 container mx-auto mb-20">
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-
-            <div class="animate__animated animate__fadeInLeft">
-                <div class="mecs-card p-1 relative h-full">
-                    <div class="bg-[#111] p-4 flex justify-between items-center border-b border-white/10">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-lg">👤</div>
-                            <div>
-                                <h2 class="text-sm font-bold uppercase text-white">Target: Mavis Henry</h2>
-                                <p class="text-[10px] font-mono text-mecs-primary">ID: #MH-97-ALPHA</p>
-                            </div>
-                        </div>
-                        <div class="text-right text-[10px] text-gray-500 font-mono">
-                            STATUS: UNSECURED<br>
-                            SOURCE: PUBLIC FEED
-                        </div>
-                    </div>
-
-                    <div class="p-6 h-[600px] overflow-y-auto custom-scrollbar">
-                        
-                        <div class="bg-white/5 p-4 mb-6 border border-white/10 font-mono text-xs text-gray-300">
-                            <span class="text-mecs-gray">> BIO_SCRAPE:</span><br>
-                            Since 1997 | IT Support | Weekend cyclist 🚴 | "Early bird, always"<br>
-                            Loves filter coffee & sunrise rides
-                        </div>
-
-                        <div class="data-packet">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-bold text-mecs-primary bg-mecs-primary/10 px-1">IMG_LOG_01</span>
-                                <span class="text-[10px] font-mono text-gray-500">Apr 12 · 06:04 UTC</span>
-                            </div>
-                            <p class="text-sm text-white mb-2">Sunrise rides before office hit different ☀️🚴</p>
-                            <div class="text-xs text-gray-500 italic pl-2 border-l border-gray-700">
-                                💬 Carl: Same café again? You never get bored 😄
-                            </div>
-                        </div>
-
-                        <div class="data-packet">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1">TXT_LOG_02</span>
-                                <span class="text-[10px] font-mono text-gray-500">Apr 15 · 20:42 UTC</span>
-                            </div>
-                            <p class="text-sm text-white mb-2">Finally booked tickets! One week break after project closure 🙌</p>
-                            <div class="text-xs text-gray-500 italic pl-2 border-l border-gray-700">
-                                💬 Jennifer: Don’t forget to switch off your router this time 😂
-                            </div>
-                        </div>
-
-                        <div class="data-packet">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-1">SYS_LOG_03</span>
-                                <span class="text-[10px] font-mono text-gray-500">Metadata Analysis</span>
-                            </div>
-                            <p class="text-sm text-white mb-2 font-mono text-xs">
-                                > Routine Detected:<br>
-                                > 05:30 Alarm<br>
-                                > 06:00 Coffee<br>
-                                > 06:15 Cycling Departure
-                            </p>
-                        </div>
-
-                        <div class="data-packet">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-bold text-mecs-primary bg-mecs-primary/10 px-1">TXT_LOG_04</span>
-                                <span class="text-[10px] font-mono text-gray-500">Mar 30 · 21:12 UTC</span>
-                            </div>
-                            <p class="text-sm text-white mb-2">Dad still using my old bike lock password idea 😅</p>
-                            <div class="text-xs text-gray-500 italic pl-2 border-l border-gray-700">
-                                💬 Jonathan: How he forgets your Year of Birth 😂
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
-                <div class="bg-[#050505] border border-white/20 p-8 btn-clip h-full flex flex-col relative">
-                    
-                    <div class="flex items-center gap-2 mb-6 border-b border-white/10 pb-4">
-                        <i class="fas fa-terminal text-mecs-primary"></i>
-                        <h2 class="font-mono font-bold uppercase text-white">Threat Analysis Console</h2>
-                    </div>
-
-                    <div class="flex-grow space-y-8">
-                        
-                        <div class="question-block" data-answer="cycling">
-                            <label class="block text-gray-500 text-xs font-mono uppercase mb-2">
-                                [VECTOR 01] Identify the predictable routine:
-                            </label>
-                            <div class="relative">
-                                <span class="absolute left-0 top-2 text-mecs-primary font-mono">></span>
-                                <input type="text" class="terminal-input pl-4 focus:ring-0" placeholder="Enter activity..." autocomplete="off">
-                            </div>
-                            <div class="feedback text-[10px] font-mono mt-2 h-4"></div>
-                        </div>
-
-                        <div class="question-block" data-answer="travel">
-                            <label class="block text-gray-500 text-xs font-mono uppercase mb-2">
-                                [VECTOR 02] What evidence suggests a long-term period when the house may be unattended? :
-                            </label>
-                            <div class="relative">
-                                <span class="absolute left-0 top-2 text-mecs-primary font-mono">></span>
-                                <input type="text" class="terminal-input pl-4 focus:ring-0" placeholder="Enter reason..." autocomplete="off">
-                            </div>
-                            <div class="feedback text-[10px] font-mono mt-2 h-4"></div>
-                        </div>
-
-                        <div class="question-block" data-answer="1997">
-                            <label class="block text-gray-500 text-xs font-mono uppercase mb-2">
-                                [VECTOR 03] Identify his Dad's Password:
-                            </label>
-                            <div class="relative">
-                                <span class="absolute left-0 top-2 text-mecs-primary font-mono">></span>
-                                <input type="text" class="terminal-input pl-4 focus:ring-0" placeholder="Enter code..." autocomplete="off">
-                            </div>
-                            <div class="feedback text-[10px] font-mono mt-2 h-4"></div>
-                        </div>
-
-                    </div>
-
-                    <div class="mt-8 border-t border-white/10 pt-6">
-                        <button id="submitBtn" class="w-full btn-clip bg-white/10 border border-white/20 text-white font-mono font-bold uppercase py-4 hover:bg-mecs-primary hover:border-mecs-primary hover:text-black transition-all group flex justify-center items-center gap-2">
-                            <i class="fas fa-play text-xs"></i> Execute Attack Simulation
-                        </button>
-                    </div>
-
-                    <div id="resultOverlay" class="absolute inset-0 bg-black/95 flex items-center justify-center p-8 hidden z-20">
-                        <div class="text-center border border-mecs-primary p-8 bg-mecs-primary/5 btn-clip">
-                            <i class="fas fa-skull text-6xl text-mecs-primary mb-6 animate-pulse"></i>
-                            <h2 class="text-3xl font-black text-white uppercase mb-2">Target Compromised</h2>
-                            <p class="text-gray-400 font-mono text-xs mb-6">
-                                The combined data points allowed for a complete profile takeover.
-                            </p>
-                            <div class="text-left bg-black p-4 mb-6 font-mono text-[10px] text-green-400 border-l-2 border-mecs-primary">
-                                > ACCESS GRANTED<br>
-                                > ROUTINE: MAPPED<br>
-                                > PIN: CRACKED (1997)
-                            </div>
-                            <a href="playground.html" class="inline-block bg-white text-black px-6 py-2 font-bold uppercase text-xs hover:bg-mecs-primary transition-colors">
-                                Return to Lab
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
+  <!-- ========== INSTAGRAM TAB ========== -->
+  <div class="tab-panel" id="panel-instagram">
+    <div class="browser-frame">
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="bd" style="background:#ff5f57"></div>
+          <div class="bd" style="background:#febc2e"></div>
+          <div class="bd" style="background:#28c840"></div>
         </div>
+        <div class="browser-url">🔒 instagram.com/jeff.alex.sec</div>
+      </div>
+      <div class="ig-wrap" style="min-height:400px">
+        <div class="ig-topbar">
+          <div class="ig-logo-text">Instagram</div>
+          <div style="font-size:16px">❤️ 💬 ✈️</div>
+        </div>
+        <div class="ig-profile-area">
+          <div class="ig-ph">
+            <div class="ig-ava">🧑‍💻</div>
+            <div>
+              <div class="ig-stats">
+                <div><div class="ig-st-n">47</div><div class="ig-st-l">posts</div></div>
+                <div><div class="ig-st-n">312</div><div class="ig-st-l">followers</div></div>
+                <div><div class="ig-st-n">198</div><div class="ig-st-l">following</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="ig-bio">
+            <div class="ig-bio-name">Jeffery Alexander 🔐</div>
+            Co-Founder @mecs_official<br>
+            🏠 Adyar, Chennai<br>
+            ☕ Coffee before meetings<br>
+            🐕 Dog dad to Bruno<br>
+            📍 Home away from home: Kodaikanal
+          </div>
+        </div>
+        <div class="ig-grid" id="ig-grid"></div>
+      </div>
+    </div>
+  </div>
 
-    </main>
+  <!-- ========== LINKEDIN TAB ========== -->
+  <div class="tab-panel" id="panel-linkedin">
+    <div class="browser-frame">
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="bd" style="background:#ff5f57"></div>
+          <div class="bd" style="background:#febc2e"></div>
+          <div class="bd" style="background:#28c840"></div>
+        </div>
+        <div class="browser-url">🔒 linkedin.com/in/jeffery-alexander</div>
+      </div>
+      <div class="li-wrap">
+        <div class="li-nav">
+          <div class="li-nav-logo">in</div>
+          <div style="font-size:11px;color:#666">🔍 Search</div>
+        </div>
+        <div class="li-card-base">
+          <div class="li-cover"></div>
+          <div class="li-prow">
+            <div class="li-pava">🧑‍💻</div>
+            <div class="li-pname">Jeffery Alexander</div>
+            <div class="li-pheadline">Co-Founder & Head of Education @ MakeEveryoneCyberSafe | Cybersecurity Trainer</div>
+            <div class="li-ploc">📍 Chennai, Tamil Nadu, India</div>
+          </div>
+        </div>
+        <div class="li-card-base" style="margin-top:8px">
+          <div class="li-sect">
+            <div class="li-sect-title">Experience</div>
+            <div class="li-exp">
+              <div class="li-exp-icon">🔐</div>
+              <div>
+                <div class="li-exp-title">Co-Founder</div>
+                <div class="li-exp-co">MakeEveryoneCyberSafe</div>
+                <div class="li-exp-date">2016 – Present · Chennai</div>
+                <div class="li-exp-desc">Building gamified cybersecurity awareness modules. Deployed in 50+ schools across Tamil Nadu. Focused on OSINT, social engineering awareness, and AI security.</div>
+              </div>
+            </div>
+            <div class="li-exp">
+              <div class="li-exp-icon">🛡️</div>
+              <div>
+                <div class="li-exp-title">Lead Security Architect</div>
+                <div class="li-exp-co">ApexArmorX</div>
+                <div class="li-exp-date">2014 – 2016 · Chennai</div>
+                <div class="li-exp-desc">Red team exercises, OSINT audits, metadata exploitation, enterprise threat modelling.</div>
+              </div>
+            </div>
+          </div>
+          <div class="li-sect" style="border-top:8px solid #f3f2ef">
+            <div class="li-sect-title">Activity</div>
+            <div class="li-post">
+              "Excited to announce we're moving to our new office in Nungambakkam, Chennai in January! Big things coming for MECS 🚀"
+              <div class="li-post-meta">234 reactions · January 2024</div>
+            </div>
+            <div class="li-post">
+              "Pro tip: never use predictable passwords like your birth year, pet name, or anniversary. I used to do exactly that until I got hacked in 2018. Now I use a password manager — please do the same! 😅"
+              <div class="li-post-meta">412 reactions</div>
+            </div>
+            <div class="li-post">
+              "Just completed CEH v12 certification! Celebrating with the team tonight. 10 years in this industry and still learning every day. Batch of 2014 at ApexArmorX — you guys shaped everything 🙌"
+              <div class="li-post-meta">89 reactions · Chennai</div>
+            </div>
+          </div>
+          <div class="li-sect" style="border-top:8px solid #f3f2ef">
+            <div class="li-sect-title">Skills</div>
+            <div class="li-skills">
+              <span class="li-skill">OSINT</span>
+              <span class="li-skill">Kali Linux</span>
+              <span class="li-skill">Python</span>
+              <span class="li-skill">Red Teaming</span>
+              <span class="li-skill">Social Engineering</span>
+              <span class="li-skill">AI Governance</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        const submitBtn = document.getElementById('submitBtn');
-        const questions = document.querySelectorAll('.question-block');
-        const resultOverlay = document.getElementById('resultOverlay');
+  <!-- ========== INTEL TAB ========== -->
+  <div class="tab-panel" id="panel-intel">
+    <div class="intel-wrap">
+      <div class="intel-header">
+        <span class="red">▶</span> THREAT ANALYSIS CONSOLE
+        <span style="margin-left:auto;font-size:9px;color:var(--muted)" id="intel-status-lbl">0 / 10 VECTORS CONFIRMED</span>
+      </div>
+      <div class="intel-body">
+        <div class="intel-intro">
+          Explore the target's public footprint across all three sources. Answer each vector below.<br>
+          Use the <strong style="color:var(--amber)">Hints</strong> tab to spend XP if you're stuck.
+        </div>
+        <div id="q-container"></div>
+      </div>
+    </div>
+  </div>
 
-        submitBtn.onclick = () => {
-            let correctCount = 0;
+  <!-- ========== HINTS TAB ========== -->
+  <div class="tab-panel" id="panel-hints">
+    <div class="hints-wrap">
+      <div class="intel-header">
+        <span class="amber">💡</span> HINT SYSTEM
+        <span style="margin-left:auto;font-size:9px;color:var(--muted)">SPEND XP TO UNLOCK</span>
+      </div>
+      <div id="hints-container"></div>
+    </div>
+  </div>
 
-            questions.forEach(q => {
-                const input = q.querySelector('input');
-                const feedback = q.querySelector('.feedback');
-                const answer = q.dataset.answer;
+  <!-- ========== BADGES TAB ========== -->
+  <div class="tab-panel" id="panel-badges">
+    <div class="intel-header" style="background:var(--s2);border:1px solid var(--b2);margin-bottom:0">
+      <span class="amber">🏅</span> EARNED BADGES
+      <span style="margin-left:auto;font-size:9px;color:var(--muted)" id="badge-count-lbl">0 / 4</span>
+    </div>
+    <div class="badges-grid" id="badges-container"></div>
+    <div style="padding:0 16px 16px;font-size:10px;color:var(--muted);line-height:1.7">
+      Earn all 4 badges to unlock the final certificate.<br>
+      Badges are awarded automatically as you progress.
+    </div>
+  </div>
 
-                // Basic logic: Check if input includes the key term
-                if (input.value.toLowerCase().includes(answer.toLowerCase())) {
-                    feedback.textContent = '[SUCCESS] Vector Confirmed';
-                    feedback.classList.remove('text-red-500');
-                    feedback.classList.add('text-green-500');
-                    input.classList.add('border-green-500');
-                    correctCount++;
-                } else {
-                    feedback.textContent = '[ERROR] Invalid Intelligence';
-                    feedback.classList.remove('text-green-500');
-                    feedback.classList.add('text-red-500');
-                    input.classList.add('border-red-500');
-                }
-            });
+</div><!-- end screen-game -->
 
-            if (correctCount === questions.length) {
-                // Trigger success animation
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> COMPILING...';
-                setTimeout(() => {
-                    resultOverlay.classList.remove('hidden');
-                    resultOverlay.classList.add('animate__animated', 'animate__fadeIn');
-                }, 1000);
-            }
-        };
-    </script>
+<!-- =============================== -->
+<!-- INSTAGRAM POST MODAL            -->
+<!-- =============================== -->
+<div class="modal-bg" id="ig-modal">
+  <button class="modal-close-btn" onclick="closeModal()">✕</button>
+  <div class="modal-card">
+    <div class="modal-img" id="m-img">📸</div>
+    <div class="modal-body">
+      <div class="modal-username">jeff.alex.sec</div>
+      <div class="modal-caption" id="m-caption"></div>
+      <div class="modal-tags" id="m-tags"></div>
+      <div class="modal-loc" id="m-loc"></div>
+      <div class="modal-date" id="m-date"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- =============================== -->
+<!-- FINAL SCREEN                    -->
+<!-- =============================== -->
+<div id="screen-final" class="hidden">
+
+  <div class="final-header">
+    <span class="final-skull">☠️</span>
+    <div class="final-title bebas">TARGET<br>COMPROMISED</div>
+    <div class="final-sub">OSINT AUDIT COMPLETE — MODULE 01</div>
+  </div>
+
+  <!-- SCORE RING -->
+  <div class="score-ring-wrap">
+    <svg class="score-ring-svg" viewBox="0 0 100 100">
+      <circle class="score-ring-bg" cx="50" cy="50" r="45"/>
+      <circle class="score-ring-fill" id="score-ring-circle" cx="50" cy="50" r="45"/>
+    </svg>
+    <div class="score-ring-text">
+      <div class="score-pct" id="final-pct">0%</div>
+      <div class="score-lbl">ACCURACY</div>
+    </div>
+  </div>
+
+  <!-- DOSSIER -->
+  <div class="dossier">
+    <div class="dossier-head">📁 RECONSTRUCTED THREAT DOSSIER</div>
+    <div class="dossier-body">
+      <div class="dossier-row"><span class="dossier-k">Full Name</span><span class="dossier-v">Jeffery Alexander</span></div>
+      <div class="dossier-row"><span class="dossier-k">Email</span><span class="dossier-v"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5c363d3039243d3238392e1c3b313d3530723f3331">[email&#160;protected]</a></span></div>
+      <div class="dossier-row"><span class="dossier-k">Phone</span><span class="dossier-v">+91 79754 ×××××</span></div>
+      <div class="dossier-row"><span class="dossier-k">Location</span><span class="dossier-v">Adyar, Chennai, TN</span></div>
+      <div class="dossier-row"><span class="dossier-k">Pet Name</span><span class="dossier-v">Bruno 🐕</span></div>
+      <div class="dossier-row"><span class="dossier-k">Likely Password</span><span class="dossier-v critical">Bruno@1990 / jeff1990</span></div>
+      <div class="dossier-row"><span class="dossier-k">Morning Routine</span><span class="dossier-v">5:30 AM daily</span></div>
+      <div class="dossier-row"><span class="dossier-k">Vehicle Plate</span><span class="dossier-v">TN09 AJ1990</span></div>
+      <div class="dossier-row"><span class="dossier-k">Vacation Spot</span><span class="dossier-v">Kodaikanal</span></div>
+      <div class="dossier-row"><span class="dossier-k">Previous Employer</span><span class="dossier-v">ApexArmorX</span></div>
+      <div class="dossier-row"><span class="dossier-k">University</span><span class="dossier-v">Harvard University</span></div>
+      <div class="dossier-row"><span class="dossier-k">Office Location</span><span class="dossier-v">Nungambakkam, Chennai</span></div>
+      <div class="dossier-row"><span class="dossier-k">Threat Level</span><span class="dossier-v critical">CRITICAL — FULLY EXPOSED</span></div>
+    </div>
+  </div>
+
+  <!-- WAKE UP BOX -->
+  <div class="wakeup-box">
+    <div class="wakeup-title">🔴 Wake-Up Call</div>
+    <div class="wakeup-text">
+      Every single piece of data in that dossier was <strong>voluntarily posted publicly</strong> by Jeffery — on his portfolio site, LinkedIn, and Instagram.<br><br>
+      <strong>No hacking. No breach. No dark web.</strong> Just open sources.<br><br>
+      Armed with this, a real attacker could craft a convincing phishing email, guess account passwords, track his physical movements, and impersonate him.<br><br>
+      <span class="highlight"><strong>Now imagine someone doing this to you.</strong></span> What would they find?
+    </div>
+  </div>
+
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="resetGame()">↺ REPLAY MISSION</button>
+</div>
+
+<!-- =============================== -->
+<!-- JAVASCRIPT                      -->
+<!-- =============================== -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ================== DATA ==================
+
+const SAVE_KEY = 'mecs_osint_m01_v3';
+
+// QUESTIONS — no source hints, no location hints in text
+const QS = [
+  { id:'q01', text:"What is the target's email address?", answers:['jalexander@gmail.com'], xp:40, hid:'h1' },
+  { id:'q02', text:"What is the target's phone number?", answers:['+91 79754 67321','+917975467321','79754 67321','7975467321'], xp:40, hid:'h2' },
+  { id:'q03', text:"What is the name of the target's pet dog?", answers:['bruno'], xp:40, hid:'h3' },
+  { id:'q04', text:"Based on patterns visible across his profiles, what is his most probable password?", answers:['bruno@1990','bruno1990','jeff1990','jeff.1990','bruno_1990'], xp:100, hid:'h4' },
+  { id:'q05', text:"What time does the target wake up each morning?", answers:['5:30','5:30am','05:30','530','5:30 am'], xp:40, hid:'h5' },
+  { id:'q06', text:"What is the target's favourite hill station / vacation destination?", answers:['kodaikanal','kodai'], xp:50, hid:null },
+  { id:'q07', text:"What neighbourhood does the target currently live in?", answers:['adyar'], xp:40, hid:null },
+  { id:'q08', text:"What is the target's vehicle registration plate?", answers:['tn09 aj1990','tn09aj1990','tn 09 aj 1990'], xp:60, hid:'h6' },
+  { id:'q09', text:"Where has the target's company recently relocated its office?", answers:['nungambakkam'], xp:60, hid:null },
+  { id:'q10', text:"Where did the target pursue higher education?", answers:['harvard','harvard university'], xp:50, hid:null },
+];
+
+const HINTS = [
+  { id:'h1', forQ:'q01', cost:30, text:"His contact details are listed on the public portfolio site." },
+  { id:'h2', forQ:'q02', cost:30, text:"His phone number is publicly visible on his portfolio." },
+  { id:'h3', forQ:'q03', cost:20, text:"He's mentioned being a dog dad. Check his Instagram bio carefully." },
+  { id:'h4', forQ:'q04', cost:60, text:"He admitted on LinkedIn he used to use his pet name and birth year. Cross-reference those two values." },
+  { id:'h5', forQ:'q05', text:"He posts about his morning routine. Check Instagram for time-stamped posts.", cost:20 },
+  { id:'h6', forQ:'q08', cost:30, text:"He posted a photo of his car on Instagram. Look for the plate in the caption." },
+];
+
+const BADGES = [
+  { id:'b1', icon:'🔍', name:'First Look',   trigger:'tab_portfolio' },
+  { id:'b2', icon:'📸', name:'Gram Hunter',  trigger:'ig_5_posts' },
+  { id:'b3', icon:'🧩', name:'Half Way',     trigger:'q5_done' },
+  { id:'b4', icon:'☠️', name:'Full Compromise', trigger:'all_done' },
+];
+
+const IG_POSTS = [
+  {
+    emoji:'☕', bg:'#2c1810',
+    caption:"Morning ritual ☕ Can't start the day without this. Up at 5:30 before the whole city. #morningperson #coffeelover #adyar",
+    tags:'#morningperson #coffeelover #adyar #chennai',
+    loc:'📍 Adyar, Chennai',
+    date:'March 12 · 5:47 AM',
+  },
+  {
+    emoji:'🐕', bg:'#3a2010',
+    caption:"Bruno turned 3 today! 🎉 Best dog dad moment ever. This boy is my everything. #BrunoAlexander #DogDad #GoldenRetriever",
+    tags:'#brunoalexander #dogdad #goldenretriever',
+    loc:'📍 Adyar, Chennai',
+    date:'November 5 · 7:22 PM',
+  },
+  {
+    emoji:'🏔️', bg:'#0a1a2e',
+    caption:"Kodai never disappoints. 🏔️ Silver Cascade in the mist — absolute peace. My go-to escape every year without fail. #Kodaikanal #TamilNadu",
+    tags:'#kodaikanal #silvercascade #hillstation #tamilnadu',
+    loc:'📍 Silver Cascade Falls, Kodaikanal',
+    date:'October 8 · 2:15 PM',
+  },
+  {
+    emoji:'⚽', bg:'#0a1f0a',
+    caption:"Nothing like a 6 PM match to unwind. Chennai FC we go again! ⚽🔥 #ChennaiFC #ISL",
+    tags:'#chennaifc #isl #football #chennai',
+    loc:'📍 Jawaharlal Nehru Stadium, Chennai',
+    date:'September 20 · 9:04 PM',
+  },
+  {
+    emoji:'🚗', bg:'#1a1f24',
+    caption:"Cleaned her up on a Sunday morning. TN09 AJ1990 forever 🚗💪 #CarLovers #SundayVibes",
+    tags:'#carlovers #chennai #tn09',
+    loc:'📍 Adyar, Chennai',
+    date:'July 14 · 11:24 AM',
+  },
+  {
+    emoji:'💻', bg:'#040c14',
+    caption:"Late nights building module 4. Signed off from the Nungambakkam office at midnight again 🌙 The internet knows too much about you. Stay sharp. #MECS #Cybersecurity",
+    tags:'#mecs #cybersecurity #osint #nungambakkam',
+    loc:'📍 Nungambakkam, Chennai',
+    date:'January 15 · 12:08 AM',
+  },
+  {
+    emoji:'🍜', bg:'#2a0a2a',
+    caption:"Team lunch every Friday on Usman Road. Same table, same order, same family 🙏 #TeamMECS #ChennaiFood",
+    tags:'#teammecs #chennaifood #usman #friday',
+    loc:'📍 Usman Road, T.Nagar, Chennai',
+    date:'Friday · 1:42 PM',
+  },
+  {
+    emoji:'🏠', bg:'#101a20',
+    caption:"Home office fully set up ✅ This corner of Adyar is where the real work happens. Bruno approved. #HomeOffice #WFH",
+    tags:'#homeoffice #wfh #adyar #bruno',
+    loc:'📍 Adyar, Chennai',
+    date:'March 3 · 10:55 AM',
+  },
+  {
+    emoji:'🎓', bg:'#1a1030',
+    caption:"Years later and I'd still choose the same path. Grateful for every lesson — from the halls to the red teams. #Cybersecurity #GratefulHeart",
+    tags:'#cybersecurity #grateful #journey',
+    loc:'📍 Chennai, TN',
+    date:'May 2 · 8:00 PM',
+  },
+];
+
+// ================== STATE ==================
+
+let S = {
+  xp: 0,
+  answers: {},
+  badges: [],
+  hintsUnlocked: [],
+  tabsSeen: [],
+  igPostsOpened: 0,
+  igPostsSeen: [],
+  started: false,
+  completed: false,
+};
+
+function save() { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }
+function load() {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (raw) S = { ...S, ...JSON.parse(raw) };
+}
+
+// ================== BOOT ==================
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+
+  // Block devtools
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key)) || (e.ctrlKey && e.key === 'U')) {
+      e.preventDefault();
+      showToast('⛔ Inspect mode is disabled', 'red');
+    }
+  });
+
+  // Attempt to detect devtools open
+  const threshold = 160;
+  setInterval(() => {
+    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+      showToast('⛔ DevTools detected — close it to continue', 'red');
+    }
+  }, 2000);
+
+  if (S.completed) {
+    showFinal();
+  } else if (S.started) {
+    showGame();
+  }
+});
+
+// ================== SCREENS ==================
+
+function startLoading() {
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-loading').classList.remove('hidden');
+
+  const steps = ['ls0','ls1','ls2','ls3','ls4'];
+  let i = 0;
+
+  function tick() {
+    if (i > 0) {
+      const prev = document.getElementById(steps[i-1]);
+      prev.classList.remove('active'); prev.classList.add('done');
+      prev.querySelector('.ls-icon').textContent = '✅';
+    }
+    if (i < steps.length) {
+      document.getElementById(steps[i]).classList.add('active');
+      const p = Math.round(((i+1)/steps.length)*100);
+      document.getElementById('lp-fill').style.width = p + '%';
+      document.getElementById('lp-pct').textContent = p + '%';
+      i++;
+      setTimeout(tick, 500 + Math.random()*500);
+    } else {
+      setTimeout(() => { S.started = true; save(); showGame(); }, 400);
+    }
+  }
+  tick();
+}
+
+function showGame() {
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-loading').classList.add('hidden');
+  document.getElementById('screen-game').classList.remove('hidden');
+  document.getElementById('xp-widget').style.display = 'flex';
+
+  renderChips();
+  renderQuestions();
+  renderHints();
+  renderBadges();
+  renderIgGrid();
+  updateXP();
+  updateScore();
+
+  // Restore answered state
+  Object.keys(S.answers).forEach(qid => {
+    if (S.answers[qid] === true) restoreAnswer(qid);
+  });
+
+  // Badge for visiting portfolio
+  markTabSeen('portfolio');
+}
+
+// ================== TABS ==================
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  markTabSeen(name);
+}
+
+function markTabSeen(name) {
+  if (!S.tabsSeen.includes(name)) {
+    S.tabsSeen.push(name);
+    save();
+    if (name === 'portfolio') awardBadge('b1');
+  }
+}
+
+// ================== IG GRID ==================
+
+let igGridRendered = false;
+function renderIgGrid() {
+  if (igGridRendered) return;
+  igGridRendered = true;
+  const grid = document.getElementById('ig-grid');
+  IG_POSTS.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'ig-post';
+    div.style.background = p.bg;
+    div.innerHTML = `<span style="font-size:34px">${p.emoji}</span><div class="ig-post-hover">TAP TO VIEW</div>`;
+    div.onclick = () => openIgModal(p, i);
+    grid.appendChild(div);
+  });
+}
+
+function openIgModal(post, idx) {
+  const firstTime = !S.igPostsSeen.includes(idx);
+  if (firstTime) {
+    S.igPostsSeen.push(idx);
+    S.igPostsOpened = S.igPostsSeen.length;
+    save();
+    if (S.igPostsOpened >= 5) awardBadge('b2');
+    addXP(5, null);
+  }
+
+  document.getElementById('m-img').innerHTML = `<span style="background:${post.bg};width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:72px">${post.emoji}</span>`;
+  document.getElementById('m-caption').textContent = post.caption;
+  document.getElementById('m-tags').textContent = post.tags;
+  document.getElementById('m-loc').textContent = post.loc;
+  document.getElementById('m-date').textContent = post.date;
+  document.getElementById('ig-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('ig-modal').classList.remove('open');
+}
+
+document.getElementById('ig-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ================== QUESTIONS ==================
+
+let qsRendered = false;
+function renderQuestions() {
+  if (qsRendered) return;
+  qsRendered = true;
+  const container = document.getElementById('q-container');
+  QS.forEach((q, i) => {
+    const done = S.answers[q.id] === true;
+    const div = document.createElement('div');
+    div.className = 'q-block';
+    div.id = 'qb-' + q.id;
+    div.innerHTML = `
+      <div class="q-head">
+        <div class="q-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="q-text">${q.text}</div>
+      </div>
+      <div class="q-input-row">
+        <input type="text" class="q-input${done?' ok':''}" id="qi-${q.id}"
+          placeholder="Enter intelligence..."
+          ${done?'disabled':''}
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          onkeydown="if(event.key==='Enter')checkAnswer('${q.id}')">
+        <button class="btn btn-red q-submit" onclick="checkAnswer('${q.id}')" ${done?'disabled':''}>CHECK</button>
+      </div>
+      <div class="q-fb${done?' ok':''}" id="qf-${q.id}">${done?'✓ VECTOR CONFIRMED':''}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function restoreAnswer(qid) {
+  const inp = document.getElementById('qi-' + qid);
+  const fb = document.getElementById('qf-' + qid);
+  if (inp) { inp.disabled = true; inp.classList.add('ok'); }
+  if (fb) { fb.textContent = '✓ VECTOR CONFIRMED'; fb.className = 'q-fb ok'; }
+}
+
+function checkAnswer(qid) {
+  if (S.answers[qid] === true) return;
+  const q = QS.find(x => x.id === qid);
+  const inp = document.getElementById('qi-' + qid);
+  const fb = document.getElementById('qf-' + qid);
+  const val = inp.value.trim().toLowerCase();
+  if (!val) return;
+
+  const match = q.answers.some(a => val === a || val.includes(a) || a.includes(val));
+
+  if (match) {
+    inp.classList.add('ok'); inp.classList.remove('err');
+    inp.disabled = true;
+    fb.textContent = '✓ VECTOR CONFIRMED'; fb.className = 'q-fb ok';
+    S.answers[qid] = true;
+    save();
+    addXP(q.xp, `+${q.xp} XP — Vector confirmed`);
+    updateScore();
+    renderChips();
+    checkProgressBadges();
+    checkAllDone();
+  } else {
+    inp.classList.add('err'); inp.classList.remove('ok');
+    fb.textContent = '✗ Invalid intelligence'; fb.className = 'q-fb err';
+    setTimeout(() => inp.classList.remove('err'), 500);
+  }
+}
+
+function checkProgressBadges() {
+  const done = countDone();
+  if (done >= 5) awardBadge('b3');
+}
+
+function checkAllDone() {
+  if (countDone() >= QS.length) {
+    awardBadge('b4');
+    setTimeout(() => { S.completed = true; save(); showFinal(); }, 1200);
+  }
+}
+
+function countDone() {
+  return Object.values(S.answers).filter(v => v === true).length;
+}
+
+// ================== HINTS ==================
+
+let hintsRendered = false;
+function renderHints() {
+  if (hintsRendered) return;
+  hintsRendered = true;
+  const container = document.getElementById('hints-container');
+  HINTS.forEach(h => {
+    const unlocked = S.hintsUnlocked.includes(h.id);
+    const qNum = QS.findIndex(q => q.id === h.forQ) + 1;
+    const div = document.createElement('div');
+    div.className = 'hint-item';
+    div.id = 'hint-' + h.id;
+    div.innerHTML = `
+      <div class="hint-body">
+        <div class="hint-for">Question ${String(qNum).padStart(2,'0')}</div>
+        <div class="hint-text${unlocked?'':' hint-blurred'}" id="ht-${h.id}">${h.text}</div>
+      </div>
+      <div class="hint-side">
+        ${unlocked
+          ? `<span style="font-size:9px;color:var(--green)">✓ UNLOCKED</span>`
+          : `<button class="btn btn-amber" style="padding:6px 12px;font-size:9px" onclick="unlockHint('${h.id}')">🔓 ${h.cost} XP</button>`
+        }
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function unlockHint(hid) {
+  const h = HINTS.find(x => x.id === hid);
+  if (!h) return;
+  if (S.xp < h.cost) {
+    showToast('⚠ Not enough XP — answer more questions first', 'red');
+    return;
+  }
+  S.xp -= h.cost;
+  S.hintsUnlocked.push(hid);
+  save();
+  updateXP();
+
+  const textEl = document.getElementById('ht-' + hid);
+  if (textEl) textEl.classList.remove('hint-blurred');
+
+  const btn = document.querySelector(`[onclick="unlockHint('${hid}')"]`);
+  if (btn) btn.parentElement.innerHTML = `<span style="font-size:9px;color:var(--green)">✓ UNLOCKED</span>`;
+
+  showToast(`💡 Hint unlocked (-${h.cost} XP)`, 'amber');
+}
+
+// ================== BADGES ==================
+
+let badgesRendered = false;
+function renderBadges() {
+  if (badgesRendered) return;
+  badgesRendered = true;
+  const container = document.getElementById('badges-container');
+  BADGES.forEach(b => {
+    const earned = S.badges.includes(b.id);
+    const div = document.createElement('div');
+    div.className = `badge-card${earned?' earned':''}`;
+    div.id = 'badge-' + b.id;
+    div.innerHTML = `
+      <div class="badge-icon${earned?'':' badge-grey'}">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    `;
+    container.appendChild(div);
+  });
+  updateBadgeCount();
+}
+
+function awardBadge(bid) {
+  if (S.badges.includes(bid)) return;
+  S.badges.push(bid);
+  save();
+  const el = document.getElementById('badge-' + bid);
+  if (el) {
+    el.classList.add('earned');
+    el.querySelector('.badge-icon').classList.remove('badge-grey');
+  }
+  const b = BADGES.find(x => x.id === bid);
+  if (b) showToast(`🏅 Badge: ${b.name}`, 'amber');
+  addXP(50, null);
+  updateBadgeCount();
+}
+
+function updateBadgeCount() {
+  const el = document.getElementById('badge-count-lbl');
+  if (el) el.textContent = `${S.badges.length} / 4`;
+}
+
+// ================== XP ==================
+
+function addXP(amount, msg) {
+  S.xp += amount;
+  save();
+  updateXP();
+  showXpPop('+' + amount + ' XP');
+  if (msg) showToast(msg, 'green');
+}
+
+function updateXP() {
+  const MAX = 800;
+  const pct = Math.min(100, (S.xp / MAX) * 100);
+  const xpBar = document.getElementById('xp-bar-fill');
+  const xpVal = document.getElementById('xp-val-display');
+  const hudXp = document.getElementById('hud-xp');
+  if (xpBar) xpBar.style.width = pct + '%';
+  if (xpVal) xpVal.textContent = S.xp;
+  if (hudXp) hudXp.textContent = S.xp;
+}
+
+function showXpPop(text) {
+  const pop = document.createElement('div');
+  pop.className = 'xp-popup';
+  pop.textContent = text;
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1700);
+}
+
+// ================== CHIPS ==================
+
+function renderChips() {
+  const row = document.getElementById('chip-row');
+  if (!row) return;
+  row.innerHTML = '';
+  QS.forEach((q, i) => {
+    const done = S.answers[q.id] === true;
+    const chip = document.createElement('div');
+    chip.className = `chip${done?' done':''}`;
+    chip.textContent = done ? '✓' : (i + 1);
+    row.appendChild(chip);
+  });
+}
+
+function updateScore() {
+  const done = countDone();
+  const tab = document.getElementById('tab-intel-count');
+  const hud = document.getElementById('hud-score');
+  const lbl = document.getElementById('intel-status-lbl');
+  if (tab) tab.textContent = `${done}/10`;
+  if (hud) hud.textContent = `${done}/10`;
+  if (lbl) lbl.textContent = `${done} / 10 VECTORS CONFIRMED`;
+}
+
+// ================== TOAST ==================
+
+function showToast(msg, type = 'green') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ================== FINAL ==================
+
+function showFinal() {
+  document.getElementById('screen-game').classList.add('hidden');
+  document.getElementById('screen-final').classList.remove('hidden');
+  document.getElementById('app-header').style.display = 'none';
+
+  const done = countDone();
+  const pct = Math.round((done / QS.length) * 100);
+
+  document.getElementById('final-pct').textContent = pct + '%';
+
+  // Score ring
+  const circumference = 2 * Math.PI * 45; // ~283
+  const dash = circumference - (circumference * pct / 100);
+  const circle = document.getElementById('score-ring-circle');
+  if (circle) {
+    setTimeout(() => { circle.style.strokeDashoffset = dash; }, 300);
+  }
+}
+
+// ================== RESET ==================
+
+function resetGame() {
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
+</script>
 </body>
 </html>
