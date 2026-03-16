@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE OPERATOR — MECS Playground 03</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--s1:#111;--s2:#161616;--s3:#1c1c1c;
+  --b1:#1e1e1e;--b2:#2a2a2a;--b3:#333;
+  --green:#00ff88;--green2:#00cc66;
+  --red:#ff3b3b;--amber:#ffaa00;--blue:#4488ff;
+  --text:#e0e0e0;--text2:#aaa;--muted:#555;--muted2:#777;
+  --mono:'Share Tech Mono',monospace;--head:'Rajdhani',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:var(--mono)}
+textarea,input{font-family:var(--mono)}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b3)}
+
+/* NAV */
+#topnav{position:fixed;top:0;left:0;right:0;z-index:999;height:48px;background:rgba(10,10,10,.97);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;backdrop-filter:blur(12px)}
+.nav-brand{font-family:var(--head);font-weight:700;font-size:16px;color:#fff;letter-spacing:2px}
+.nav-brand span{color:var(--green)}
+.nav-mid{font-size:9px;letter-spacing:3px;color:var(--muted2)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-tag{font-size:9px;letter-spacing:3px;color:var(--green);border:1px solid var(--green);padding:3px 9px}
+.nav-link{font-size:10px;color:var(--muted2);text-decoration:none;letter-spacing:1px;transition:color .2s}
+.nav-link:hover{color:var(--green)}
+
+/* SCREENS */
+.scr{display:none;min-height:100vh;padding-top:48px}
+.scr.on{display:block}
+.fscr{display:none;position:fixed;inset:0;padding-top:48px;z-index:100;flex-direction:column}
+.fscr.on{display:flex}
+
+/* INTRO */
+#s-intro{display:none;min-height:100vh;padding-top:48px;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:3rem}
+#s-intro.on{display:flex}
+.intro-bg{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,.01) 2px,rgba(0,255,136,.01) 4px);pointer-events:none}
+.intro-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:0 1rem}
+.i-chip{color:var(--green);font-size:9px;letter-spacing:6px;border:1px solid var(--b2);padding:5px 16px;margin-bottom:2.5rem;display:inline-block}
+.i-h{font-family:var(--head);font-size:clamp(3.5rem,10vw,7rem);font-weight:700;color:#fff;line-height:.85;letter-spacing:-2px;margin-bottom:1.5rem}
+.i-h em{color:var(--green);font-style:normal}
+.i-sub{font-size:9px;letter-spacing:5px;color:var(--muted2);margin-bottom:3rem;line-height:2.5}
+.mode-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;max-width:680px;width:100%;background:var(--b1);margin-bottom:2.5rem}
+.mcard{background:var(--s1);padding:1.5rem;text-align:left;cursor:pointer;transition:background .2s;border-top:2px solid transparent}
+.mcard:hover{background:var(--s2)}
+.mcard.m-atk{border-top-color:var(--red)}
+.mcard.m-vic{border-top-color:var(--amber)}
+.mcard.m-story{border-top-color:var(--blue)}
+.mcard-tag{font-size:8px;letter-spacing:4px;margin-bottom:10px}
+.m-atk .mcard-tag{color:var(--red)}
+.m-vic .mcard-tag{color:var(--amber)}
+.m-story .mcard-tag{color:var(--blue)}
+.mcard-title{font-family:var(--head);font-size:1.25rem;font-weight:600;color:#fff;margin-bottom:6px}
+.mcard-desc{font-size:11px;color:var(--muted2);line-height:1.7}
+.mcard-cta{margin-top:1rem;font-size:9px;letter-spacing:2px;color:var(--muted);border-top:1px solid var(--b2);padding-top:10px}
+.mcard:hover .mcard-cta{color:var(--green)}
+.i-warn{font-size:9px;color:var(--muted);letter-spacing:2px}
+
+/* PHASE BAR */
+.pbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:7px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;font-size:9px;letter-spacing:3px}
+.pbar-steps{flex:1;display:flex;gap:4px}
+.pbar-step{flex:1;height:2px;background:var(--b2);transition:background .4s}
+.pbar-step.done{background:var(--green)}
+.pbar-step.cur{background:var(--amber)}
+.pbar-timer{color:var(--red);min-width:48px;text-align:right}
+.pbar-exit{background:transparent;border:1px solid var(--b3);color:var(--muted2);font-size:9px;letter-spacing:2px;padding:3px 9px;transition:all .2s}
+.pbar-exit:hover{border-color:var(--red);color:var(--red)}
+.ticker-line{overflow:hidden;height:24px;background:var(--s2);border-bottom:1px solid var(--b1);flex-shrink:0}
+.ticker-text{white-space:nowrap;display:inline-block;animation:tickr 40s linear infinite;font-size:9px;letter-spacing:2px;color:var(--muted);padding-top:4px;padding-left:100vw}
+@keyframes tickr{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+/* ATTACKER LAYOUT */
+.atk-body{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0;overflow:hidden}
+.atk-left{display:flex;flex-direction:column;border-right:1px solid var(--b1);min-height:0;overflow:hidden}
+.atk-right{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+
+/* BROWSER */
+.brow-chrome{background:var(--s2);border-bottom:1px solid var(--b1);flex-shrink:0}
+.brow-tabs{display:flex;border-bottom:1px solid var(--b1)}
+.btab{padding:7px 14px;font-size:10px;letter-spacing:1px;color:var(--muted2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;user-select:none}
+.btab:hover{color:var(--text2)}
+.btab.on{color:var(--green);border-bottom-color:var(--green);background:rgba(0,255,136,.04)}
+.btab.locked{opacity:.3;pointer-events:none}
+.brow-bar{display:flex;align-items:center;gap:8px;padding:6px 10px}
+.brow-dots{display:flex;gap:5px}
+.brow-dots span{width:10px;height:10px;border-radius:50%}
+.brow-dots span:nth-child(1){background:#ff5f57}
+.brow-dots span:nth-child(2){background:#febc2e}
+.brow-dots span:nth-child(3){background:#28c840}
+.brow-url{flex:1;background:var(--s3);border:1px solid var(--b2);padding:4px 10px;font-size:10px;color:var(--muted2)}
+.brow-url.https::before{content:'🔒 ';font-size:9px}
+.brow-pages{flex:1;position:relative;min-height:0;overflow:hidden}
+.bpage{display:none;position:absolute;inset:0;overflow-y:auto}
+.bpage.on{display:block}
+
+/* LINKEDIN */
+.li-wrap{background:#fff;color:#333;font-family:sans-serif;min-height:100%}
+.li-nav{background:#0a66c2;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.li-logo{color:#fff;font-weight:900;font-size:18px;font-family:serif}
+.li-srch{background:rgba(255,255,255,.18);border:none;padding:5px 12px;color:#fff;font-size:12px;border-radius:3px;width:200px}
+.li-srch::placeholder{color:rgba(255,255,255,.6)}
+.li-body{max-width:600px;margin:0 auto;padding:12px}
+.li-cover{height:90px;background:linear-gradient(135deg,#0a66c2,#004080);border-radius:6px 6px 0 0}
+.li-av-row{display:flex;align-items:flex-end;gap:12px;padding:0 12px;margin-top:-34px;margin-bottom:12px}
+.li-av{width:76px;height:76px;border-radius:50%;background:#1a3a5c;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;font-family:sans-serif;flex-shrink:0}
+.li-name{font-size:18px;font-weight:700;color:#000;margin-bottom:2px}
+.li-hl{font-size:12px;color:#444;margin-bottom:2px;line-height:1.4}
+.li-loc{font-size:11px;color:#888}
+.li-conn{background:#0a66c2;color:#fff;border:none;padding:6px 18px;border-radius:16px;font-size:12px;font-weight:700;margin-top:8px;cursor:pointer}
+.li-sec{background:#fff;border:1px solid #e0e0e0;border-radius:6px;margin-bottom:10px;padding:14px}
+.li-sec h3{font-size:14px;font-weight:700;color:#000;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0f0f0}
+.li-post{border:1px solid #e0e0e0;border-radius:6px;padding:12px;margin-bottom:8px}
+.li-ph{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.li-pav{width:32px;height:32px;border-radius:50%;background:#1a3a5c;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;font-family:sans-serif;flex-shrink:0}
+.li-pname{font-size:12px;font-weight:600;color:#000}
+.li-ptime{font-size:10px;color:#888}
+.li-pbody{font-size:12px;color:#333;line-height:1.6}
+.li-preact{font-size:10px;color:#888;margin-top:8px;padding-top:6px;border-top:1px solid #f0f0f0}
+
+/* PORTFOLIO */
+.pf-wrap{background:#0f0f0f;color:#e0e0e0;font-family:monospace;min-height:100%}
+.pf-topbar{background:#080808;border-bottom:1px solid #1a1a1a;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.pf-logo{color:#00ff88;font-weight:700;font-size:13px}
+.pf-hero{background:#111;padding:28px 20px;text-align:center;border-bottom:1px solid #1a1a1a}
+.pf-av{width:64px;height:64px;border-radius:50%;background:#0a200a;border:2px solid #00ff88;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#00ff88;margin:0 auto 12px}
+.pf-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.pf-role{font-size:9px;color:#00ff88;letter-spacing:4px}
+.pf-sec{padding:16px 20px;border-bottom:1px solid #1a1a1a}
+.pf-sec h3{color:#00ff88;font-size:9px;letter-spacing:4px;margin-bottom:12px}
+.pf-row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #111;font-size:12px;align-items:flex-start}
+.pf-k{color:#444;width:72px;flex-shrink:0}
+.pf-v{color:#ccc}
+.pf-email{color:#00ff88;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.pf-email:hover{color:#fff}
+
+/* EMAIL COMPOSE */
+.email-pane-hdr{background:var(--s2);border-bottom:1px solid var(--b1);padding:8px 12px;font-size:9px;letter-spacing:3px;color:var(--green);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.email-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ef-label{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:3px}
+.ef-inp{width:100%;background:#060606;border:1px solid var(--b2);color:var(--text);font-size:12px;padding:7px 10px;outline:none;transition:border .2s}
+.ef-inp:focus{border-color:var(--green)}
+.ef-inp[readonly]{opacity:.35}
+.ef-ta{width:100%;background:#060606;border:1px solid var(--b2);color:var(--text);font-size:12px;padding:8px 10px;outline:none;resize:vertical;min-height:130px;transition:border .2s}
+.ef-ta:focus{border-color:var(--green)}
+.susp-box{background:var(--s2);border:1px solid var(--b2);padding:10px 12px}
+.susp-top{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px}
+.susp-track{height:4px;background:var(--b2);margin-bottom:4px}
+.susp-fill{height:100%;width:0%;background:var(--green);transition:width .4s,background .4s}
+.send-btn{background:var(--green);color:#000;border:none;padding:10px 24px;font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;transition:all .2s}
+.send-btn:hover{background:var(--green2)}
+.send-btn:disabled{opacity:.3;pointer-events:none}
+.email-log{background:#060606;border-top:1px solid var(--b1);padding:8px 10px;font-size:11px;line-height:1.8;max-height:80px;overflow-y:auto;flex-shrink:0;color:var(--muted2)}
+
+/* TERMINAL */
+.term-hdr{background:var(--s2);border-bottom:1px solid var(--b1);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.term-hdr-title{font-size:9px;letter-spacing:3px;color:var(--muted2)}
+.term-phase-pills{display:flex;gap:6px}
+.tpill{font-size:8px;letter-spacing:2px;padding:2px 8px;border:1px solid var(--b2);color:var(--muted);transition:all .2s}
+.tpill.on{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.05)}
+.term{flex:1;background:#060606;padding:10px 12px;font-size:12px;line-height:1.9;overflow-y:auto;min-height:0}
+.p{color:var(--green)}.o{color:var(--muted2)}.w{color:var(--amber)}.s{color:var(--green)}.e{color:var(--red)}.b{color:var(--blue)}.dim{color:var(--muted)}.hi{color:#fff}
+.term-input{background:#060606;border-top:1px solid var(--b1);padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.term-ps{color:var(--green);font-size:12px;white-space:nowrap;min-width:fit-content}
+.term-ps.root{color:var(--red)}
+.term-ci{flex:1;background:transparent;border:none;color:var(--green);font-size:12px;outline:none;caret-color:var(--green)}
+.term-ci.root{color:var(--red)}
+.cur{display:inline-block;width:7px;height:13px;background:var(--green);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:1px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* nano editor */
+.nano-overlay{display:none;position:absolute;inset:0;background:#060606;flex-direction:column;z-index:10;font-size:12px}
+.nano-overlay.on{display:flex}
+.nano-header{background:var(--s2);padding:4px 12px;font-size:10px;color:var(--muted2);letter-spacing:2px;flex-shrink:0;display:flex;justify-content:space-between}
+.nano-ta{flex:1;background:transparent;border:none;color:var(--text);font-size:12px;padding:10px 12px;outline:none;resize:none;line-height:1.8}
+.nano-footer{background:var(--s2);padding:4px 12px;font-size:10px;color:var(--muted2);flex-shrink:0;display:flex;gap:20px}
+.nano-key{color:var(--green)}
+
+/* VICTIM MODE */
+#s-vic{background:#f5f5f5;color:#333;font-family:sans-serif}
+.vic-layout{flex:1;display:grid;grid-template-columns:280px 1fr;min-height:0;overflow:hidden}
+.vic-sidebar{background:#fff;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;overflow:hidden}
+.vic-sidebar-top{padding:8px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.vic-compose-btn{background:#c2e7ff;border:none;border-radius:16px;padding:14px 20px;font-size:13px;font-weight:600;color:#001d35;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%}
+.vic-nav-item{padding:8px 16px;border-radius:0 20px 20px 0;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;margin-right:12px;transition:background .15s}
+.vic-nav-item:hover{background:#f0f0f0}
+.vic-nav-item.active{background:#d3e3fd;font-weight:600}
+.vic-inbox-list{flex:1;overflow-y:auto}
+.vic-email-row{padding:8px 12px;border-bottom:1px solid #f5f5f5;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;transition:background .1s;position:relative}
+.vic-email-row:hover{background:#f5f5f5}
+.vic-email-row.selected{background:#e8f0fe}
+.vic-email-row.unread .ver-subject,.vic-email-row.unread .ver-from{font-weight:700;color:#000}
+.ver-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.ver-mid{min-width:0}
+.ver-from,.ver-subject{font-size:12px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ver-preview{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ver-time{font-size:11px;color:#888;white-space:nowrap;flex-shrink:0}
+.vic-pbar{background:#fff;border-bottom:1px solid #e0e0e0;padding:6px 16px;display:flex;align-items:center;gap:1rem;font-size:11px;flex-shrink:0}
+.vic-hud-item .hk{color:#888;margin-right:4px}
+.vic-hud-item .hv{font-weight:700}
+.vic-hud-item .hv.good{color:#0f9d58}
+.vic-hud-item .hv.bad{color:#db4437}
+.vic-main{display:flex;flex-direction:column;overflow:hidden}
+.vic-email-view{flex:1;overflow-y:auto;background:#fff;padding:24px 32px}
+.vev-subject{font-size:22px;font-weight:400;color:#202124;margin-bottom:16px;line-height:1.3}
+.vev-from-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+.vev-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.vev-from-name{font-size:13px;font-weight:600;color:#202124}
+.vev-from-addr{font-size:11px;color:#888}
+.vev-from-addr.sus{color:#db4437}
+.vev-time{font-size:11px;color:#888;margin-left:auto}
+.vev-body{font-size:14px;color:#202124;line-height:1.9;white-space:pre-wrap;margin-bottom:24px}
+.vev-actions{display:flex;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #f0f0f0}
+.vev-btn{padding:9px 20px;border-radius:4px;font-size:12px;font-weight:600;border:1px solid;cursor:pointer;transition:all .15s;font-family:sans-serif}
+.vev-btn.real{border-color:#0f9d58;color:#0f9d58;background:#fff}
+.vev-btn.real:hover{background:#0f9d58;color:#fff}
+.vev-btn.fake{border-color:#db4437;color:#db4437;background:#fff}
+.vev-btn.fake:hover{background:#db4437;color:#fff}
+.vev-result{padding:10px 16px;border-radius:4px;font-size:12px;font-weight:600;margin-top:8px}
+.vev-result.correct{background:#e6f4ea;color:#0f9d58;border:1px solid #b7dfbf}
+.vev-result.wrong{background:#fce8e6;color:#db4437;border:1px solid #f4b8b4}
+.vic-topbar{background:#0a0a0a;padding:6px 14px;display:flex;align-items:center;gap:12px;font-size:9px;letter-spacing:3px;flex-shrink:0;border-bottom:1px solid #1e1e1e}
+.vic-topbar-label{color:var(--amber)}
+.vic-timer{color:var(--red);font-size:12px;margin-left:auto}
+
+/* RANSOMWARE */
+#s-ransom{display:none;position:fixed;inset:0;background:#000;z-index:600;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+#s-ransom.on{display:flex}
+.ransom-pre{font-size:9px;letter-spacing:5px;color:var(--red);margin-bottom:1.5rem;text-align:center}
+.file-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:480px;margin-bottom:1.5rem;width:100%}
+.fblk{height:26px;background:var(--s2);border:1px solid var(--b2);font-size:7px;color:var(--muted);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2px;text-align:center;transition:all .3s}
+.fblk.enc{background:#0d0505;border-color:#330000;color:#440000}
+.fblk.encr{background:#1a0808;border-color:var(--red);color:var(--red);animation:flick .15s infinite}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:.3}}
+.ransom-note{background:#050000;border:1px solid var(--red);padding:2rem;max-width:520px;text-align:center;width:100%;display:none}
+.ransom-note.on{display:block}
+.rn-skull{font-size:2.5rem;display:block;margin-bottom:12px}
+.rn-title{font-family:var(--head);font-size:1.8rem;font-weight:700;color:var(--red);letter-spacing:3px;margin-bottom:12px}
+.rn-body{font-size:12px;color:#b06060;line-height:2;margin-bottom:16px}
+.rn-amt{font-family:var(--head);font-size:2.2rem;font-weight:700;color:var(--amber);margin-bottom:4px}
+.rn-sub{font-size:10px;color:var(--muted2);margin-bottom:12px;letter-spacing:2px}
+.rn-wallet{font-size:10px;color:var(--muted2);background:#080808;border:1px solid var(--b2);padding:8px;margin-bottom:12px;word-break:break-all}
+.rn-cd{color:var(--red);font-size:12px;margin-bottom:16px;letter-spacing:2px}
+.rn-btn{background:var(--red);color:#fff;border:none;padding:12px 32px;font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer}
+
+/* STORY VICTIM OVERLAY */
+#s-story-vic{display:none;position:fixed;inset:0;background:#000;z-index:700;flex-direction:column;align-items:center;justify-content:center}
+#s-story-vic.on{display:flex}
+.sv-fade{position:absolute;inset:0;background:#000;pointer-events:none;z-index:1;transition:opacity 1.5s}
+.sv-label{position:absolute;top:64px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:5px;color:var(--amber);z-index:3;white-space:nowrap;opacity:0;transition:opacity 1s}
+.sv-label.on{opacity:1}
+/* Desktop window */
+.sv-desktop-wrap{z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;width:min(700px,95vw)}
+.sv-desktop{width:100%;background:#fff;border-radius:6px 6px 0 0;overflow:hidden;font-family:sans-serif;box-shadow:0 0 60px rgba(0,0,0,.9);max-height:68vh;display:flex;flex-direction:column}
+/* SUBTITLE BAR */
+.sv-subtitle-bar{width:100%;background:rgba(0,0,0,.92);border-radius:0 0 6px 6px;padding:10px 20px;min-height:52px;display:flex;align-items:center;justify-content:center}
+.sv-subtitle{font-size:14px;color:#fff;text-align:center;line-height:1.7;letter-spacing:.3px;font-family:sans-serif;opacity:0;transition:opacity .4s}
+.sv-subtitle.on{opacity:1}
+.sv-subtitle .who{color:var(--amber);font-size:11px;letter-spacing:3px;display:block;margin-bottom:4px;font-family:var(--mono)}
+/* gmail story */
+.sv-gmail-nav{background:#fff;border-bottom:1px solid #e0e0e0;padding:8px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sv-gmail-logo{font-size:20px;font-weight:700;color:#EA4335}
+.sv-gmail-logo span{color:#4285F4}
+.sv-gmail-srch{flex:1;background:#f0f4f8;border:none;border-radius:24px;padding:7px 16px;font-size:13px;color:#333}
+.sv-gmail-body{display:grid;grid-template-columns:180px 1fr;flex:1;overflow:hidden;min-height:0}
+.sv-gmail-side{border-right:1px solid #e0e0e0;padding:8px}
+.sv-gmail-compose{background:#c2e7ff;border-radius:16px;padding:10px 16px;font-size:13px;font-weight:600;color:#001d35;margin-bottom:8px;cursor:pointer}
+.sv-gmail-item{padding:6px 12px;border-radius:20px;font-size:13px;color:#444}
+.sv-gmail-item.active{background:#d3e3fd;font-weight:600}
+.sv-inbox{overflow-y:auto}
+.sv-email-row{display:grid;grid-template-columns:150px 1fr auto;gap:8px;padding:8px 12px;border-bottom:1px solid #f5f5f5;font-size:13px;cursor:pointer;align-items:center}
+.sv-email-row:hover{background:#f5f5f5}
+.sv-email-row.unread .sv-from,.sv-email-row.unread .sv-subj{font-weight:700;color:#000}
+.sv-from,.sv-subj{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#444}
+.sv-time{font-size:11px;color:#888;white-space:nowrap}
+.sv-open-email{display:none;padding:20px 24px;overflow-y:auto;flex:1}
+.sv-open-email.on{display:block}
+.sv-open-subj{font-size:18px;font-weight:400;color:#202124;margin-bottom:12px}
+.sv-open-meta{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}
+.sv-open-av{width:36px;height:36px;border-radius:50%;background:#4285F4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.sv-open-from{font-size:13px;font-weight:600;color:#202124}
+.sv-open-addr{font-size:11px;color:#888}
+.sv-open-body{font-size:13px;color:#333;line-height:1.9;white-space:pre-wrap;margin-bottom:16px}
+.sv-open-link{color:#1a73e8;text-decoration:underline;cursor:pointer}
+.sv-login{display:none;padding:32px 24px;background:#fff;flex:1;flex-direction:column;align-items:center;justify-content:center}
+.sv-login.on{display:flex}
+.sv-login-logo{font-size:32px;font-weight:700;color:#4285F4;margin-bottom:6px;font-family:sans-serif}
+.sv-login-sub{font-size:13px;color:#444;margin-bottom:20px;text-align:center}
+.sv-login-inp{width:100%;max-width:300px;border:1px solid #ddd;border-radius:4px;padding:12px 14px;font-size:14px;margin-bottom:10px;outline:none;font-family:sans-serif}
+.sv-login-inp:focus{border-color:#4285F4}
+.sv-login-btn{width:100%;max-width:300px;background:#4285F4;color:#fff;border:none;border-radius:4px;padding:12px;font-size:14px;font-weight:600;cursor:pointer}
+
+/* DEBRIEF */
+#s-debrief{background:var(--bg)}
+.db-wrap{max-width:780px;margin:0 auto;padding:3rem 1.5rem}
+.db-eyebrow{color:var(--green);font-size:9px;letter-spacing:5px;margin-bottom:1.5rem}
+.db-title{font-family:var(--head);font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;line-height:.9;margin-bottom:1rem}
+.db-title .red{color:var(--red)}
+.db-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--b1);margin:2rem 0}
+.db-stat{background:var(--s1);padding:1.2rem;text-align:center}
+.db-stat .dv{font-family:var(--head);font-size:1.8rem;font-weight:700;color:#fff}
+.db-stat .dl{font-size:9px;letter-spacing:3px;color:var(--muted);margin-top:4px}
+.db-wakeup{background:#0d0a00;border:1px solid #2a2000;border-left:3px solid var(--amber);padding:1.5rem;font-size:12px;color:#c8a060;line-height:2;margin:2rem 0}
+.db-wakeup strong{color:var(--amber)}
+.db-lessons{margin:2rem 0}
+.db-lesson{background:var(--s1);border-left:2px solid var(--amber);padding:1rem 1.25rem;margin-bottom:8px}
+.db-lesson .lt{color:var(--amber);font-size:9px;letter-spacing:3px;margin-bottom:6px}
+.db-lesson .lb{font-size:12px;color:var(--muted2);line-height:1.8}
+.db-badges{display:flex;gap:10px;flex-wrap:wrap;margin:2rem 0}
+.dbb{background:var(--s2);border:1px solid var(--b2);border-top:2px solid var(--green);padding:10px 14px;text-align:center}
+.dbb .di{font-size:1.1rem;display:block;margin-bottom:4px}
+.dbb .dt{font-size:8px;letter-spacing:2px;color:var(--green)}
+.db-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-pri{background:var(--green);color:#000;border:none;padding:12px 30px;font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-pri:hover{background:var(--green2)}
+.btn-sec{background:transparent;border:1px solid var(--b3);color:var(--muted2);padding:10px 20px;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all .2s}
+.btn-sec:hover{border-color:var(--green);color:var(--green)}
+
+/* GAME OVER */
+#s-gameover{background:var(--bg);display:none;min-height:100vh;padding-top:48px;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:48px 2rem 3rem}
+#s-gameover.on{display:flex}
+.go-title{font-family:var(--head);font-size:clamp(3rem,8vw,5rem);font-weight:700;color:var(--red);letter-spacing:-1px;margin-bottom:1rem}
+.go-box{background:#0d0808;border:1px solid #2a0808;border-left:3px solid var(--red);padding:1.25rem 1.5rem;max-width:520px;font-size:12px;color:#b07070;line-height:1.9;margin-bottom:1.5rem;text-align:left}
+.go-box strong{color:var(--red)}
+.go-lesson{font-size:11px;color:var(--muted2);max-width:420px;line-height:1.9;margin-bottom:2rem}
+
+/* TOAST */
+#toasts{position:fixed;top:58px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast{background:var(--s2);border:1px solid var(--b2);border-left:3px solid;padding:8px 12px;max-width:270px;font-size:11px;animation:tsIn .25s ease}
+.toast.info{border-left-color:var(--blue)}.toast.warn{border-left-color:var(--amber)}.toast.danger{border-left-color:var(--red)}
+@keyframes tsIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast-t{font-size:8px;letter-spacing:3px;margin-bottom:2px}
+.toast.info .toast-t{color:var(--blue)}.toast.warn .toast-t{color:var(--amber)}.toast.danger .toast-t{color:var(--red)}
+.toast-b{color:var(--muted2);line-height:1.5}
+
+/* ═══════════════════════
+   MOBILE PANEL SWITCHER
+═══════════════════════ */
+.mob-panel-bar{display:none;background:var(--s2);border-bottom:1px solid var(--b1);flex-shrink:0}
+.mob-panel-tabs{display:flex}
+.mob-ptab{flex:1;padding:9px 6px;font-size:10px;letter-spacing:2px;color:var(--muted2);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.mob-ptab.on{color:var(--green);border-bottom-color:var(--green)}
+.mob-vic-tab{flex:1;padding:9px 6px;font-size:10px;letter-spacing:2px;color:#888;text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:sans-serif}
+.mob-vic-tab.on{color:#0f9d58;border-bottom-color:#0f9d58}
+
+@media(max-width:800px){
+  /* NAV */
+  #topnav{padding:0 .75rem}
+  .nav-mid{display:none}
+  .nav-link{display:none}
+
+  /* INTRO */
+  .i-h{font-size:clamp(2.8rem,14vw,5rem)}
+  .i-sub{font-size:8px;letter-spacing:3px}
+  .mode-wrap{grid-template-columns:1fr}
+  .mcard{padding:1.25rem}
+
+  /* PHASE BAR */
+  .pbar{padding:5px 8px;gap:6px}
+  .pbar-label,.pbar-steps{font-size:8px}
+  #atk-phase-lbl{font-size:8px;letter-spacing:1px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ATTACKER LAYOUT — stacked with panel switcher */
+  .atk-body{grid-template-columns:1fr;grid-template-rows:1fr;position:relative}
+  .atk-left{border-right:none;border-bottom:none;position:absolute;inset:0;z-index:2;display:none}
+  .atk-left.mob-active{display:flex}
+  .atk-right{position:absolute;inset:0;z-index:2;display:none}
+  .atk-right.mob-active{display:flex}
+  .mob-panel-bar{display:block}
+
+  /* BROWSER */
+  .brow-url{font-size:9px}
+  .btab{padding:6px 10px;font-size:9px;letter-spacing:0}
+
+  /* TERMINAL */
+  .term{font-size:11px;padding:8px}
+  .term-ci{font-size:11px}
+  .term-ps{font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .term-input{padding:6px 8px;gap:6px}
+
+  /* EMAIL COMPOSE */
+  .ef-inp,.ef-ta{font-size:11px}
+  .ef-ta{min-height:100px}
+
+  /* VICTIM — stacked with panel switcher */
+  .vic-layout{grid-template-columns:1fr;grid-template-rows:1fr;position:relative}
+  .vic-sidebar{position:absolute;inset:0;z-index:2;display:none}
+  .vic-sidebar.mob-active{display:flex}
+  .vic-main{position:absolute;inset:0;z-index:2;display:none}
+  .vic-main.mob-active{display:flex}
+  .vic-topbar{padding:5px 8px;gap:8px}
+  .vic-topbar-label{font-size:8px;letter-spacing:1px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #vic-top-hint{display:none}
+  .vic-email-view{padding:16px}
+  .vev-subject{font-size:16px}
+  .vev-body{font-size:13px}
+  .vev-actions{flex-direction:column}
+  .vev-btn{width:100%;text-align:center}
+
+  /* RANSOMWARE */
+  .file-grid{grid-template-columns:repeat(4,1fr)}
+  .ransom-note{padding:1.25rem}
+  .rn-title{font-size:1.3rem}
+  .rn-amt{font-size:1.6rem}
+
+  /* STORY VIC */
+  .sv-desktop-wrap{width:95vw}
+  .sv-desktop{max-height:55vh}
+  .sv-subtitle{font-size:12px}
+  .sv-subtitle-bar{padding:8px 12px;min-height:44px}
+  .sv-gmail-body{grid-template-columns:1fr}
+  .sv-gmail-side{display:none}
+
+  /* DEBRIEF */
+  .db-wrap{padding:2rem 1rem}
+  .db-stats{grid-template-columns:repeat(2,1fr)}
+  .db-btns{flex-direction:column}
+  .db-btns button{width:100%}
+
+  /* NANO */
+  .nano-ta{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<div id="topnav">
+  <div class="nav-brand"><span>#</span>MECS</div>
+  <div class="nav-mid" id="nav-mid">// SELECT MODE TO BEGIN</div>
+  <div class="nav-right">
+    <a class="nav-link" href="https://makeeveryonecybersafe.github.io/training.html">Education</a>
+    <a class="nav-link" href="https://makeeveryonecybersafe.github.io/playground.html">Playground</a>
+    <div class="nav-tag">MODULE 03</div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<!-- ═══════════════════════ INTRO ═══════════════════════ -->
+<div id="s-intro" class="on">
+  <div class="intro-bg"></div>
+  <div class="intro-content">
+    <div class="i-chip">// MECS PLAYGROUND — MODULE 03 — ADVANCED RED TEAM</div>
+    <h1 class="i-h">THE<br><em>OPERATOR</em></h1>
+    <p class="i-sub">THREE PERSPECTIVES &nbsp;·&nbsp; NO SHORTCUTS &nbsp;·&nbsp; FREE WORLD TERMINAL &nbsp;·&nbsp; SYNTHETIC TARGET</p>
+    <div class="mode-wrap">
+      <div class="mcard m-atk" onclick="launch('atk')">
+        <div class="mcard-tag">// MODE 01 — ADVANCED</div>
+        <div class="mcard-title">Attacker</div>
+        <div class="mcard-desc">Free-world terminal. Find the email, phish the CEO, capture credentials, login, explore the system, alter files, then deploy ransomware. Do anything — the mission progresses when you do the right thing.</div>
+        <div class="mcard-cta">LAUNCH →</div>
+      </div>
+      <div class="mcard m-vic" onclick="launch('vic')">
+        <div class="mcard-tag">// MODE 02 — INTERMEDIATE</div>
+        <div class="mcard-title">Victim</div>
+        <div class="mcard-desc">You are Jeffery Alexander. Your Gmail inbox is open. The attack is already happening. Real and fake alerts — identify each one correctly or lose.</div>
+        <div class="mcard-cta">LAUNCH →</div>
+      </div>
+      <div class="mcard m-story" onclick="launch('story')">
+        <div class="mcard-tag">// MODE 03 — CINEMATIC</div>
+        <div class="mcard-title">Story</div>
+        <div class="mcard-desc">Guided attacker mode with hints. After the attack succeeds, the screen fades — and you watch everything replay from Jeffery's point of view with subtitles.</div>
+        <div class="mcard-cta">LAUNCH →</div>
+      </div>
+    </div>
+    <p class="i-warn">⚠ TRAINING ENVIRONMENT — ALL PROFILES, DATA AND SYSTEMS ARE ENTIRELY FICTITIOUS</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ATTACKER MODE ═══════════════════════ -->
+<div id="s-atk" class="fscr">
+  <div class="pbar">
+    <span id="atk-phase-lbl" style="color:var(--red);white-space:nowrap;font-size:9px;letter-spacing:3px">// ATTACKER — PHASE 01: RECON</span>
+    <div class="pbar-steps">
+      <div class="pbar-step cur" id="ps1"></div>
+      <div class="pbar-step" id="ps2"></div>
+      <div class="pbar-step" id="ps3"></div>
+      <div class="pbar-step" id="ps4"></div>
+    </div>
+    <span class="pbar-timer" id="atk-tmr">25:00</span>
+    <button class="pbar-exit" onclick="exitAll()">EXIT</button>
+  </div>
+  <div class="ticker-line"><div class="ticker-text">FREE WORLD TERMINAL · NO HINTS · USE OSINT TO FIND EMAIL · BROWSE LINKEDIN AND PORTFOLIO · AFTER LOGIN: ls cd cat nano rm mkdir cp mv wget ssh · deploy ransomware WHEN READY · DO WHATEVER YOU WANT ·</div></div>
+  <div class="mob-panel-bar"><div class="mob-panel-tabs"><div class="mob-ptab on" id="mob-atk-browser" onclick="mobSwitch('atk','browser')">BROWSER</div><div class="mob-ptab" id="mob-atk-terminal" onclick="mobSwitch('atk','terminal')">TERMINAL</div></div></div>
+  <div class="atk-body" style="flex:1;min-height:0;position:relative">
+    <!-- LEFT: browser -->
+    <div class="atk-left mob-active">
+      <div class="brow-chrome">
+        <div class="brow-tabs">
+          <div class="btab on" id="tab-li" onclick="switchTab('li','atk')">LinkedIn</div>
+          <div class="btab" id="tab-pf" onclick="switchTab('pf','atk')">Portfolio</div>
+          <div class="btab locked" id="tab-email">Email Composer</div>
+        </div>
+        <div class="brow-bar">
+          <div class="brow-dots"><span></span><span></span><span></span></div>
+          <div class="brow-url https" id="brow-url">linkedin.com/in/jeffery-alexander</div>
+        </div>
+      </div>
+      <div class="brow-pages" style="flex:1;min-height:0">
+        <div class="bpage on" id="page-li"><!-- linkedin --></div>
+        <div class="bpage" id="page-pf"><!-- portfolio --></div>
+        <div class="bpage" id="page-email" style="display:none;flex-direction:column;height:100%">
+          <div class="email-pane-hdr">// COMPOSE — TARGET: jeffery@mecs.io <span id="susp-hdr" style="color:var(--amber);font-size:9px">SUSPICION: 0%</span></div>
+          <div class="email-scroll">
+            <div class="susp-box"><div class="susp-top"><span>JEFFERY'S SUSPICION</span><span id="susp-pct">0%</span></div><div class="susp-track"><div class="susp-fill" id="susp-fill"></div></div><div style="font-size:9px;color:var(--muted);margin-top:4px" id="susp-note">He is a security expert. Generic phishing fails. Each attempt permanently increases suspicion.</div></div>
+            <div><div class="ef-label">FROM</div><input class="ef-inp" id="ef-from" placeholder="craft a convincing sender address..."></div>
+            <div><div class="ef-label">TO</div><input class="ef-inp" value="jeffery@mecs.io" readonly></div>
+            <div><div class="ef-label">SUBJECT</div><input class="ef-inp" id="ef-subj" placeholder="subject line..."></div>
+            <div><div class="ef-label">BODY</div><textarea class="ef-ta" id="ef-body" placeholder="He checks email before 9am. He just did a CMS migration. Use your recon intel."></textarea></div>
+            <button class="send-btn" id="send-btn" onclick="sendPhish('atk')">SEND EMAIL</button>
+          </div>
+          <div class="email-log" id="email-log"></div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT: terminal -->
+    <div class="atk-right" style="position:relative">
+      <div class="term-hdr">
+        <span class="term-hdr-title">// OPERATOR TERMINAL</span>
+        <div class="term-phase-pills">
+          <div class="tpill on" id="pill1">RECON</div>
+          <div class="tpill" id="pill2">PHISH</div>
+          <div class="tpill" id="pill3">ACCESS</div>
+          <div class="tpill" id="pill4">DEPLOY</div>
+        </div>
+      </div>
+      <div class="term" id="atk-term"></div>
+      <!-- nano overlay -->
+      <div class="nano-overlay" id="atk-nano">
+        <div class="nano-header"><span id="nano-filename">GNU nano — untitled</span><span>^X Exit &nbsp; ^S Save</span></div>
+        <textarea class="nano-ta" id="nano-ta" spellcheck="false"></textarea>
+        <div class="nano-footer"><span><span class="nano-key">^X</span> Exit</span><span><span class="nano-key">^S</span> Save &amp; Exit</span></div>
+      </div>
+      <div class="term-input">
+        <span class="term-ps" id="atk-ps">operator@mecs:~$</span>
+        <input class="term-ci" id="atk-ci" autocomplete="off" spellcheck="false" onkeydown="atkKeydown(event)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ VICTIM MODE ═══════════════════════ -->
+<div id="s-vic" class="fscr">
+  <div class="vic-topbar">
+    <span class="vic-topbar-label">// VICTIM MODE — YOU ARE JEFFERY ALEXANDER</span>
+    <span style="font-size:10px;color:var(--muted2)" id="vic-top-hint">Real threat or phishing? One wrong click and it's over.</span>
+    <span class="vic-timer" id="vic-tmr">06:00</span>
+    <button class="pbar-exit" onclick="exitAll()" style="margin-left:12px">EXIT</button>
+  </div>
+  <div class="mob-panel-bar" style="background:#fff;border-bottom:1px solid #e0e0e0"><div class="mob-panel-tabs"><div class="mob-vic-tab on" id="mob-vic-inbox" onclick="mobSwitch('vic','inbox')" style="color:#0f9d58;border-bottom-color:#0f9d58">INBOX</div><div class="mob-vic-tab" id="mob-vic-email" onclick="mobSwitch('vic','email')">EMAIL</div></div></div>
+  <div class="vic-layout" style="flex:1;min-height:0;position:relative">
+    <div class="vic-sidebar mob-active" id="vic-sidebar-panel">
+      <div class="vic-sidebar-top"><button class="vic-compose-btn">✏ Compose</button></div>
+      <div style="padding:4px 0">
+        <div class="vic-nav-item active">📥 Inbox <span style="margin-left:auto;background:#0f9d58;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700" id="vic-badge">8</span></div>
+        <div class="vic-nav-item">⭐ Starred</div>
+        <div class="vic-nav-item">📤 Sent</div>
+        <div class="vic-nav-item">🗑 Trash</div>
+      </div>
+      <div class="vic-inbox-list" id="vic-list"></div>
+    </div>
+    <div class="vic-main" id="vic-main-panel">
+      <div class="vic-pbar">
+        <div class="vic-hud-item"><span class="hk">Correct:</span><span class="hv good" id="vic-correct">0</span></div>
+        <div class="vic-hud-item" style="margin-left:12px"><span class="hk">Wrong:</span><span class="hv bad" id="vic-wrong">0</span></div>
+        <div class="vic-hud-item" style="margin-left:12px"><span class="hk">Left:</span><span class="hv" id="vic-left">8</span></div>
+        <div style="margin-left:auto;font-size:11px;color:#888" id="vic-status">Read every email carefully before deciding.</div>
+      </div>
+      <div class="vic-email-view" id="vic-view">
+        <div style="text-align:center;padding:4rem 1rem;color:#aaa;font-size:14px"><div style="font-size:32px;margin-bottom:12px">📧</div>Select an email to read it.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ RANSOMWARE ═══════════════════════ -->
+<div id="s-ransom">
+  <div class="ransom-pre">// RANSOMWARE PAYLOAD DEPLOYED — ENCRYPTING MECS FILESYSTEM</div>
+  <div class="file-grid" id="file-grid"></div>
+  <div class="ransom-note" id="ransom-note">
+    <span class="rn-skull">💀</span>
+    <div class="rn-title">YOUR FILES ARE ENCRYPTED</div>
+    <div class="rn-body">All files on the MECS internal network have been encrypted with AES-256.<br>Course materials. Donor database. Partner contracts. HR records. Source code.<br><span style="color:var(--red);font-weight:700">Every single file.</span></div>
+    <div class="rn-amt">₹8,50,000</div>
+    <div class="rn-sub">EQUIVALENT: 0.142 BTC</div>
+    <div class="rn-wallet">1A2B3mECS4C5D6rYpT8J9K0MECS1N2P3Q4R5S6T7U8V</div>
+    <div class="rn-cd" id="rn-cd">Pay within: 72:00:00</div>
+    <div style="font-size:10px;color:var(--muted2);margin-bottom:16px">After 72 hours the key is destroyed. Your data will be sold.</div>
+    <button class="rn-btn" onclick="afterRansom()">CONTINUE →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ STORY MODE ═══════════════════════ -->
+<div id="s-story" class="fscr">
+  <div class="pbar">
+    <span style="color:var(--blue);white-space:nowrap;font-size:9px;letter-spacing:3px">// STORY MODE — GUIDED ATTACKER</span>
+    <div class="pbar-steps">
+      <div class="pbar-step cur" id="sp1"></div>
+      <div class="pbar-step" id="sp2"></div>
+      <div class="pbar-step" id="sp3"></div>
+      <div class="pbar-step" id="sp4"></div>
+    </div>
+    <span class="pbar-timer" id="story-tmr">25:00</span>
+    <button class="pbar-exit" onclick="exitAll()">EXIT</button>
+  </div>
+  <div class="ticker-line"><div class="ticker-text">STORY MODE · HINTS ENABLED · FOLLOW OBJECTIVES · AFTER ATTACK SUCCEEDS SCREEN FADES · JEFFERY'S POV PLAYS AUTOMATICALLY WITH SUBTITLES ·</div></div>
+  <div class="mob-panel-bar"><div class="mob-panel-tabs"><div class="mob-ptab on" id="mob-story-browser" onclick="mobSwitch('story','browser')">BROWSER</div><div class="mob-ptab" id="mob-story-terminal" onclick="mobSwitch('story','terminal')">TERMINAL</div></div></div>
+  <div class="atk-body" style="flex:1;min-height:0;position:relative">
+    <div class="atk-left mob-active">
+      <div class="brow-chrome">
+        <div class="brow-tabs">
+          <div class="btab on" id="stab-li" onclick="switchTab('li','story')">LinkedIn</div>
+          <div class="btab" id="stab-pf" onclick="switchTab('pf','story')">Portfolio</div>
+          <div class="btab locked" id="stab-email">Email Composer</div>
+        </div>
+        <div class="brow-bar">
+          <div class="brow-dots"><span></span><span></span><span></span></div>
+          <div class="brow-url https" id="story-brow-url">linkedin.com/in/jeffery-alexander</div>
+        </div>
+      </div>
+      <div class="brow-pages" style="flex:1;min-height:0">
+        <div class="bpage on" id="spage-li"></div>
+        <div class="bpage" id="spage-pf"></div>
+        <div class="bpage" id="spage-email" style="display:none;flex-direction:column;height:100%">
+          <div class="email-pane-hdr">// COMPOSE — TARGET: jeffery@mecs.io <span id="s-susp-hdr" style="color:var(--amber);font-size:9px">SUSPICION: 0%</span></div>
+          <div class="email-scroll">
+            <div style="background:#0a1a0a;border:1px solid var(--b2);border-left:2px solid var(--green);padding:8px 12px;font-size:11px;color:var(--green);line-height:1.7">💡 <strong>HINT:</strong> Jeffery posted about a CMS migration 2 days ago. He uses Google Drive. He checks email before 9am. Reference the CMS. Use his name. The "from" domain should look like a platform he uses.</div>
+            <div class="susp-box"><div class="susp-top"><span>SUSPICION</span><span id="s-susp-pct">0%</span></div><div class="susp-track"><div class="susp-fill" id="s-susp-fill"></div></div></div>
+            <div><div class="ef-label">FROM</div><input class="ef-inp" id="sef-from" placeholder="e.g. noreply@cms-mecs-platform.com"></div>
+            <div><div class="ef-label">TO</div><input class="ef-inp" value="jeffery@mecs.io" readonly></div>
+            <div><div class="ef-label">SUBJECT</div><input class="ef-inp" id="sef-subj" placeholder="subject line..."></div>
+            <div><div class="ef-label">BODY</div><textarea class="ef-ta" id="sef-body" placeholder="Write a convincing phishing email..."></textarea></div>
+            <button class="send-btn" id="s-send-btn" onclick="sendPhish('story')">SEND EMAIL</button>
+          </div>
+          <div class="email-log" id="s-email-log"></div>
+        </div>
+      </div>
+    </div>
+    <div class="atk-right" style="position:relative">
+      <div class="term-hdr">
+        <span class="term-hdr-title">// STORY TERMINAL</span>
+        <span style="font-size:9px;color:var(--blue);letter-spacing:2px">HINTS ENABLED</span>
+      </div>
+      <div class="term" id="story-term"></div>
+      <div class="nano-overlay" id="story-nano">
+        <div class="nano-header"><span id="story-nano-filename">GNU nano</span><span>^X Exit &nbsp; ^S Save</span></div>
+        <textarea class="nano-ta" id="story-nano-ta" spellcheck="false"></textarea>
+        <div class="nano-footer"><span><span class="nano-key">^X</span> Exit</span><span><span class="nano-key">^S</span> Save</span></div>
+      </div>
+      <div class="term-input">
+        <span class="term-ps" id="story-ps">operator@mecs:~$</span>
+        <input class="term-ci" id="story-ci" autocomplete="off" spellcheck="false" onkeydown="storyKeydown(event)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ STORY VICTIM ═══════════════════════ -->
+<div id="s-story-vic">
+  <div class="sv-fade" id="sv-fade"></div>
+  <div class="sv-label" id="sv-label">// JEFFERY'S POINT OF VIEW</div>
+  <div class="sv-desktop-wrap">
+    <div class="sv-desktop" id="sv-desktop">
+      <div style="background:#333;padding:6px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block"></span>
+        <span style="font-size:10px;color:#aaa;margin-left:8px;font-family:sans-serif">Gmail — jeffery@mecs.io</span>
+      </div>
+      <!-- gmail -->
+      <div id="sv-gmail" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0">
+        <div class="sv-gmail-nav"><div class="sv-gmail-logo">M<span>ail</span></div><input class="sv-gmail-srch" placeholder="Search mail" readonly></div>
+        <div class="sv-gmail-body">
+          <div class="sv-gmail-side">
+            <div class="sv-gmail-compose">✏ Compose</div>
+            <div class="sv-gmail-item active">📥 Inbox</div>
+            <div class="sv-gmail-item">⭐ Starred</div>
+          </div>
+          <div class="sv-inbox" id="sv-inbox-list">
+            <div class="sv-email-row unread" id="sv-phish-row" style="cursor:pointer" onclick="svOpenEmail()"><span class="sv-from">CMS Platform Team</span><span class="sv-subj">[MECS] Jeffery, your Q4 course content is ready to review</span><span class="sv-time">09:14</span></div>
+            <div class="sv-email-row unread"><span class="sv-from">GitHub Security</span><span class="sv-subj">New sign-in to your account</span><span class="sv-time">08:52</span></div>
+            <div class="sv-email-row"><span class="sv-from">Maya Krishnan</span><span class="sv-subj">Q4 module checklist — review needed</span><span class="sv-time">08:31</span></div>
+            <div class="sv-email-row"><span class="sv-from">Namecheap</span><span class="sv-subj">Domain mecs.io renewal (60 days)</span><span class="sv-time">Yesterday</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- open email -->
+      <div class="sv-open-email" id="sv-open-email">
+        <div class="sv-open-subj">[MECS] Jeffery, your Q4 course content is ready to review</div>
+        <div class="sv-open-meta">
+          <div class="sv-open-av">C</div>
+          <div><div class="sv-open-from">CMS Platform Team</div><div class="sv-open-addr" id="sv-addr">noreply@cms-mecs-platform.com</div></div>
+          <div style="font-size:11px;color:#888;margin-left:auto;font-family:sans-serif">09:14 AM</div>
+        </div>
+        <div class="sv-open-body">Hi Jeffery,
+
+Your team has uploaded the Q4 course modules to the MECS workspace following this week's CMS migration. Maya has flagged two modules for your approval before they go live.
+
+→ <span class="sv-open-link" id="sv-link" onclick="svClickLink()">Review Course Content</span>
+
+This link expires in 24 hours.
+
+— CMS Platform Team</div>
+      </div>
+      <!-- login page -->
+      <div class="sv-login" id="sv-login">
+        <div class="sv-login-logo">G</div>
+        <div style="font-size:18px;font-weight:400;color:#202124;margin-bottom:4px;font-family:sans-serif">Sign in</div>
+        <div class="sv-login-sub">to continue to CMS Platform</div>
+        <input class="sv-login-inp" id="sv-email-inp" placeholder="Email or phone" readonly>
+        <input class="sv-login-inp" id="sv-pass-inp" placeholder="Enter your password" type="password" readonly>
+        <button class="sv-login-btn">Next</button>
+      </div>
+    </div>
+    <!-- SUBTITLE BAR -->
+    <div class="sv-subtitle-bar">
+      <div class="sv-subtitle" id="sv-subtitle">
+        <span class="who" id="sv-sub-who"></span>
+        <span id="sv-sub-text"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div id="s-gameover" class="scr">
+  <div class="go-title">GAME OVER</div>
+  <div class="go-box"><strong>// WHAT HAPPENED</strong><br><span id="go-reason">—</span></div>
+  <div class="go-lesson" id="go-lesson"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="btn-pri" onclick="restartMode()">TRY AGAIN</button>
+    <button class="btn-sec" onclick="exitAll()">CHANGE MODE</button>
+  </div>
+</div>
+
+<!-- DEBRIEF -->
+<div id="s-debrief" class="scr">
+  <div class="db-wrap">
+    <div class="db-eyebrow">// SIMULATION COMPLETE — DEBRIEF</div>
+    <h2 class="db-title" id="db-title">YOU BREACHED<br><span class="red">MECS</span></h2>
+    <div class="db-stats" id="db-stats"></div>
+    <div class="db-wakeup" id="db-wakeup"></div>
+    <div style="color:var(--amber);font-size:9px;letter-spacing:4px;margin-bottom:1rem">// WHAT WOULD HAVE STOPPED THIS</div>
+    <div class="db-lessons">
+      <div class="db-lesson"><div class="lt">// VERIFY THE FULL SENDER DOMAIN</div><div class="lb">Display names are trivially spoofed. "CMS Platform Team" means nothing — the domain is the only signal. cms-mecs-platform.com is not a real MECS domain. Always expand the from field before clicking anything.</div></div>
+      <div class="db-lesson"><div class="lt">// REDUCE OSINT SURFACE</div><div class="lb">Jeffery's email, morning routine, CMS migration, tools used — all public. Attackers use this to craft personalized phishing that bypasses generic filters. Audit what you and your team share online.</div></div>
+      <div class="db-lesson"><div class="lt">// HARDWARE 2FA ON ALL ACCOUNTS</div><div class="lb">A captured password with hardware 2FA is worthless. The attacker cannot proceed without the physical token. This single control stops credential phishing entirely at the access stage.</div></div>
+      <div class="db-lesson"><div class="lt">// IMMUTABLE OFFSITE BACKUPS</div><div class="lb">Ransomware only wins when it destroys your only copy. Offsite, immutable backups mean you restore and move on without paying. All 31 MECS files were lost in 47 seconds.</div></div>
+      <div class="db-lesson"><div class="lt">// WRITTEN INCIDENT RESPONSE PLAN</div><div class="lb">When the ransom note appeared, MECS had no documented plan. Who do you call? Do you pay? How do you notify donors? Every org needs this written, tested, and ready before the attack happens.</div></div>
+    </div>
+    <div class="db-badges" id="db-badges"></div>
+    <div class="db-btns">
+      <button class="btn-pri" onclick="exitAll()">BACK TO MODES</button>
+      <button class="btn-sec" onclick="window.location.href='https://makeeveryonecybersafe.github.io/playground.html'">← PLAYGROUND</button>
+    </div>
+    <p style="font-size:9px;color:var(--muted);margin-top:2rem;letter-spacing:2px">⚠ TRAINING ENVIRONMENT — NO REAL SYSTEMS WERE ACCESSED</p>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let mode = null;
+let atkSec=1500,vicSec=360,storySec=1500;
+let atkInt=null,vicInt=null,storyInt=null,rnInt=null;
+let atkPhase=1,storyPhaseN=1;
+let emailCaptured=false,storyEmailCaptured=false;
+let phishAttempts=0,suspicion=0;
+let storyPhishAttempts=0,storySuspicion=0;
+let vicCorrect=0,vicWrong=0,vicSelected=null,vicStates={};
+let cmdHist=[],histIdx=-1;
+let storyCmdHist=[],storyHistIdx=-1;
+let postRansomMode=null;
+let nanoOpen=false,nanoCurrentFile=null,nanoPrefix='atk';
+
+// ═══════════════════════════════════════════════════
+// VIRTUAL FILESYSTEM  (after login)
+// ═══════════════════════════════════════════════════
+let vfs = {};
+
+function resetVFS(){
+  vfs = {
+    '/': {type:'dir', children:['home','mecs-drive','var','etc','tmp']},
+    '/home': {type:'dir', children:['jeffery']},
+    '/home/jeffery': {type:'dir', children:['Desktop','Documents','Downloads']},
+    '/home/jeffery/Desktop': {type:'dir', children:['mecs_shortcut.lnk']},
+    '/home/jeffery/Documents': {type:'dir', children:['personal_notes.txt','CEH_notes.txt']},
+    '/home/jeffery/Documents/personal_notes.txt': {type:'file', content:'Reminders:\n- Call Maya about Q4 modules\n- Renew mecs.io domain before Jan\n- Password manager migration pending\n\nDog vet: Bruno appt Nov 15'},
+    '/home/jeffery/Documents/CEH_notes.txt': {type:'file', content:'CEH v12 Study Notes\n\nModule 1: Ethical Hacking Fundamentals\nModule 2: Footprinting & Recon\nModule 3: Scanning Networks\n...\n\nExam passed: Oct 2024'},
+    '/mecs-drive': {type:'dir', children:['courses','admin','donor_data','CEO','logs','backups']},
+    '/mecs-drive/courses': {type:'dir', children:['Personal_Defense.html','Phishing_101.html','Network_Safety.html','AI_Security_DRAFT.html']},
+    '/mecs-drive/courses/Personal_Defense.html': {type:'file', content:'<!DOCTYPE html><html><body><h1>Personal Defense Module</h1><p>Published course content...</p></body></html>'},
+    '/mecs-drive/courses/AI_Security_DRAFT.html': {type:'file', content:'DRAFT - DO NOT PUBLISH\n\nAI Security Awareness Module\nAuthor: Jeffery Alexander\n\nThis module covers LLM prompt injection, deepfake detection, and AI-assisted phishing.\nStatus: 60% complete - target Q1 2025 release'},
+    '/mecs-drive/admin': {type:'dir', children:['team_emails.txt','vendor_contracts.pdf','budget_2024.xlsx','api_keys.env']},
+    '/mecs-drive/admin/team_emails.txt': {type:'file', content:'MECS Team Contacts\n\njeffery@mecs.io - CEO\nmaya@mecs.io - Head of Education\nrajan@mecs.io - Infrastructure\naathithya@mecs.io - Founder\n\nIT Support: it@mecs.io\nFinance: finance@mecs.io'},
+    '/mecs-drive/admin/api_keys.env': {type:'file', content:'# MECS Production Environment\n# DO NOT COMMIT TO GIT\n\nGOOGLE_DRIVE_API=AIzaSyB_FAKE_KEY_1234567890\nNOTION_SECRET=secret_fake_notion_key_abc\nSMTP_PASS=M3csEmail2024!\nDB_PASSWORD=Mecs_DB_Secure_2024\nSTRIPE_SECRET=sk_live_FAKE_STRIPE_KEY'},
+    '/mecs-drive/donor_data': {type:'dir', children:['donors_2024.csv','pledge_tracking.xlsx','contact_list.pdf']},
+    '/mecs-drive/donor_data/donors_2024.csv': {type:'file', content:'id,name,org,email,pledge_inr\n001,Ramesh Kumar,TechCorp India,rkumar@techcorp.in,250000\n002,Priya Nair,EduFoundation,pnair@edufound.org,180000\n003,Arjun Singh,DataShield Corp,asingh@datashield.com,500000\n004,Meera Patel,Chennai Angels,mpatel@chngls.in,120000\n...(43 more records)'},
+    '/mecs-drive/CEO': {type:'dir', children:['Q4_strategy.pdf','board_minutes_oct.pdf','partnership_NDA_datashield.pdf','personal_calendar.ics']},
+    '/mecs-drive/CEO/Q4_strategy.pdf': {type:'file', content:'CONFIDENTIAL — Q4 2024 MECS STRATEGY\n\n1. Geographic Expansion: Bangalore pilot Q1 2025 (Budget: ₹18L)\n2. New Partnerships: DataShield Corp NDA signed — integration pending\n3. Revenue Target: ₹45L by Dec 2024\n4. Headcount: 2 new educators, 1 developer\n5. Module Pipeline: AI Security, Deepfakes, Privacy Ops\n\nBoard presentation: Nov 30, 2024'},
+    '/mecs-drive/logs': {type:'dir', children:['auth.log','access.log','error.log']},
+    '/mecs-drive/logs/auth.log': {type:'file', content:'2024-11-01 09:14:52 LOGIN jeffery@mecs.io SUCCESS IP:45.77.23.11\n2024-11-01 09:15:02 READ /mecs-drive/CEO/Q4_strategy.pdf OK\n2024-11-01 08:55:11 LOGIN maya@mecs.io SUCCESS IP:192.168.1.45\n2024-10-31 18:44:33 LOGIN rajan@mecs.io SUCCESS IP:192.168.1.12\n2024-10-31 17:22:01 FAILED_LOGIN unknown IP:203.0.113.99 (3 attempts)'},
+    '/mecs-drive/backups': {type:'dir', children:['backup_oct.tar.gz','backup_sep.tar.gz']},
+    '/mecs-drive/backups/backup_oct.tar.gz': {type:'file', content:'[binary archive — 2.3GB — last modified Oct 31 2024]'},
+    '/var': {type:'dir', children:['log','www']},
+    '/var/log': {type:'dir', children:['syslog','kern.log']},
+    '/var/log/syslog': {type:'file', content:'Nov  1 09:10:01 mecs-server systemd: Started Session.\nNov  1 09:12:44 mecs-server sshd: Accepted publickey for jeffery\nNov  1 09:14:01 mecs-server CRON: pam_unix(cron:session): opened\nNov  1 09:15:22 mecs-server kernel: iptables: new connection from 45.77.23.11'},
+    '/etc': {type:'dir', children:['passwd','hosts','crontab']},
+    '/etc/passwd': {type:'file', content:'root:x:0:0:root:/root:/bin/bash\njeffery:x:1000:1000:Jeffery Alexander,,,:/home/jeffery:/bin/bash\nmaya:x:1001:1001:Maya Krishnan,,,:/home/maya:/bin/bash\nrajan:x:1002:1002:Rajan Mehta,,,:/home/rajan:/bin/bash'},
+    '/etc/hosts': {type:'file', content:'127.0.0.1 localhost\n192.168.1.10 mecs-server\n192.168.1.11 mecs-db\n192.168.1.12 mecs-backup\n192.168.1.45 maya-workstation\n192.168.1.46 rajan-workstation'},
+    '/tmp': {type:'dir', children:[]}
+  };
+}
+
+let cwd = '/home/jeffery';
+let loggedIn = false;
+let alertLevel = 0; // 0=safe, 1=suspicious, 2=critical
+
+// ═══════════════════════════════════════════════════
+// SCREEN
+// ═══════════════════════════════════════════════════
+function showScreen(id){
+  ['s-intro','s-atk','s-vic','s-ransom','s-story','s-story-vic','s-gameover','s-debrief'].forEach(s=>{
+    let el=document.getElementById(s);
+    if(el) el.classList.remove('on');
+  });
+  let el=document.getElementById(id);
+  if(el) el.classList.add('on');
+  document.getElementById('nav-mid').textContent=id==='s-intro'?'// SELECT MODE TO BEGIN':'// '+id.replace('s-','').toUpperCase()+' ACTIVE';
+}
+function exitAll(){clearTimers();mode=null;showScreen('s-intro')}
+function clearTimers(){clearInterval(atkInt);clearInterval(vicInt);clearInterval(storyInt);clearInterval(rnInt)}
+function restartMode(){if(mode)launch(mode)}
+function launch(m){clearTimers();mode=m;if(m==='atk')initAtk();else if(m==='vic')initVic();else initStory()}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function toast(type,title,body,dur){
+  dur=dur||4000;
+  let w=document.getElementById('toasts');
+  let el=document.createElement('div');
+  el.className='toast '+type;
+  el.innerHTML='<div class="toast-t">'+title+'</div><div class="toast-b">'+body+'</div>';
+  w.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},dur);
+}
+
+// ═══════════════════════════════════════════════════
+// BROWSER / TAB SWITCH
+// ═══════════════════════════════════════════════════
+function injectLinkedIn(prefix){
+  let el=document.getElementById(prefix==='atk'?'page-li':'spage-li');
+  if(!el||el.innerHTML.trim()!='') return;
+  el.innerHTML=`<div class="li-wrap"><div class="li-nav"><div class="li-logo">in</div><input class="li-srch" placeholder="Search" readonly></div><div class="li-body"><div class="li-cover"></div><div class="li-av-row"><div class="li-av">JA</div><div><div class="li-name">Jeffery Alexander</div><div class="li-hl">Co-Founder &amp; CEO @ MakeEveryoneCyberSafe | Red Team Instructor | CEH v12</div><div class="li-loc">Chennai, Tamil Nadu · 312 followers</div><button class="li-conn">Connect</button></div></div><div class="li-sec"><h3>About</h3><p style="font-size:12px;color:#333;line-height:1.7">10+ years in offensive security. Founded MECS to make cybersecurity education accessible to everyone — from school kids to enterprise teams. Formerly Red Team Lead at ApexArmorX (2014–2016). CEH v12 certified. For speaking or collaboration, visit my personal site.</p></div><div class="li-sec"><h3>Activity</h3><div class="li-post"><div class="li-ph"><div class="li-pav">JA</div><div><div class="li-pname">Jeffery Alexander</div><div class="li-ptime">2 days ago</div></div></div><div class="li-pbody">Big week for MECS — we finally migrated to the new content management system. The whole team can now collaborate on course modules in real time. More details on my personal site if you want to know what we're building 🚀</div><div class="li-preact">👍 234 reactions · 18 comments</div></div><div class="li-post"><div class="li-ph"><div class="li-pav">JA</div><div><div class="li-pname">Jeffery Alexander</div><div class="li-ptime">1 week ago</div></div></div><div class="li-pbody">Reminder: adversaries always do their homework. Before any red team engagement I run full OSINT on the target. You'd be surprised what people leave in the open — emails, schedules, internal tools. Audit your digital footprint regularly.</div><div class="li-preact">👍 412 reactions</div></div></div></div></div>`;
+}
+
+function injectPortfolio(prefix){
+  let el=document.getElementById(prefix==='atk'?'page-pf':'spage-pf');
+  if(!el||el.innerHTML.trim()!='') return;
+  let clickFn=prefix==='atk'?'captureEmail()':'storyCaptureEmail()';
+  el.innerHTML=`<div class="pf-wrap"><div class="pf-topbar"><div class="pf-logo">#MECS — TEAM</div><span style="font-size:9px;color:#333">makeeveryonecybersafe.github.io/co-founder.html</span></div><div class="pf-hero"><div class="pf-av">JA</div><div class="pf-name">Jeffery Alexander</div><div class="pf-role">CO-FOUNDER & CEO — MECS</div><p style="font-size:11px;color:#666;margin-top:8px;max-width:380px;margin:8px auto 0;line-height:1.7">Cybersecurity trainer, red team instructor, founder of MECS. Adyar, Chennai.</p></div><div class="pf-sec"><h3>// CONTACT</h3><div class="pf-row"><span class="pf-k">email</span><span class="pf-v pf-email" onclick="${clickFn}">jeffery@mecs.io &nbsp;← click to use</span></div><div class="pf-row"><span class="pf-k">note</span><span class="pf-v" style="color:#555;font-size:11px">"I check email every morning before 9am. Best way to reach me."</span></div><div class="pf-row"><span class="pf-k">linkedin</span><span class="pf-v">linkedin.com/in/jeffery-alexander</span></div><div class="pf-row"><span class="pf-k">location</span><span class="pf-v">Adyar, Chennai, Tamil Nadu</span></div></div><div class="pf-sec"><h3>// RECENT</h3><div style="font-size:12px;color:#666;border-left:2px solid #1a1a1a;padding-left:10px;margin-bottom:8px;line-height:1.7">"Big week — just migrated the whole team to a new CMS. Collaboration is finally smooth." — LinkedIn, 2 days ago</div><div style="font-size:12px;color:#666;border-left:2px solid #1a1a1a;padding-left:10px;line-height:1.7">"For speaking or collaboration, email is always best." — Instagram bio</div></div></div>`;
+}
+
+function switchTab(tab,prefix){
+  let tabs=['li','pf','email'];
+  let pg=prefix==='atk'?{li:'page-li',pf:'page-pf',email:'page-email'}:{li:'spage-li',pf:'spage-pf',email:'spage-email'};
+  let tb=prefix==='atk'?{li:'tab-li',pf:'tab-pf',email:'tab-email'}:{li:'stab-li',pf:'stab-pf',email:'stab-email'};
+  tabs.forEach(t=>{
+    let pg_el=document.getElementById(pg[t]);
+    let tb_el=document.getElementById(tb[t]);
+    if(pg_el){pg_el.classList.toggle('on',t===tab);if(t==='email'){pg_el.style.display=t===tab?'flex':'none';pg_el.classList.remove('on')}}
+    if(tb_el) tb_el.classList.toggle('on',t===tab);
+  });
+  let urls={li:'linkedin.com/in/jeffery-alexander',pf:'makeeveryonecybersafe.github.io/co-founder.html',email:'compose://phishing-email'};
+  let barId=prefix==='atk'?'brow-url':'story-brow-url';
+  let bar=document.getElementById(barId);
+  if(bar){bar.textContent=urls[tab]||'';bar.className='brow-url'+(tab!=='email'?' https':'');}
+  if(tab==='li') injectLinkedIn(prefix);
+  if(tab==='pf') injectPortfolio(prefix);
+}
+
+// ═══════════════════════════════════════════════════
+// ATTACKER INIT
+// ═══════════════════════════════════════════════════
+function initAtk(){
+  showScreen('s-atk');
+  atkSec=1500;atkPhase=1;emailCaptured=false;phishAttempts=0;suspicion=0;
+  loggedIn=false;alertLevel=0;cwd='/home/jeffery';cmdHist=[];histIdx=-1;
+  resetVFS();
+  // reset browser
+  document.getElementById('page-li').innerHTML='';
+  document.getElementById('page-pf').innerHTML='';
+  document.getElementById('page-email').style.display='none';
+  document.getElementById('tab-email').className='btab locked';
+  document.getElementById('ef-from').value='';document.getElementById('ef-subj').value='';document.getElementById('ef-body').value='';
+  document.getElementById('email-log').innerHTML='';
+  document.getElementById('susp-fill').style.width='0%';document.getElementById('susp-pct').textContent='0%';
+  document.getElementById('send-btn').disabled=false;document.getElementById('send-btn').textContent='SEND EMAIL';
+  switchTab('li','atk');
+  setAtkPhase(1);
+  // terminal
+  let t=document.getElementById('atk-term');
+  t.innerHTML='';
+  tAdd('atk-term','<span class="p">operator@mecs:~$</span> <span class="o">secure shell initialized — free world mode</span>');
+  tAdd('atk-term','<span class="o">target: makeeveryonecybersafe.github.io</span>');
+  tAdd('atk-term','<span class="dim">──────────────────────────────────────────</span>');
+  tAdd('atk-term','<span class="w">[PHASE 01]</span> <span class="o">begin reconnaissance — type <span class="s">help</span></span>');
+  // timer
+  atkInt=setInterval(()=>{
+    atkSec--;
+    let m=Math.floor(atkSec/60),s=atkSec%60;
+    document.getElementById('atk-tmr').textContent=m+':'+(s<10?'0':'')+s;
+    if(atkSec<=0){clearInterval(atkInt);gameOver('Timer expired.','Speed matters in real engagements.');}
+  },1000);
+  setTimeout(()=>document.getElementById('atk-ci').focus(),100);
+}
+
+function setAtkPhase(n){
+  atkPhase=n;
+  let labels=['','// ATTACKER — PHASE 01: RECON','// ATTACKER — PHASE 02: PHISHING','// ATTACKER — PHASE 03: ACCESS','// ATTACKER — PHASE 04: DEPLOY'];
+  document.getElementById('atk-phase-lbl').textContent=labels[n]||'';
+  ['ps1','ps2','ps3','ps4'].forEach((id,i)=>{
+    let p=document.getElementById(id);if(!p)return;
+    p.className='pbar-step'+(i<n-1?' done':i===n-1?' cur':'');
+  });
+  ['pill1','pill2','pill3','pill4'].forEach((id,i)=>{
+    let p=document.getElementById(id);if(!p)return;
+    p.className='tpill'+(i===n-1?' on':'');
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// TERMINAL ADD LINE
+// ═══════════════════════════════════════════════════
+function tAdd(termId,html,noPrompt){
+  let t=document.getElementById(termId);if(!t)return;
+  let cursors=t.querySelectorAll('.cur');
+  cursors.forEach(c=>{if(c.parentElement)c.parentElement.remove()});
+  let d=document.createElement('div');d.innerHTML=html;t.appendChild(d);
+  if(!noPrompt){
+    let psId=termId==='atk-term'?'atk-ps':'story-ps';
+    let ps=document.getElementById(psId);
+    let psText=ps?ps.textContent:'$';
+    let cur=document.createElement('div');
+    cur.innerHTML='<span class="'+(psText.includes('#')?'p root':'p')+'">'+escHtml(psText)+'</span> <span class="cur"></span>';
+    t.appendChild(cur);
+  }
+  t.scrollTop=t.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════
+// FREE WORLD FILESYSTEM COMMANDS
+// ═══════════════════════════════════════════════════
+function resolvePath(p){
+  if(!p||p==='~') return '/home/jeffery';
+  if(p.startsWith('/')) return normPath(p);
+  if(p.startsWith('~/')) return normPath('/home/jeffery/'+p.slice(2));
+  return normPath(cwd+'/'+p);
+}
+function normPath(p){
+  let parts=p.split('/').filter(x=>x!=='');
+  let stack=[];
+  parts.forEach(part=>{if(part==='..')stack.pop();else if(part!='.')stack.push(part);});
+  return '/'+stack.join('/');
+}
+function getNode(path){return vfs[path]}
+function setNode(path,node){vfs[path]=node}
+
+function fsCmd(termId,parts){
+  let cmd=parts[0];let arg=parts[1]||'';let arg2=parts[2]||'';
+  let lines=[];
+  switch(cmd){
+    case 'ls':{
+      let p=arg?resolvePath(arg):cwd;
+      let node=getNode(p);
+      if(!node){lines.push('<span class="e">ls: cannot access \''+escHtml(arg)+'\': No such file or directory</span>');break;}
+      if(node.type==='file'){lines.push(escHtml(p.split('/').pop()));break;}
+      let children=node.children||[];
+      if(children.length===0){lines.push('<span class="o">(empty directory)</span>');break;}
+      let out='';
+      children.forEach(c=>{
+        let cp=normPath(p+'/'+c);
+        let cn=getNode(cp);
+        if(cn&&cn.type==='dir') out+='<span class="b">'+escHtml(c)+'/</span>  ';
+        else out+='<span class="o">'+escHtml(c)+'</span>  ';
+      });
+      lines.push(out);
+      break;}
+    case 'ls -la':
+    case 'ls -l':{
+      let p=arg?resolvePath(arg):cwd;
+      let node=getNode(p);
+      if(!node){lines.push('<span class="e">ls: cannot access: No such file or directory</span>');break;}
+      let children=node.type==='dir'?node.children:[];
+      lines.push('<span class="o">total '+(children.length*4)+'</span>');
+      lines.push('<span class="o">drwxr-xr-x jeffery jeffery .</span>');
+      children.forEach(c=>{
+        let cp=normPath(p+'/'+c);
+        let cn=getNode(cp);
+        let perm=cn&&cn.type==='dir'?'drwxr-xr-x':'<span class="o">-rw-r--r--</span>';
+        lines.push(perm+' <span class="o">jeffery jeffery</span> <span class="s">'+escHtml(c)+'</span>');
+      });
+      break;}
+    case 'pwd':lines.push('<span class="o">'+escHtml(cwd)+'</span>');break;
+    case 'cd':{
+      let dest=resolvePath(arg||'~');
+      let node=getNode(dest);
+      if(!node){lines.push('<span class="e">cd: '+escHtml(arg)+': No such file or directory</span>');break;}
+      if(node.type!=='dir'){lines.push('<span class="e">cd: not a directory</span>');break;}
+      cwd=dest;
+      let psEl=document.getElementById(termId==='atk-term'?'atk-ps':'story-ps');
+      if(psEl){let user=loggedIn?'root':'operator';psEl.textContent=user+'@mecs:'+cwd+'#';}
+      // no output on success (unix convention)
+      return [];
+    }
+    case 'cat':{
+      if(!arg){lines.push('<span class="e">cat: missing operand</span>');break;}
+      let p=resolvePath(arg);
+      let node=getNode(p);
+      if(!node){lines.push('<span class="e">cat: '+escHtml(arg)+': No such file or directory</span>');break;}
+      if(node.type==='dir'){lines.push('<span class="e">cat: '+escHtml(arg)+': Is a directory</span>');break;}
+      // alert on sensitive files
+      if(p.includes('api_keys')||p.includes('passwd')||p.includes('donor')){
+        alertLevel=Math.min(alertLevel+1,2);
+        checkAlerts(termId);
+      }
+      let content=node.content||'(empty file)';
+      content.split('\n').forEach(l=>lines.push('<span class="o">'+escHtml(l)+'</span>'));
+      break;}
+    case 'nano':
+    case 'edit':
+    case 'vi':
+    case 'vim':{
+      if(!arg){lines.push('<span class="e">nano: missing filename</span>');break;}
+      let p=resolvePath(arg);
+      let node=getNode(p);
+      let content=node?(node.type==='file'?node.content:''):'';
+      openNano(termId,p,content);
+      return [];
+    }
+    case 'rm':{
+      let target=arg==='-rf'||arg==='-r'?arg2:arg;
+      if(!target){lines.push('<span class="e">rm: missing operand</span>');break;}
+      let p=resolvePath(target);
+      let node=getNode(p);
+      if(!node){lines.push('<span class="e">rm: cannot remove \''+escHtml(target)+'\': No such file or directory</span>');break;}
+      // remove from parent
+      let parent=normPath(p+'/..');
+      let pNode=getNode(parent);
+      let fname=p.split('/').pop();
+      if(pNode&&pNode.children) pNode.children=pNode.children.filter(c=>c!==fname);
+      delete vfs[p];
+      lines.push('<span class="w">[DELETED] '+escHtml(p)+'</span>');
+      alertLevel=Math.min(alertLevel+1,2);
+      checkAlerts(termId);
+      break;}
+    case 'rmdir':{
+      if(!arg){lines.push('<span class="e">rmdir: missing operand</span>');break;}
+      let p=resolvePath(arg);let node=getNode(p);
+      if(!node||node.type!=='dir'){lines.push('<span class="e">rmdir: failed: not a directory</span>');break;}
+      if(node.children&&node.children.length>0){lines.push('<span class="e">rmdir: failed: Directory not empty</span>');break;}
+      let parent=normPath(p+'/..');let pNode=getNode(parent);let fname=p.split('/').pop();
+      if(pNode&&pNode.children) pNode.children=pNode.children.filter(c=>c!==fname);
+      delete vfs[p];
+      lines.push('<span class="w">[REMOVED DIR] '+escHtml(p)+'</span>');
+      break;}
+    case 'mkdir':{
+      if(!arg){lines.push('<span class="e">mkdir: missing operand</span>');break;}
+      let p=resolvePath(arg);
+      if(getNode(p)){lines.push('<span class="e">mkdir: cannot create: File exists</span>');break;}
+      let parent=normPath(p+'/..');let pNode=getNode(parent);let fname=p.split('/').pop();
+      if(!pNode){lines.push('<span class="e">mkdir: cannot create: parent not found</span>');break;}
+      pNode.children.push(fname);setNode(p,{type:'dir',children:[]});
+      lines.push('<span class="s">[CREATED] '+escHtml(p)+'</span>');
+      break;}
+    case 'touch':{
+      if(!arg){lines.push('<span class="e">touch: missing operand</span>');break;}
+      let p=resolvePath(arg);
+      if(!getNode(p)){
+        let parent=normPath(p+'/..');let pNode=getNode(parent);let fname=p.split('/').pop();
+        if(!pNode){lines.push('<span class="e">touch: cannot create: parent not found</span>');break;}
+        pNode.children.push(fname);setNode(p,{type:'file',content:''});
+        lines.push('<span class="s">[CREATED] '+escHtml(p)+'</span>');
+      } else lines.push('<span class="o">touched: '+escHtml(p)+'</span>');
+      break;}
+    case 'cp':{
+      if(!arg||!arg2){lines.push('<span class="e">cp: missing operands</span>');break;}
+      let src=resolvePath(arg);let dst=resolvePath(arg2);
+      let srcNode=getNode(src);
+      if(!srcNode||srcNode.type!=='file'){lines.push('<span class="e">cp: source not found or is directory</span>');break;}
+      let parent=normPath(dst+'/..');let pNode=getNode(parent);let fname=dst.split('/').pop();
+      if(!pNode){lines.push('<span class="e">cp: destination directory not found</span>');break;}
+      if(!pNode.children.includes(fname)) pNode.children.push(fname);
+      setNode(dst,{type:'file',content:srcNode.content});
+      lines.push('<span class="s">[COPIED] '+escHtml(src)+' → '+escHtml(dst)+'</span>');
+      break;}
+    case 'mv':{
+      if(!arg||!arg2){lines.push('<span class="e">mv: missing operands</span>');break;}
+      let src=resolvePath(arg);let dst=resolvePath(arg2);
+      let srcNode=getNode(src);
+      if(!srcNode){lines.push('<span class="e">mv: cannot stat: No such file</span>');break;}
+      let sparent=normPath(src+'/..');let spNode=getNode(sparent);let sfname=src.split('/').pop();
+      if(spNode) spNode.children=spNode.children.filter(c=>c!==sfname);
+      delete vfs[src];
+      let dparent=normPath(dst+'/..');let dpNode=getNode(dparent);let dfname=dst.split('/').pop();
+      if(!dpNode){lines.push('<span class="e">mv: destination not found</span>');break;}
+      if(!dpNode.children.includes(dfname)) dpNode.children.push(dfname);
+      setNode(dst,srcNode);
+      lines.push('<span class="s">[MOVED] '+escHtml(src)+' → '+escHtml(dst)+'</span>');
+      break;}
+    case 'whoami':lines.push('<span class="o">'+(loggedIn?'jeffery (root escalated)':'operator')+'</span>');break;
+    case 'id':lines.push('<span class="o">uid='+( loggedIn?'1000(jeffery) gid=1000(jeffery) groups=1000(jeffery),27(sudo)':'1337(operator) gid=1337(operator)')+'</span>');break;
+    case 'ps':
+    case 'ps aux':
+      lines.push('<span class="o">PID   USER     COMMAND</span>');
+      lines.push('<span class="o">1     root     /sbin/init</span>');
+      lines.push('<span class="o">212   root     /usr/sbin/sshd</span>');
+      lines.push('<span class="o">445   jeffery  /bin/bash</span>');
+      lines.push('<span class="o">892   root     /usr/sbin/cron</span>');
+      lines.push('<span class="o">1044  jeffery  python3 mecs-api-server.py</span>');
+      lines.push('<span class="o">1201  jeffery  node cms-backend.js</span>');
+      break;
+    case 'wget':
+    case 'curl':{
+      let url=arg||arg2;
+      if(!url){lines.push('<span class="e">'+cmd+': missing URL</span>');break;}
+      lines.push('<span class="o">'+cmd+': connecting to '+escHtml(url)+'...</span>');
+      lines.push('<span class="w">[SIMULATED] download complete: payload.sh (42KB)</span>');
+      let tmp=normPath('/tmp/payload.sh');
+      getNode('/tmp').children.push('payload.sh');
+      setNode(tmp,{type:'file',content:'#!/bin/bash\n# simulated payload\necho "payload executed"'});
+      break;}
+    case 'ssh':{
+      let host=arg||'';
+      lines.push('<span class="o">ssh: attempting '+escHtml(host)+'...</span>');
+      if(host==='192.168.1.11'||host==='mecs-db'){
+        lines.push('<span class="s">[CONNECTED] mecs-db — mysql running on :3306</span>');
+        lines.push('<span class="w">[PIVOT] database server accessible — donor_data and course tables</span>');
+      } else if(host==='192.168.1.12'||host==='mecs-backup'){
+        lines.push('<span class="e">ssh: connect to host mecs-backup: Connection refused</span>');
+      } else if(host==='192.168.1.45'||host==='maya-workstation'){
+        lines.push('<span class="e">ssh: Permission denied (publickey)</span>');
+      } else {
+        lines.push('<span class="e">ssh: connect to host '+escHtml(host)+': No route to host</span>');
+      }
+      break;}
+    default:
+      lines.push('<span class="e">'+escHtml(cmd)+': command not found — type <span class="s">help</span></span>');
+  }
+  return lines;
+}
+
+function checkAlerts(termId){
+  if(alertLevel===1){
+    setTimeout(()=>{
+      tAdd(termId,'<span class="w">[SYSLOG] '+new Date().toTimeString().slice(0,8)+' sshd: unusual file access pattern detected</span>');
+      toast('warn','// SYSTEM ALERT','Unusual file access logged. Jeffery may notice.', 4000);
+    },800);
+  } else if(alertLevel>=2){
+    setTimeout(()=>{
+      tAdd(termId,'<span class="e">[ALERT] MECS security monitoring: critical file access triggered IDS rule</span>');
+      tAdd(termId,'<span class="w">[WARNING] you have 2 minutes before IT is alerted — deploy ransomware now or be caught</span>');
+      toast('danger','// IDS TRIGGERED','Deploy ransomware before IT responds!',6000);
+    },800);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// NANO EDITOR
+// ═══════════════════════════════════════════════════
+function openNano(termId,filepath,content){
+  nanoOpen=true;nanoCurrentFile=filepath;nanoPrefix=termId==='atk-term'?'atk':'story';
+  let nanoId=nanoPrefix+'-nano';
+  let taId=nanoPrefix+'-nano-ta';
+  let fnId=nanoPrefix+'-nano-filename';
+  document.getElementById(fnId).textContent='GNU nano — '+filepath;
+  document.getElementById(taId).value=content;
+  document.getElementById(nanoId).classList.add('on');
+  setTimeout(()=>document.getElementById(taId).focus(),50);
+  document.getElementById(taId).onkeydown=function(e){
+    if((e.ctrlKey||e.metaKey)&&(e.key==='x'||e.key==='X')){e.preventDefault();closeNano(false);}
+    if((e.ctrlKey||e.metaKey)&&(e.key==='s'||e.key==='S')){e.preventDefault();closeNano(true);}
+  };
+}
+
+function closeNano(save){
+  let taId=nanoPrefix+'-nano-ta';
+  let nanoId=nanoPrefix+'-nano';
+  if(save&&nanoCurrentFile){
+    let content=document.getElementById(taId).value;
+    let node=getNode(nanoCurrentFile);
+    if(node&&node.type==='file'){
+      node.content=content;
+    } else {
+      // create file
+      let parent=normPath(nanoCurrentFile+'/..');
+      let pNode=getNode(parent);
+      let fname=nanoCurrentFile.split('/').pop();
+      if(pNode){pNode.children.push(fname);setNode(nanoCurrentFile,{type:'file',content});}
+    }
+    let termId=nanoPrefix+'-term';
+    tAdd(termId,'<span class="s">[SAVED] '+escHtml(nanoCurrentFile)+'</span>');
+    alertLevel=Math.min(alertLevel+1,2);checkAlerts(termId);
+  }
+  document.getElementById(nanoId).classList.remove('on');
+  nanoOpen=false;
+  setTimeout(()=>document.getElementById(nanoPrefix+'-ci').focus(),50);
+}
+
+// ═══════════════════════════════════════════════════
+// ATTACKER TERMINAL INPUT
+// ═══════════════════════════════════════════════════
+function atkKeydown(e){
+  if(nanoOpen) return;
+  if(e.key==='Enter'){e.preventDefault();runAtkCmd(document.getElementById('atk-ci').value.trim());document.getElementById('atk-ci').value='';}
+  else if(e.key==='ArrowUp'){histIdx=Math.min(histIdx+1,cmdHist.length-1);document.getElementById('atk-ci').value=cmdHist[histIdx]||'';e.preventDefault();}
+  else if(e.key==='ArrowDown'){histIdx=Math.max(histIdx-1,-1);document.getElementById('atk-ci').value=histIdx>=0?cmdHist[histIdx]:'';e.preventDefault();}
+}
+
+function runAtkCmd(v){
+  if(!v) return;
+  cmdHist.unshift(v);histIdx=-1;
+  let t=document.getElementById('atk-term');
+  let cursors=t.querySelectorAll('.cur');cursors.forEach(c=>{if(c.parentElement)c.parentElement.remove()});
+  let d=document.createElement('div');d.innerHTML='<span class="p">'+escHtml(document.getElementById('atk-ps').textContent)+'</span> '+escHtml(v);t.appendChild(d);
+
+  let key=v.toLowerCase().trim();
+  let parts=v.trim().split(/\s+/);
+
+  // special pre-login commands
+  if(!loggedIn){
+    let preLines=preLoginCmd(key,parts);
+    if(preLines!==null){preLines.forEach((l,i)=>setTimeout(()=>tAdd('atk-term',l),i*120));return;}
+  }
+
+  // post-login free world
+  if(loggedIn){
+    if(key==='help'){
+      ['<span class="o">── filesystem ──────────────────────────</span>',
+       '<span class="s">ls [path]</span>         <span class="o">list directory</span>',
+       '<span class="s">ls -la</span>            <span class="o">list with details</span>',
+       '<span class="s">cd &lt;path&gt;</span>         <span class="o">change directory</span>',
+       '<span class="s">cat &lt;file&gt;</span>        <span class="o">read file contents</span>',
+       '<span class="s">nano &lt;file&gt;</span>       <span class="o">edit file (ctrl+s save, ctrl+x exit)</span>',
+       '<span class="s">rm &lt;file&gt;</span>         <span class="o">delete file</span>',
+       '<span class="s">rmdir &lt;dir&gt;</span>       <span class="o">delete directory</span>',
+       '<span class="s">mkdir &lt;dir&gt;</span>       <span class="o">create directory</span>',
+       '<span class="s">touch &lt;file&gt;</span>      <span class="o">create empty file</span>',
+       '<span class="s">cp &lt;src&gt; &lt;dst&gt;</span>    <span class="o">copy file</span>',
+       '<span class="s">mv &lt;src&gt; &lt;dst&gt;</span>    <span class="o">move / rename</span>',
+       '<span class="o">── system ──────────────────────────────</span>',
+       '<span class="s">whoami</span>            <span class="o">current user</span>',
+       '<span class="s">id</span>                <span class="o">user/group info</span>',
+       '<span class="s">ps / ps aux</span>       <span class="o">running processes</span>',
+       '<span class="s">pwd</span>               <span class="o">print working directory</span>',
+       '<span class="o">── network ─────────────────────────────</span>',
+       '<span class="s">wget &lt;url&gt;</span>        <span class="o">download file</span>',
+       '<span class="s">curl &lt;url&gt;</span>        <span class="o">http request / download</span>',
+       '<span class="s">ssh &lt;host&gt;</span>        <span class="o">connect to remote host</span>',
+       '<span class="o">── mission ─────────────────────────────</span>',
+       '<span class="s">deploy ransomware</span> <span class="o">encrypt all files & demand ransom</span>',
+       '<span class="s">clear</span>             <span class="o">clear terminal</span>',
+      ].forEach((l,i)=>setTimeout(()=>tAdd('atk-term',l),i*40));
+      return;
+    }
+    if(key==='clear'){document.getElementById('atk-term').innerHTML='';tAdd('atk-term','<span class="cur"></span>',true);return;}
+    if(key==='deploy ransomware'||key==='./deploy.sh'||key==='bash payload.sh'){
+      tAdd('atk-term','<span class="s">[DEPLOY]</span> <span class="o">uploading ransomware payload...</span>');
+      setTimeout(()=>{tAdd('atk-term','<span class="s">[ENCRYPT]</span> <span class="o">AES-256 keys generated</span>');},600);
+      setTimeout(()=>{tAdd('atk-term','<span class="s">[EXECUTE]</span> <span class="o">payload running across all mounted drives</span>');clearInterval(atkInt);deployRansomware('atk');},1400);
+      return;
+    }
+    // filesystem commands
+    let fsLines=fsCmd('atk-term',parts);
+    fsLines.forEach((l,i)=>setTimeout(()=>tAdd('atk-term',l),i*80));
+    return;
+  }
+  tAdd('atk-term','<span class="e">not logged in — use <span class="s">help</span></span>');
+}
+
+function preLoginCmd(key,parts){
+  const responses={
+    'help':[
+      '<span class="o">── pre-login commands ───────────────────</span>',
+      '<span class="s">osint target</span>      <span class="o">enumerate public attack surface</span>',
+      '<span class="s">whois mecs.io</span>     <span class="o">domain registration lookup</span>',
+      '<span class="s">nmap mecs.io</span>      <span class="o">port scan</span>',
+      '<span class="s">search &lt;query&gt;</span>    <span class="o">web search</span>',
+      '<span class="s">browser</span>           <span class="o">open browser (left panel)</span>',
+      '<span class="o">── after credential capture ─────────────</span>',
+      '<span class="s">login jeffery</span>     <span class="o">authenticate with captured credentials</span>',
+    ],
+    'osint target':[
+      '<span class="o">enumerating public attack surface...</span>',
+      '<span class="w">[+] linkedin.com/in/jeffery-alexander — active, 312 followers</span>',
+      '<span class="w">[+] makeeveryonecybersafe.github.io/co-founder.html — portfolio</span>',
+      '<span class="w">[+] instagram: @jeff.alex.sec</span>',
+      '<span class="w">[+] github commits: email pattern firstname@mecs.io</span>',
+      '<span class="s">[ACTION]</span> <span class="o">visit Portfolio tab — direct email listed</span>'
+    ],
+    'whois mecs.io':[
+      '<span class="o">querying whois...</span>',
+      '<span class="w">Registrar: Namecheap | Admin: admin@mecs.io</span>',
+      '<span class="w">Created: 2024-03-12 | No privacy protection</span>',
+    ],
+    'nmap mecs.io':[
+      '<span class="o">scanning mecs.io...</span>',
+      '<span class="w">22/tcp open ssh | 80/tcp open http | 443/tcp open https</span>',
+      '<span class="o">github pages host — social engineering is optimal vector</span>'
+    ],
+    'browser':['<span class="o">browser is in the left panel — use LinkedIn and Portfolio tabs</span>'],
+  };
+  if(key in responses) return responses[key];
+  if(key.startsWith('search ')){
+    let q=escHtml(key.slice(7));
+    return [
+      '<span class="o">searching: "'+q+'"...</span>',
+      '<span class="w">[1] makeeveryonecybersafe.github.io/co-founder.html</span>',
+      '<span class="w">[2] linkedin.com/in/jeffery-alexander</span>',
+      '<span class="w">[3] instagram.com/jeff.alex.sec</span>'
+    ];
+  }
+  if(key==='login jeffery'||key==='ssh jeffery@mecs.io'||key==='su jeffery'){
+    if(!emailCaptured||phishAttempts===0){
+      return['<span class="e">no credentials — capture jeffery\'s password first via phishing</span>'];
+    }
+    // login success
+    setTimeout(()=>{
+      loggedIn=true;cwd='/home/jeffery';
+      let ps=document.getElementById('atk-ps');
+      ps.textContent='jeffery@mecs-server:~$';ps.className='term-ps root';
+      let ci=document.getElementById('atk-ci');ci.className='term-ci root';
+      setAtkPhase(3);
+      tAdd('atk-term','<span class="s">[AUTHENTICATED]</span> <span class="o">welcome, jeffery</span>');
+      tAdd('atk-term','<span class="s">Last login: Fri Nov 1 09:14:52 2024 from 45.77.23.11</span>');
+      tAdd('atk-term','<span class="o">mecs-server — ubuntu 22.04 LTS</span>');
+      tAdd('atk-term','<span class="o">type <span class="s">help</span> for available commands</span>');
+      toast('danger','// LOGIN SUCCESS','You are now inside the MECS server as Jeffery.',4000);
+      if(window.innerWidth<=800) mobSwitch('atk','terminal');
+    },600);
+    return['<span class="o">authenticating jeffery@mecs.io...</span>'];
+  }
+  if(key==='clear'){document.getElementById('atk-term').innerHTML='';tAdd('atk-term','',true);return[];}
+  return null; // not handled pre-login
+}
+
+// ═══════════════════════════════════════════════════
+// EMAIL CAPTURE
+// ═══════════════════════════════════════════════════
+function captureEmail(){
+  if(emailCaptured)return;
+  emailCaptured=true;
+  document.getElementById('tab-email').className='btab';
+  switchTab('email','atk');
+  setAtkPhase(2);
+  tAdd('atk-term','<span class="s">[INTEL]</span> <span class="w">email: jeffery@mecs.io</span>');
+  tAdd('atk-term','<span class="w">[PHASE 02]</span> <span class="o">composer unlocked — craft convincing phish</span>');
+  toast('warn','// EMAIL FOUND','jeffery@mecs.io — composer unlocked',3000);
+  // on mobile, stay on browser panel so they see the composer
+  if(window.innerWidth<=800) mobSwitch('atk','browser');
+}
+
+function storyCaptureEmail(){
+  if(storyEmailCaptured)return;
+  storyEmailCaptured=true;
+  document.getElementById('stab-email').className='btab';
+  switchTab('email','story');
+  setStoryPhase(2);
+  stAdd('<span class="s">[INTEL]</span> <span class="w">email: jeffery@mecs.io</span>');
+  stAdd('<span class="b">[HINT]</span> <span class="o">composer unlocked — use CMS intel and his name</span>');
+  toast('warn','// EMAIL FOUND','Composer unlocked',3000);
+}
+
+// ═══════════════════════════════════════════════════
+// PHISHING
+// ═══════════════════════════════════════════════════
+function scoreEmail(from,subj,body){
+  let s=0,fl=from.toLowerCase(),sl=subj.toLowerCase(),bl=body.toLowerCase();
+  if(fl.includes('google')||fl.includes('drive')||fl.includes('cms')||fl.includes('notion')||fl.includes('platform'))s+=20;
+  if(fl.includes('mecs'))s+=12;
+  if(fl.includes('@')&&!fl.includes('gmail')&&!fl.includes('yahoo'))s+=8;
+  if(sl.includes('mecs')||sl.includes('cms')||sl.includes('course')||sl.includes('content'))s+=15;
+  if(sl.includes('jeffery')||sl.includes('jeff'))s+=10;
+  if(bl.includes('jeffery')||bl.includes('jeff'))s+=12;
+  if(bl.includes('cms')||bl.includes('content management')||bl.includes('course')||bl.includes('migration'))s+=15;
+  if(body.length>100)s+=8;
+  if(bl.includes('expire')||bl.includes('24 hour')||bl.includes('urgent'))s+=10;
+  return Math.min(s,100);
+}
+
+function sendPhish(prefix){
+  let fromId=prefix==='atk'?'ef-from':'sef-from';
+  let subjId=prefix==='atk'?'ef-subj':'sef-subj';
+  let bodyId=prefix==='atk'?'ef-body':'sef-body';
+  let logId=prefix==='atk'?'email-log':'s-email-log';
+  let suspFillId=prefix==='atk'?'susp-fill':'s-susp-fill';
+  let suspPctId=prefix==='atk'?'susp-pct':'s-susp-pct';
+  let suspHdrId=prefix==='atk'?'susp-hdr':'s-susp-hdr';
+  let sendBtnId=prefix==='atk'?'send-btn':'s-send-btn';
+  let termId=prefix==='atk'?'atk-term':'story-term';
+  let susp=prefix==='atk'?suspicion:storySuspicion;
+
+  let from=document.getElementById(fromId).value.trim();
+  let subj=document.getElementById(subjId).value.trim();
+  let body=document.getElementById(bodyId).value.trim();
+  if(!from||!subj||!body){toast('warn','// INCOMPLETE','All fields required',2500);return;}
+
+  let attempts=prefix==='atk'?++phishAttempts:++storyPhishAttempts;
+  let score=scoreEmail(from,subj,body);
+  let threshold=55+(susp*0.4);
+  let success=score>=threshold;
+  let log=document.getElementById(logId);
+  let line=document.createElement('div');
+
+  if(!success){
+    let raise=[0,22,38,60][Math.min(attempts,3)];
+    if(prefix==='atk') suspicion=Math.min(suspicion+raise,95);
+    else storySuspicion=Math.min(storySuspicion+raise,95);
+    let newSusp=prefix==='atk'?suspicion:storySuspicion;
+    document.getElementById(suspFillId).style.width=newSusp+'%';
+    document.getElementById(suspFillId).style.background=newSusp>60?'var(--red)':newSusp>30?'var(--amber)':'var(--green)';
+    document.getElementById(suspPctId).textContent=newSusp+'%';
+    document.getElementById(suspHdrId).textContent='SUSPICION: '+newSusp+'%';
+    line.innerHTML='<span style="color:var(--red)">[ATTEMPT '+attempts+' — IGNORED]</span> <span style="color:var(--muted2)">score:'+score+'% need:'+Math.round(threshold)+'% susp:+'+raise+'%</span>';
+    log.appendChild(line);log.scrollTop=log.scrollHeight;
+    tAdd(termId,'<span class="e">[PHISH FAILED]</span> <span class="o">jeffery ignored it ('+score+'% / need '+Math.round(threshold)+'%)</span>');
+    if(prefix==='story') stAdd('<span class="b">[HINT]</span> <span class="o">reference the CMS migration, use his name, create urgency</span>');
+    if(attempts>=3){
+      tAdd(termId,'<span class="e">[REPORTED]</span> <span class="o">jeffery reported attempts to IT security — you have been flagged</span>');
+      setTimeout(()=>gameOver('After '+attempts+' failed phishing attempts, Jeffery reported the suspicious emails to IT Security.','Attackers get very few chances. Quality of targeting matters more than quantity.'),2000);
+    }
+    return;
+  }
+
+  document.getElementById(sendBtnId).disabled=true;
+  document.getElementById(sendBtnId).textContent='DELIVERED';
+  line.innerHTML='<span style="color:var(--green)">[DELIVERED]</span>';
+  log.appendChild(line);
+  tAdd(termId,'<span class="o">email delivered to jeffery@mecs.io...</span>');
+
+  setTimeout(()=>{
+    let l2=document.createElement('div');
+    l2.innerHTML='<span style="color:var(--green)">[CLICK]</span> <span style="color:var(--amber)">jeffery opened the link at 09:17</span>';
+    log.appendChild(l2);log.scrollTop=log.scrollHeight;
+    tAdd(termId,'<span class="s">[CLICK]</span> <span class="o">jeffery opened the link</span>');
+  },2500);
+
+  setTimeout(()=>{
+    let l3=document.createElement('div');
+    l3.innerHTML='<span style="color:var(--green)">[CAPTURE]</span> <span style="color:var(--amber)">jeffery@mecs.io : Br0wn1e@MECS!</span>';
+    log.appendChild(l3);log.scrollTop=log.scrollHeight;
+    tAdd(termId,'<span class="s">[CREDENTIALS]</span> <span class="w">jeffery@mecs.io : Br0wn1e@MECS!</span>');
+    tAdd(termId,'<span class="s">[SESSION TOKEN]</span> <span class="o">eyJhbGciOiJSUzI1NiIs... generated</span>');
+  },4500);
+
+  setTimeout(()=>{
+    tAdd(termId,'<span class="s">[PHASE 03]</span> <span class="o">type <span class="w">login jeffery</span> to authenticate to the server</span>');
+    if(prefix==='story'){
+      setStoryPhase(3);
+      stAdd('<span class="b">[HINT]</span> <span class="o">type: <span class="s">login jeffery</span> to access the server</span>');
+    }
+    toast('danger','// CREDENTIALS CAPTURED','Type: login jeffery',5000);
+  },6000);
+}
+
+// ═══════════════════════════════════════════════════
+// RANSOMWARE
+// ═══════════════════════════════════════════════════
+let postRansomFn=null;
+function deployRansomware(callerMode){
+  clearInterval(atkInt);clearInterval(storyInt);
+  postRansomFn=callerMode==='story'?startStoryVictim:()=>goDebrief('atk');
+  document.getElementById('s-ransom').classList.add('on');
+  buildFileGrid();
+  let files=document.querySelectorAll('.fblk');
+  let i=0;
+  let enc=setInterval(()=>{
+    if(i<files.length){
+      files[i].classList.add('encr');
+      let f=files[i];
+      setTimeout(()=>{f.classList.remove('encr');f.classList.add('enc');f.textContent='🔒';},350);
+      i++;
+    } else {
+      clearInterval(enc);
+      setTimeout(()=>{document.getElementById('ransom-note').classList.add('on');startRnCountdown();},700);
+    }
+  },70);
+}
+function buildFileGrid(){
+  let g=document.getElementById('file-grid');g.innerHTML='';
+  ['course_01.mp4','donor_list.csv','Q4_strategy.pdf','partner_NDA.docx','budget_24.xlsx','student_db.sql','email_archive','auth.log','server.key','contracts/','course_02.mp4','maya_notes.docx','rajan_cfg.env','mecs_logo.png','module_drafts','invoice.pdf','HR_records.xlsx','payroll.xlsx','api_keys.env','ssl_cert.pem','database.sql','analytics.csv','media_assets','source_code.zip','deploy_keys','board_mins.pdf','grant_prop.docx','audit_rpt.pdf','internal_wiki','correspondence','backups/','syslog'].forEach(f=>{
+    let b=document.createElement('div');b.className='fblk';b.textContent=f.length>13?f.slice(0,11)+'…':f;g.appendChild(b);
+  });
+}
+function startRnCountdown(){
+  let s=259200;
+  rnInt=setInterval(()=>{s--;let h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;let el=document.getElementById('rn-cd');if(el)el.textContent='Pay within: '+h+':'+String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0');},1000);
+}
+function afterRansom(){
+  clearInterval(rnInt);
+  document.getElementById('s-ransom').classList.remove('on');
+  if(postRansomFn) postRansomFn();
+}
+
+// ═══════════════════════════════════════════════════
+// VICTIM MODE
+// ═══════════════════════════════════════════════════
+const vicEmails=[
+  {id:'e1',from:'Google Drive',addr:'noreply@googledrive-mecs.com',color:'#ea4335',init:'G',subj:'[MECS Drive] New files shared with you',time:'09:14 AM',preview:'Jeffery, your team uploaded new course materials...',body:'Hi Jeffery,\n\nYour team has uploaded new course materials to the MECS shared folder. Click the link below to review and approve before publishing:\n\n→ View Shared Files (link expires in 24 hours)\n\nThis is an automated notification from your Google Drive.\n\n— Google Drive Team',correct:'phish',explain:'Sender domain is "googledrive-mecs.com" — not "google.com". Google Drive notifications only come from google.com. Spoofed domain designed to look legitimate at a glance.'},
+  {id:'e2',from:'GitHub Security',addr:'security@github.com',color:'#24292e',init:'G',subj:'New sign-in to your GitHub account',time:'09:22 AM',preview:'We noticed a sign-in from a new device in Chennai...',body:'Hi jeffery-alexander,\n\nWe noticed a new sign-in to your GitHub account.\n\nLocation: Chennai, Tamil Nadu\nDevice: Windows 10, Chrome 119\nTime: 09:22 AM IST\n\nIf this was you, no action is needed.\nIf this was NOT you, go to: github.com/settings/security\n\n— GitHub Security Team',correct:'real',explain:'Legitimate GitHub notification from security@github.com (official domain). Directs you to navigate to the site yourself — does not ask you to click an inline link.'},
+  {id:'e3',from:'MECS IT Support',addr:'support@mecs-helpdesk.net',color:'#ff3b3b',init:'M',subj:'URGENT: Your MECS account expires in 2 hours',time:'09:31 AM',preview:'Unusual activity detected. Verify your identity now...',body:'Dear Jeffery,\n\nUnusual activity was flagged on your account. To prevent suspension, verify your identity within 2 hours:\n\n→ CLICK HERE TO VERIFY NOW\n\nFailure to verify will result in:\n• Immediate account suspension\n• Loss of access to all MECS systems\n\n— MECS IT Security',correct:'phish',explain:'"mecs-helpdesk.net" is not a real MECS domain. Extreme urgency + threats of suspension + inline link = classic phishing pressure tactics. Legitimate IT teams never suspend accounts via email links under time pressure.'},
+  {id:'e4',from:'Namecheap',addr:'noreply@namecheap.com',color:'#ff6600',init:'N',subj:'Domain mecs.io — renewal reminder (60 days)',time:'10:05 AM',preview:'Your domain mecs.io expires in 60 days. Auto-renew is off...',body:'Hello,\n\nDomain mecs.io is due for renewal in 60 days (expiry: January 15, 2025).\n\nAuto-renewal is currently DISABLED.\n\nTo renew:\n1. Log in at namecheap.com\n2. Go to Domain List\n3. Enable auto-renew or renew manually\n\n— Namecheap Team',correct:'real',explain:'Legitimate Namecheap notice from their official domain. Instructs you to log in to namecheap.com directly — no inline phishing link.'},
+  {id:'e5',from:'MECS Finance',addr:'payroll@mecs-finance.org',color:'#ff3b3b',init:'F',subj:'Action Required: Update bank details for payroll',time:'10:18 AM',preview:'Please re-verify your bank details within 48 hours...',body:'Dear Jeffery,\n\nDue to our banking partner migration, re-verify your bank details for this month\'s transfer:\n\n→ mecs-finance.org/payroll-update\n\nFailure to update may result in delayed payment.\n\n— MECS Finance Team',correct:'phish',explain:'"mecs-finance.org" is a fake domain — not an official MECS domain. Legitimate payroll teams never ask staff to re-enter bank details via email link. This is a financial phishing attempt.'},
+  {id:'e6',from:'Zoom',addr:'no-reply@zoom.us',color:'#2d8cff',init:'Z',subj:'Your recording is ready — MECS Curriculum Review',time:'11:30 AM',preview:'Your October curriculum review recording is available...',body:'Hi Jeffery,\n\nYour Zoom recording is ready.\n\nMeeting: MECS Curriculum Review — October\nDate: Yesterday, 3:00 PM IST\nDuration: 47 minutes\n\nTo view: Log in at zoom.us/recordings\n\n— The Zoom Team',correct:'real',explain:'Legitimate Zoom notification from zoom.us (official domain). Directs you to log into Zoom directly — no suspicious inline link.'},
+  {id:'e7',from:'Security Alert',addr:'alert@mecs-security.io',color:'#ff3b3b',init:'!',subj:'⚠ 5 failed logins on jeffery@mecs.io',time:'12:01 PM',preview:'Multiple failed logins from Bangalore detected...',body:'⚠ SECURITY ALERT\n\n5 failed login attempts detected on your account.\n\nLocation: Bangalore, Karnataka\nTime: 11:55 AM – 12:01 PM IST\n\nTake immediate action:\n→ Click here to lock your account\n\nDo NOT share this alert.\n\n— MECS Security',correct:'phish',explain:'"mecs-security.io" is not an official domain. Real security alerts direct you to navigate to the service yourself — they never provide a "click here to lock" link.'},
+  {id:'e8',from:'Notion',addr:'notify@mail.notion.so',color:'#000',init:'N',subj:'Maya shared a page — Q4 Course Planning',time:'12:45 PM',preview:'Maya Krishnan shared Q4 Course Content Planning with you...',body:'Hi Jeffery,\n\nMaya Krishnan shared a Notion page with you.\n\nPage: Q4 Course Content Planning\nWorkspace: MakeEveryoneCyberSafe\n\nTo view: Go to your Notion workspace at notion.so\n\n— The Notion Team',correct:'real',explain:'Legitimate Notion notification from mail.notion.so (official Notion domain). Directs you to your workspace — no suspicious inline link.'},
+];
+
+function initVic(){
+  showScreen('s-vic');
+  vicCorrect=0;vicWrong=0;vicSelected=null;vicStates={};
+  vicEmails.forEach(e=>vicStates[e.id]='unread');
+  vicSec=360;
+  document.getElementById('vic-correct').textContent='0';
+  document.getElementById('vic-wrong').textContent='0';
+  document.getElementById('vic-left').textContent='8';
+  document.getElementById('vic-badge').textContent='8';
+  document.getElementById('vic-view').innerHTML='<div style="text-align:center;padding:4rem 1rem;color:#aaa;font-size:14px"><div style="font-size:32px;margin-bottom:12px">📧</div>Select an email to read it.</div>';
+  renderVicInbox();
+  vicInt=setInterval(()=>{vicSec--;let m=Math.floor(vicSec/60),s=vicSec%60;document.getElementById('vic-tmr').textContent=m+':'+(s<10?'0':'')+s;if(vicSec<=0){clearInterval(vicInt);goDebrief('vic');}},1000);
+  setTimeout(()=>toast('warn','// SYSTEM','Unusual Google login from new device.',5000),3000);
+  setTimeout(()=>toast('danger','// IT BULLETIN','Phishing campaign targeting MECS staff today.',6000),12000);
+}
+
+function renderVicInbox(){
+  let list=document.getElementById('vic-list');list.innerHTML='';
+  let unread=0;
+  vicEmails.forEach(email=>{
+    let state=vicStates[email.id];
+    if(state==='unread')unread++;
+    let row=document.createElement('div');
+    row.className='vic-email-row'+(state==='unread'?' unread':'')+(vicSelected===email.id?' selected':'');
+    row.style.fontFamily='sans-serif';
+    let av=document.createElement('div');av.className='ver-av';av.style.background=email.color;av.textContent=email.init;
+    let mid=document.createElement('div');mid.className='ver-mid';
+    mid.innerHTML='<div class="ver-from">'+escHtml(email.from)+'</div><div class="ver-subject">'+escHtml(email.subj)+'</div><div class="ver-preview">'+escHtml(email.preview)+'</div>';
+    let time=document.createElement('div');time.className='ver-time';time.textContent=email.time;
+    row.appendChild(av);row.appendChild(mid);row.appendChild(time);
+    row.onclick=()=>openVicEmail(email.id);
+    list.appendChild(row);
+  });
+  document.getElementById('vic-badge').textContent=unread;
+}
+
+function openVicEmail(id){
+  vicSelected=id;
+  if(vicStates[id]==='unread')vicStates[id]='read';
+  renderVicInbox();
+  // on mobile, switch to email panel
+  if(window.innerWidth<=800) mobSwitch('vic','email');
+  let email=vicEmails.find(e=>e.id===id);if(!email)return;
+  let state=vicStates[id];
+  let solved=state==='correct'||state==='wrong';
+  let addrCls=email.correct==='phish'&&solved?' class="vev-from-addr sus"':' class="vev-from-addr"';
+  let actions=solved
+    ?'<div class="vev-result '+(state==='correct'?'correct':'wrong')+'">'+(state==='correct'?'✓ Correct — ':'✗ Wrong — ')+escHtml(email.explain)+'</div>'
+    :'<div class="vev-actions"><button class="vev-btn real" onclick="vicRespond(\''+id+'\',\'real\')">✓ Legitimate email</button><button class="vev-btn fake" onclick="vicRespond(\''+id+'\',\'phish\')">✗ Phishing / Fake</button></div>';
+  document.getElementById('vic-view').innerHTML=
+    '<div class="vev-subject">'+escHtml(email.subj)+'</div>'+
+    '<div class="vev-from-row"><div class="vev-av" style="background:'+email.color+'">'+email.init+'</div><div><div class="vev-from-name">'+escHtml(email.from)+'</div><div'+addrCls+'>'+escHtml(email.addr)+'</div></div><div class="vev-time">'+email.time+'</div></div>'+
+    '<div class="vev-body">'+escHtml(email.body)+'</div>'+actions;
+}
+
+function vicRespond(id,action){
+  let email=vicEmails.find(e=>e.id===id);
+  if(!email||vicStates[id]==='correct'||vicStates[id]==='wrong')return;
+  let correct=action===email.correct;
+  vicStates[id]=correct?'correct':'wrong';
+  if(correct){vicCorrect++;toast('info','// CORRECT',email.correct==='phish'?'That was phishing.':'Legitimate email.',3000);}
+  else{
+    vicWrong++;
+    toast('danger','// WRONG',email.correct==='phish'?'That was PHISHING — you fell for it.':'That was legitimate — wrong flag.',4000);
+    if(email.correct==='phish'&&action==='real'){
+      openVicEmail(id);
+      setTimeout(()=>{clearInterval(vicInt);gameOver('You treated the phishing email from "'+email.addr+'" as legitimate.\n\nBy clicking the link, your credentials were captured. The attacker has full access to your MECS account.','Always expand the full sender domain. Display names are spoofed trivially — the domain is the only signal that matters.');},2000);
+      return;
+    }
+  }
+  let left=vicEmails.length-Object.values(vicStates).filter(s=>s==='correct'||s==='wrong').length;
+  document.getElementById('vic-correct').textContent=vicCorrect;
+  document.getElementById('vic-wrong').textContent=vicWrong;
+  document.getElementById('vic-left').textContent=left;
+  openVicEmail(id);
+  if(left===0){clearInterval(vicInt);setTimeout(()=>goDebrief('vic'),1500);}
+}
+
+// ═══════════════════════════════════════════════════
+// STORY MODE
+// ═══════════════════════════════════════════════════
+function initStory(){
+  showScreen('s-story');
+  storySec=1500;storyPhaseN=1;storyEmailCaptured=false;
+  storyPhishAttempts=0;storySuspicion=0;storyCmdHist=[];storyHistIdx=-1;
+  loggedIn=false;cwd='/home/jeffery';alertLevel=0;resetVFS();
+  document.getElementById('spage-li').innerHTML='';document.getElementById('spage-pf').innerHTML='';
+  document.getElementById('spage-email').style.display='none';
+  document.getElementById('stab-email').className='btab locked';
+  document.getElementById('sef-from').value='';document.getElementById('sef-subj').value='';document.getElementById('sef-body').value='';
+  document.getElementById('s-email-log').innerHTML='';
+  document.getElementById('s-susp-fill').style.width='0%';document.getElementById('s-susp-pct').textContent='0%';
+  document.getElementById('s-send-btn').disabled=false;document.getElementById('s-send-btn').textContent='SEND EMAIL';
+  switchTab('li','story');
+  setStoryPhase(1);
+  let t=document.getElementById('story-term');t.innerHTML='';
+  stAdd('<span class="p">operator@mecs:~$</span> <span class="o">story mode — hints enabled</span>');
+  stAdd('<span class="b">[HINT]</span> <span class="o">type <span class="s">osint target</span> to begin</span>');
+  storyInt=setInterval(()=>{storySec--;let m=Math.floor(storySec/60),s=storySec%60;document.getElementById('story-tmr').textContent=m+':'+(s<10?'0':'')+s;if(storySec<=0){clearInterval(storyInt);gameOver('Time ran out.','Speed matters in real engagements.');}},1000);
+  setTimeout(()=>document.getElementById('story-ci').focus(),100);
+}
+
+function setStoryPhase(n){
+  storyPhaseN=n;
+  ['sp1','sp2','sp3','sp4'].forEach((id,i)=>{
+    let p=document.getElementById(id);if(!p)return;
+    p.className='pbar-step'+(i<n-1?' done':i===n-1?' cur':'');
+  });
+}
+
+function stAdd(html){
+  let t=document.getElementById('story-term');if(!t)return;
+  let cursors=t.querySelectorAll('.cur');cursors.forEach(c=>{if(c.parentElement)c.parentElement.remove()});
+  let d=document.createElement('div');d.innerHTML=html;t.appendChild(d);
+  let ps=document.getElementById('story-ps').textContent;
+  let cur=document.createElement('div');
+  cur.innerHTML='<span class="'+(ps.includes('#')?'p root':'p')+'">'+escHtml(ps)+'</span> <span class="cur"></span>';
+  t.appendChild(cur);
+  t.scrollTop=t.scrollHeight;
+}
+
+function storyKeydown(e){
+  if(nanoOpen) return;
+  if(e.key==='Enter'){e.preventDefault();runStoryCmd(document.getElementById('story-ci').value.trim());document.getElementById('story-ci').value='';}
+  else if(e.key==='ArrowUp'){storyHistIdx=Math.min(storyHistIdx+1,storyCmdHist.length-1);document.getElementById('story-ci').value=storyCmdHist[storyHistIdx]||'';e.preventDefault();}
+  else if(e.key==='ArrowDown'){storyHistIdx=Math.max(storyHistIdx-1,-1);document.getElementById('story-ci').value=storyHistIdx>=0?storyCmdHist[storyHistIdx]:'';e.preventDefault();}
+}
+
+function runStoryCmd(v){
+  if(!v)return;
+  storyCmdHist.unshift(v);storyHistIdx=-1;
+  let t=document.getElementById('story-term');
+  let cursors=t.querySelectorAll('.cur');cursors.forEach(c=>{if(c.parentElement)c.parentElement.remove()});
+  let d=document.createElement('div');d.innerHTML='<span class="p">'+escHtml(document.getElementById('story-ps').textContent)+'</span> '+escHtml(v);t.appendChild(d);
+  let key=v.toLowerCase().trim();
+  let parts=v.trim().split(/\s+/);
+
+  // post-login
+  if(loggedIn){
+    if(key==='clear'){document.getElementById('story-term').innerHTML='';stAdd('');return;}
+    if(key==='deploy ransomware'||key==='./deploy.sh'){
+      stAdd('<span class="s">[DEPLOY]</span> <span class="o">uploading ransomware payload...</span>');
+      setTimeout(()=>{clearInterval(storyInt);deployRansomware('story');},1200);
+      return;
+    }
+    if(key==='help'){stAdd('<span class="o">ls cd cat nano rm mkdir cp mv touch cp wget ssh deploy ransomware</span>');return;}
+    let fsLines=fsCmd('story-term',parts);
+    fsLines.forEach((l,i)=>setTimeout(()=>stAdd(l),i*80));
+    return;
+  }
+
+  // pre-login story commands
+  const sCmds={
+    'help':['<span class="o">osint target · whois mecs.io · nmap mecs.io · search &lt;q&gt; · login jeffery (after creds)</span>'],
+    'osint target':['<span class="o">enumerating attack surface...</span>','<span class="w">[+] linkedin.com/in/jeffery-alexander</span>','<span class="w">[+] makeeveryonecybersafe.github.io/co-founder.html</span>','<span class="w">[+] email pattern: firstname@mecs.io</span>','<span class="b">[HINT]</span> <span class="o">visit Portfolio tab — his email is listed there</span>'],
+    'whois mecs.io':['<span class="w">Registrar: Namecheap | Admin: admin@mecs.io | no privacy</span>'],
+    'nmap mecs.io':['<span class="w">22/tcp ssh | 443/tcp https | github pages — use social engineering</span>','<span class="b">[HINT]</span> <span class="o">direct server attack not viable</span>'],
+    'browser':['<span class="o">browser is in the left panel</span>'],
+    'login jeffery':null,
+    'ssh jeffery@mecs.io':null,
+  };
+  if(key.startsWith('search ')){
+    ['<span class="o">searching...</span>','<span class="w">[1] makeeveryonecybersafe.github.io/co-founder.html</span>','<span class="w">[2] linkedin.com/in/jeffery-alexander</span>','<span class="b">[HINT]</span> <span class="o">check the portfolio tab</span>'].forEach((l,i)=>setTimeout(()=>stAdd(l),i*120));
+    return;
+  }
+  if(key==='login jeffery'||key==='ssh jeffery@mecs.io'){
+    if(!storyEmailCaptured||storyPhishAttempts===0){stAdd('<span class="e">no credentials — phish jeffery first</span>');return;}
+    setTimeout(()=>{
+      loggedIn=true;cwd='/home/jeffery';
+      let ps=document.getElementById('story-ps');ps.textContent='jeffery@mecs-server:~$';ps.className='term-ps root';
+      document.getElementById('story-ci').className='term-ci root';
+      setStoryPhase(3);
+      stAdd('<span class="s">[AUTHENTICATED]</span> <span class="o">welcome, jeffery</span>');
+      stAdd('<span class="b">[HINT]</span> <span class="o">explore files: <span class="s">ls /mecs-drive</span> · when ready: <span class="s">deploy ransomware</span></span>');
+      toast('danger','// LOGGED IN','You are inside the MECS server.',4000);
+    },600);
+    stAdd('<span class="o">authenticating...</span>');
+    return;
+  }
+  if(key==='clear'){document.getElementById('story-term').innerHTML='';stAdd('');return;}
+  let fn=sCmds[key];
+  if(fn) fn.forEach((l,i)=>setTimeout(()=>stAdd(l),i*120));
+  else stAdd('<span class="e">'+escHtml(v)+': not found — type <span class="s">help</span></span>');
+}
+
+// ═══════════════════════════════════════════════════
+// STORY VICTIM AUTO-PLAY
+// ═══════════════════════════════════════════════════
+function startStoryVictim(){
+  let svo=document.getElementById('s-story-vic');svo.classList.add('on');
+  let fade=document.getElementById('sv-fade');
+  fade.style.opacity='1';fade.style.transition='none';
+  document.getElementById('sv-desktop').style.display='flex';
+  document.getElementById('sv-gmail').style.display='flex';
+  document.getElementById('sv-open-email').classList.remove('on');
+  document.getElementById('sv-login').classList.remove('on');
+  document.getElementById('sv-login').style.display='none';
+  document.getElementById('sv-email-inp').value='';
+  document.getElementById('sv-pass-inp').value='';
+  setSubtitle('','');
+
+  // reset phish row
+  let row=document.getElementById('sv-phish-row');
+  if(row){row.style.background='';row.querySelector('.sv-from').style.fontWeight='700';}
+
+  setTimeout(()=>{
+    fade.style.transition='opacity 2s';fade.style.opacity='0';
+    document.getElementById('sv-label').classList.add('on');
+    setSubtitle('JEFFERY ALEXANDER — 09:14 AM','Opens his laptop. Checks email before the morning stand-up. One new message catches his eye.');
+    setTimeout(()=>{
+      // highlight phishing row
+      if(row) row.style.background='#e8f0fe';
+      setSubtitle('JEFFERY ALEXANDER','He sees: "[MECS] Jeffery, your Q4 course content is ready to review." He\'s been waiting for the team to upload the new modules since the CMS migration.');
+      setTimeout(()=>svOpenEmail(),3500);
+    },2000);
+  },1200);
+}
+
+function svOpenEmail(){
+  document.getElementById('sv-gmail').style.display='none';
+  document.getElementById('sv-open-email').classList.add('on');
+  setSubtitle('JEFFERY ALEXANDER','The email looks completely normal. Correct formatting. The subject references the CMS migration — something he posted about himself.');
+  setTimeout(()=>{
+    setSubtitle('JEFFERY ALEXANDER — 09:14:38','He doesn\'t expand the sender field. If he had, he\'d have seen "cms-mecs-platform.com" — not a real domain. He clicks the link.');
+    let link=document.getElementById('sv-link');if(link){link.style.fontWeight='700';}
+    setTimeout(()=>svShowLogin(),3500);
+  },4000);
+}
+
+function svShowLogin(){
+  document.getElementById('sv-open-email').classList.remove('on');
+  let login=document.getElementById('sv-login');login.style.display='flex';login.classList.add('on');
+  setSubtitle('JEFFERY ALEXANDER','The login page looks identical to Google\'s. Same logo. Same layout. He\'s logged into Google thousands of times. His fingers move without thinking.');
+  setTimeout(()=>svTypeCredentials(),2500);
+}
+
+function svTypeCredentials(){
+  setSubtitle('ATTACKER MACHINE — 09:14:52','Credential harvester active. Keystroke capture running.');
+  let emailInp=document.getElementById('sv-email-inp');
+  let passInp=document.getElementById('sv-pass-inp');
+  let eStr='jeffery@mecs.io',pStr='Br0wn1e@MECS!';
+  let i=0;
+  let eType=setInterval(()=>{emailInp.value=eStr.slice(0,i+1);i++;if(i>=eStr.length){clearInterval(eType);setTimeout(()=>{let j=0;let pType=setInterval(()=>{passInp.value=pStr.slice(0,j+1);j++;if(j>=pStr.length){clearInterval(pType);setTimeout(()=>svSubmitCreds(),700);}},65);},500);}},75);
+}
+
+function svSubmitCreds(){
+  setSubtitle('ATTACKER MACHINE — 09:14:58','CAPTURED: jeffery@mecs.io : Br0wn1e@MECS! — session token generated — internal drive mounted.');
+  let login=document.getElementById('sv-login');
+  login.innerHTML='<div style="font-family:sans-serif;text-align:center;padding:2.5rem;color:#888;font-size:14px">Session expired. Please try again later.</div>';
+  setTimeout(()=>{
+    setSubtitle('JEFFERY ALEXANDER — 09:15:04','"Probably a Google glitch." He closes the tab and opens Notion. He has absolutely no idea what just happened. He won\'t find out for 22 minutes.');
+    setTimeout(()=>svShowRansomOnDesktop(),7000);
+  },2500);
+}
+
+function svShowRansomOnDesktop(){
+  setSubtitle('22 MINUTES LATER — 09:37 AM','Jeffery\'s screen freezes. Files begin renaming themselves one by one. course_01.mp4 becomes course_01.mp4.locked. Then donor_list.csv.locked.');
+  let desktop=document.getElementById('sv-desktop');
+  desktop.innerHTML=`
+    <div style="background:#333;padding:6px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0">
+      <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block"></span>
+      <span style="font-size:10px;color:#aaa;margin-left:8px;font-family:sans-serif">jeffery-desktop — MECS Internal Drive</span>
+    </div>
+    <div id="sv-files" style="flex:1;background:#1a1a1a;padding:14px;overflow:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start;font-family:monospace;font-size:10px"></div>`;
+  let area=document.getElementById('sv-files');
+  let files=['course_01.mp4','donor_list.csv','Q4_strategy.pdf','partner_NDA.docx','budget_24.xlsx','student_db.sql','HR_records.xlsx','payroll.xlsx','api_keys.env','source_code.zip','course_02.mp4','maya_notes.docx','contracts/','media_assets/','board_mins.pdf'];
+  files.forEach(f=>{
+    let el=document.createElement('div');
+    el.style.cssText='background:#111;border:1px solid #222;padding:8px 6px;text-align:center;color:#666;border-radius:2px;transition:all .4s;word-break:break-all';
+    el.textContent=f;area.appendChild(el);
+  });
+  let items=area.querySelectorAll('div');let i=0;
+  let enc=setInterval(()=>{
+    if(i<items.length){
+      items[i].textContent=items[i].textContent+'.locked';
+      items[i].style.background='#0d0505';items[i].style.borderColor='#330000';items[i].style.color='#440000';
+      i++;
+    } else {
+      clearInterval(enc);
+      setSubtitle('JEFFERY ALEXANDER — 09:38 AM','"What is happening to my files?" His hands don\'t move. Then the ransom note appears.');
+      setTimeout(()=>svShowRansomNote(),1500);
+    }
+  },180);
+}
+
+function svShowRansomNote(){
+  let desktop=document.getElementById('sv-desktop');
+  desktop.innerHTML=`
+    <div style="background:#333;padding:6px 12px;flex-shrink:0;font-family:monospace;font-size:10px;color:#aaa">jeffery-desktop — LOCKED</div>
+    <div style="flex:1;background:#050000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;font-family:monospace">
+      <div style="font-size:2rem;margin-bottom:10px">💀</div>
+      <div style="font-size:1rem;font-weight:700;color:#ff3b3b;letter-spacing:3px;margin-bottom:10px">YOUR FILES ARE ENCRYPTED</div>
+      <div style="font-size:11px;color:#b06060;line-height:1.9;margin-bottom:14px">All files on the MECS network have been encrypted with AES-256.<br>Course materials. Donor database. Partner contracts. Everything.</div>
+      <div style="font-size:1.4rem;font-weight:700;color:#ffaa00;margin-bottom:4px">₹8,50,000</div>
+      <div style="font-size:9px;color:#888;margin-bottom:12px">0.142 BTC · Pay within 72 hours or key is destroyed</div>
+      <div style="font-size:9px;color:#444;margin-bottom:20px;word-break:break-all;max-width:300px">1A2B3mECS4C5D6rYpT8J9K0MECS1N2P3Q4R5S6T7U8V</div>
+    </div>`;
+  setSubtitle('JEFFERY ALEXANDER — 09:38 AM','"I teach people about this." He stares at the ransom note. His phone is already ringing. It\'s Maya. Then Rajan. Then Aathithya.');
+  setTimeout(()=>{
+    setSubtitle('THE AFTERMATH','One email. One click. 22 minutes. No zero-days. No sophisticated malware. Just research, a convincing email, and human trust.');
+    setTimeout(()=>{
+      setSubtitle('','');
+      // show continue button in subtitle bar
+      document.getElementById('sv-subtitle-bar').innerHTML='<button onclick="goDebrief(\'story\')" style="background:var(--red);color:#fff;border:none;padding:12px 32px;font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;font-family:monospace">CONTINUE TO DEBRIEF →</button>';
+    },7000);
+  },6000);
+}
+
+function setSubtitle(who,text){
+  let sub=document.getElementById('sv-subtitle');
+  let whoEl=document.getElementById('sv-sub-who');
+  let textEl=document.getElementById('sv-sub-text');
+  sub.classList.remove('on');
+  setTimeout(()=>{
+    whoEl.textContent=who;textEl.textContent=text;
+    if(who||text) sub.classList.add('on');
+  },200);
+}
+
+// ═══════════════════════════════════════════════════
+// GAME OVER + DEBRIEF
+// ═══════════════════════════════════════════════════
+function gameOver(reason,lesson){
+  clearTimers();
+  document.getElementById('go-reason').textContent=reason;
+  document.getElementById('go-lesson').textContent=lesson||'';
+  showScreen('s-gameover');
+}
+
+function goDebrief(m){
+  clearTimers();
+  document.getElementById('s-story-vic').classList.remove('on');
+  document.getElementById('s-ransom').classList.remove('on');
+  let titles={atk:'YOU BREACHED<br><span class="red">MECS</span>',vic:'SIMULATION<br><span class="red">COMPLETE</span>',story:'THE STORY<br><span class="red">ENDS HERE</span>'};
+  document.getElementById('db-title').innerHTML=titles[m]||titles.atk;
+  let stats={
+    atk:[['3','PHASES'],['31','FILES ENCRYPTED'],['₹8.5L','RANSOM'],['0','DAYS TO BREACH']],
+    vic:[[vicCorrect,'CORRECT'],[vicWrong,'WRONG'],[Math.round(vicCorrect/vicEmails.length*100)+'%','ACCURACY'],[vicWrong===0?'SAFE':'BREACH','STATUS']],
+    story:[['1','EMAIL SENT'],['22min','TO RANSOMWARE'],['31','FILES LOST'],['₹8.5L','DEMANDED']]
+  };
+  document.getElementById('db-stats').innerHTML=(stats[m]||stats.atk).map(([v,l])=>'<div class="db-stat"><div class="dv">'+v+'</div><div class="dl">'+l+'</div></div>').join('');
+  let wakeups={
+    atk:'<strong>// YOU WERE THE ATTACKER.</strong><br><br>Everything you did — OSINT, targeted phishing, credential capture, free-world access, file manipulation, ransomware — is a textbook spear-phishing attack. No zero-days. No sophisticated malware. Just research, a convincing email, and human trust.<br><br><strong>This happens to real organizations every single day.</strong>',
+    vic:'<strong>// YOU WERE THE DEFENDER.</strong><br><br>Each email tested a different social engineering technique. Every wrong call is a real-world lesson.<br><br><strong>'+(vicCorrect===vicEmails.length?'Perfect score. That level of vigilance is rare and valuable.':'The emails you missed are the ones attackers use most successfully. Keep practicing.')+'</strong>',
+    story:'<strong>// YOU SAW BOTH SIDES.</strong><br><br>From terminal to ransom note: 22 minutes. One email. One click. Jeffery — a cybersecurity professional — fell for a targeted, well-researched attack.<br><br><strong>This is not a failure of intelligence. It is a failure of process.</strong>'
+  };
+  document.getElementById('db-wakeup').innerHTML=wakeups[m]||wakeups.atk;
+  let badges={
+    atk:[['🔍','OSINT'],['🎣','PHISH'],['💀','RANSOM'],['⚡','OPERATOR']],
+    vic:[['📧','DEFENDER'],['🔍','EAGLE EYE'],['🛡','SPOTTER'],['⚡','RESPONDER']],
+    story:[['🎬','FULL RUN'],['👁','BOTH SIDES'],['⚡','AWAKENED'],['🎓','EDUCATED']]
+  };
+  document.getElementById('db-badges').innerHTML=(badges[m]||badges.atk).map(([i,t])=>'<div class="dbb"><div class="di">'+i+'</div><div class="dt">'+t+'</div></div>').join('');
+  showScreen('s-debrief');
+}
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+function escHtml(s){let d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML;}
+
+// ═══════════════════════════════════════════════════
+// MOBILE PANEL SWITCHER
+// ═══════════════════════════════════════════════════
+function mobSwitch(mode, panel){
+  if(mode==='atk'||mode==='story'){
+    let prefix=mode==='atk'?'atk':'story';
+    let left=document.querySelector('#s-'+mode+' .atk-left');
+    let right=document.querySelector('#s-'+mode+' .atk-right');
+    let bt=document.getElementById('mob-'+prefix+'-browser');
+    let tt=document.getElementById('mob-'+prefix+'-terminal');
+    if(panel==='browser'){
+      if(left)left.classList.add('mob-active');
+      if(right)right.classList.remove('mob-active');
+      if(bt)bt.classList.add('on');
+      if(tt)tt.classList.remove('on');
+    } else {
+      if(left)left.classList.remove('mob-active');
+      if(right)right.classList.add('mob-active');
+      if(tt)tt.classList.add('on');
+      if(bt)bt.classList.remove('on');
+      // focus terminal input
+      setTimeout(()=>{
+        let ci=document.getElementById(prefix===('atk')?'atk-ci':'story-ci');
+        if(ci)ci.focus();
+      },100);
+    }
+  } else if(mode==='vic'){
+    let sidebar=document.getElementById('vic-sidebar-panel');
+    let main=document.getElementById('vic-main-panel');
+    let it=document.getElementById('mob-vic-inbox');
+    let et=document.getElementById('mob-vic-email');
+    if(panel==='inbox'){
+      if(sidebar)sidebar.classList.add('mob-active');
+      if(main)main.classList.remove('mob-active');
+      if(it){it.classList.add('on');it.style.color='#0f9d58';it.style.borderBottomColor='#0f9d58';}
+      if(et){et.classList.remove('on');et.style.color='#888';et.style.borderBottomColor='transparent';}
+    } else {
+      if(sidebar)sidebar.classList.remove('mob-active');
+      if(main)main.classList.add('mob-active');
+      if(et){et.classList.add('on');et.style.color='#0f9d58';et.style.borderBottomColor='#0f9d58';}
+      if(it){it.classList.remove('on');it.style.color='#888';it.style.borderBottomColor='transparent';}
+    }
+  }
+}
+</script>
+</body>
+</html>
