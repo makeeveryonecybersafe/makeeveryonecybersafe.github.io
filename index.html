@@ -30,6 +30,7 @@
                             grid: '#151515',
                             primary: '#FF0055',
                             primaryHover: '#D40047',
+                            premium: '#FFD700',
                             dark: '#990033',
                             text: '#ffffff',
                             gray: '#aaaaaa',
@@ -87,6 +88,15 @@
             background: #0a0a0a;
             border: 1px solid #222;
             transition: all 0.3s ease;
+        }
+        .premium-border {
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, #0a0a0a 0%, #151100 100%);
+        }
+
+        .premium-border:hover {
+            border-color: #FFD700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
         }
         
         .card-header-gradient {
@@ -155,7 +165,6 @@
                 <nav class="hidden md:block">
                     <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest text-white">
                         <li><a href="#about" class="hover:text-mecs-primary transition-colors">About</a></li>
-                        <li><a href="training.html" class="hover:text-mecs-primary transition-colors">Education</a></li>
                         <li><a href="playground.html" class="hover:text-mecs-primary transition-colors">Playground</a></li>
                         <li><a href="mirror.html" class="hover:text-mecs-primary transition-colors">Digital Mirror</a></li>
                         <li><a href="image.html" class="hover:text-mecs-primary transition-colors">FaceTrace</a></li>
@@ -173,7 +182,6 @@
         <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-primary backdrop-blur-md md:hidden animate__animated animate__fadeInDown">
             <ul class="flex flex-col p-6 space-y-6 text-center">
                 <li><a href="#about" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2 border-b border-white/10">About</a></li>
-                <li><a href="training.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2 border-b border-white/10">Education</a></li>
                 <li><a href="playground.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2">Playground</a></li>
                 <li><a href="mirror.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2">Digital Mirror</a></li>
                 <li><a href="image.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary py-2">FaceTrace</a></li>
@@ -200,12 +208,12 @@
                 </p>
 
                 <div class="flex flex-wrap gap-4">
-                    <a href="training.html" class="btn-clip bg-mecs-primary text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center gap-2 group">
-                        <i class="fas fa-terminal"></i> Start Learning
+                    <a href="https://aathithya-shanmuga-sundaram.github.io" class="btn-clip bg-mecs-primary text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center gap-2 group">
+                        <i class="fas fa-terminal"></i> About the Founder
                     </a>
                     
-                    <a href="https://aathithya-shanmuga-sundaram.github.io" class="btn-clip border border-white/30 text-white px-8 py-4 font-bold uppercase tracking-wider hover:border-mecs-primary hover:text-mecs-primary transition-colors">
-                        About the Founder
+                    <a href="program.html" class="btn-clip border border-mecs-premium text-mecs-premium px-8 py-4 font-bold uppercase tracking-wider hover:bg-mecs-premium hover:text-black transition-colors">
+                        Premium Internship
                     </a>
                 </div>
             </div>
@@ -252,8 +260,8 @@
                 </div>
                 <div class="mecs-card p-8 text-center relative overflow-hidden group">
                     <div class="absolute top-0 left-0 w-1 h-full bg-mecs-primary group-hover:w-full transition-all duration-500 opacity-10"></div>
-                    <div class="text-4xl md:text-6xl font-black text-mecs-primary mb-2 tabular-nums stat-counter" data-target="6">0</div>
-                    <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Education Modules</div>
+                    <div class="text-4xl md:text-6xl font-black text-mecs-primary mb-2 tabular-nums stat-counter" data-target="12">0</div>
+                    <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Sessions Delivered</div>
                 </div>
             </div>
         </section>
@@ -286,70 +294,13 @@
             </div>
         </section>
 
-        <section id="courses" class="container mx-auto px-6 mb-24">
-            <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="h-0.5 w-8 bg-mecs-primary"></div>
-                        <span class="text-mecs-primary font-bold uppercase tracking-widest text-xs">Curriculum</span>
-                    </div>
-                    <h2 class="text-3xl md:text-4xl font-black uppercase text-white">Free Modules</h2>
-                </div>
-                <div class="hidden md:block text-mecs-gray text-xs font-mono">
-                    > STATUS: <span class="text-green-500">AVAILABLE</span>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="mecs-card group relative">
-                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
-                        <i class="fas fa-user-shield text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Personal Defense</h3>
-                        <p class="text-mecs-gray text-xs mb-6">Passwords, 2FA, and basic account hardening.</p>
-                        <a href="courses/Personal_Defense.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
-                    </div>
-                </div>
-                <div class="mecs-card group relative">
-                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
-                        <i class="fas fa-envelope-open-text text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Phishing & Scams</h3>
-                        <p class="text-mecs-gray text-xs mb-6">Spot the fake. Real-world case files on email scams.</p>
-                        <a href="404.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
-                    </div>
-                </div>
-                <div class="mecs-card group relative">
-                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
-                        <i class="fas fa-wifi text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Network Safety</h3>
-                        <p class="text-mecs-gray text-xs mb-6">Public Wi-Fi risks, VPNs, and Router security.</p>
-                        <a href="404.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
-                    </div>
-                </div>
-                <div class="mecs-card group relative">
-                    <div class="card-header-gradient h-32 flex items-center justify-center border-b border-white/5">
-                        <i class="fas fa-user-secret text-5xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold uppercase mb-2 group-hover:text-mecs-primary transition-colors text-white">Privacy Ops</h3>
-                        <p class="text-mecs-gray text-xs mb-6">Data minimization and tracking protection.</p>
-                        <a href="404.html" class="block w-full text-center btn-clip bg-white/5 border border-white/10 py-2 text-xs font-bold uppercase hover:bg-mecs-primary hover:text-black transition-all text-white">Start Module</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section id="helpline" class="container mx-auto px-6 mb-24">
-            <div class="bg-gradient-to-r from-[#0a0a0a] to-[#150a0a] border border-orange-500/30 p-8 md:p-12 btn-clip relative overflow-hidden group">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-600/10 rounded-full blur-[80px] group-hover:bg-orange-600/20 transition-all duration-700"></div>
-                
-                <div class="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-                    <div class="md:w-2/3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- RAISE A TICKET -->
+                <div class="bg-gradient-to-r from-[#0a0a0a] to-[#150a0a] border border-orange-500/30 p-8 btn-clip relative overflow-hidden group">
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-600/10 rounded-full blur-[80px] group-hover:bg-orange-600/20 transition-all duration-700"></div>
+                    <div class="relative z-10 flex flex-col h-full">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="relative flex h-3 w-3">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -357,18 +308,43 @@
                             </span>
                             <span class="text-orange-500 font-bold uppercase tracking-widest text-xs">Security Response Center</span>
                         </div>
-                        <h2 class="text-3xl md:text-5xl font-black uppercase text-white mb-6 leading-tight">Facing a Cyber Threat? <br><span class="text-orange-500">We are Here to Guide You.</span></h2>
-                        <p class="text-mecs-gray text-lg mb-0 max-w-xl">
+                        <h2 class="text-2xl md:text-3xl font-black uppercase text-white mb-4 leading-tight">Facing a Cyber Threat? <br><span class="text-orange-500">We are Here to Guide You.</span></h2>
+                        <p class="text-mecs-gray text-sm mb-8 leading-relaxed flex-grow">
                             If you've been scammed, hacked, or noticed suspicious activity, don't panic. Reach out to our response team for immediate guidance on your next steps.
                         </p>
-                    </div>
-                    <div class="md:w-1/3 flex flex-col items-center">
-                        <a href="https://instagram.com/makeeveryonecybersafe" target="_blank" class="w-full text-center btn-clip bg-orange-600 text-white px-8 py-5 font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] flex items-center justify-center gap-3 group/btn">
-                            <i class="fab fa-instagram text-xl"></i> Open Support Ticket
-                        </a>
-                        <p class="mt-4 text-[10px] text-orange-500/60 font-mono uppercase tracking-widest">Response time: ~24 Hours</p>
+                        <div>
+                            <a href="https://forms.gle/9cqmtZkdruGFmNbP6" target="_blank" class="w-full text-center btn-clip bg-orange-600 text-white px-8 py-5 font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] flex items-center justify-center gap-3">
+                                <i class="fas fa-shield-alt"></i> Open Support Ticket
+                            </a>
+                            <p class="mt-4 text-[10px] text-orange-500/60 font-mono uppercase tracking-widest text-center">Response time: ~24 Hours</p>
+                        </div>
                     </div>
                 </div>
+
+                <!-- REQUEST A SESSION -->
+                <div class="bg-gradient-to-r from-[#0a0a0a] to-[#0a0f1a] border border-blue-500/30 p-8 btn-clip relative overflow-hidden group">
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] group-hover:bg-blue-600/20 transition-all duration-700"></div>
+                    <div class="relative z-10 flex flex-col h-full">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                            </span>
+                            <span class="text-blue-400 font-bold uppercase tracking-widest text-xs">Session Booking</span>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black uppercase text-white mb-4 leading-tight">Want to Spread <br><span class="text-blue-400">Cyber Awareness?</span></h2>
+                        <p class="text-mecs-gray text-sm mb-8 leading-relaxed flex-grow">
+                            Bring cybersecurity training to your school, college, or organisation. We deliver workshops, webinars, and corporate sessions tailored to your audience.
+                        </p>
+                        <div>
+                            <a href="https://forms.gle/TtpHtQqsthckTR4Y6" target="_blank" class="w-full text-center btn-clip bg-blue-600 text-white px-8 py-5 font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] flex items-center justify-center gap-3">
+                                <i class="fas fa-chalkboard-teacher text-xl"></i> Request a Session
+                            </a>
+                            <p class="mt-4 text-[10px] text-blue-500/60 font-mono uppercase tracking-widest text-center">Response time: ~48 Hours</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
