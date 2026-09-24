@@ -254,6 +254,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    overflow-y: auto;
   }
 
   .mobile-nav-overlay.open {
@@ -266,9 +267,7 @@
     border-radius: 28px;
     padding: 24px 20px;
     width: 100%;
-    max-width: 380px;
-    max-height: 85vh;
-    overflow-y: auto;
+    max-width: 360px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 
       0 30px 60px rgba(0,0,0,0.9),
@@ -276,13 +275,15 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
   .mobile-menu-item {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 12px 16px;
+    padding: 12px 18px;
     border-radius: 14px;
     background: linear-gradient(145deg, #262e3d, #181d28);
     color: var(--text-primary);
@@ -442,13 +443,6 @@
     transition: transform 0.15s ease-out;
   }
 
-  @media (max-width: 576px) {
-    .hero-card {
-      padding: 35px 22px;
-      border-radius: 24px;
-    }
-  }
-
   .kicker {
     font-size: 0.85rem;
     color: var(--text-muted);
@@ -462,6 +456,7 @@
     padding: 6px 16px;
     border-radius: 20px;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.1);
+    flex-wrap: wrap;
   }
 
   .kicker .x {
@@ -477,6 +472,7 @@
     margin-bottom: 16px;
     color: #ffffff;
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+    word-break: break-word;
   }
 
   .tagline {
@@ -502,16 +498,6 @@
     flex-wrap: wrap;
   }
 
-  @media (max-width: 576px) {
-    .hero-actions {
-      flex-direction: column;
-      gap: 12px;
-    }
-    .hero-actions .btn {
-      width: 100%;
-    }
-  }
-
   .btn {
     display: inline-flex;
     align-items: center;
@@ -526,6 +512,7 @@
     user-select: none;
     position: relative;
     transition: all 0.15s ease;
+    text-align: center;
   }
 
   .btn-primary {
@@ -567,6 +554,7 @@
   .btn-large {
     padding: 18px 38px;
     font-size: 1.05rem;
+    width: 100%;
   }
 
   .hero-footer-tag {
@@ -581,6 +569,7 @@
     padding: 8px 18px;
     border-radius: 12px;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08);
+    flex-wrap: wrap;
   }
 
   .blink {
@@ -600,12 +589,6 @@
     z-index: 10;
   }
 
-  @media (max-width: 576px) {
-    .section {
-      padding: 60px 4vw;
-    }
-  }
-
   .section-head {
     margin-bottom: 36px;
   }
@@ -613,7 +596,7 @@
   .section-head h2 {
     font-family: var(--display-font);
     font-weight: 800;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-size: clamp(2rem, 4vw, 2.6rem);
     color: #fff;
     text-shadow: 0 4px 10px rgba(0,0,0,0.8);
   }
@@ -629,13 +612,6 @@
       inset 0 1px 1px rgba(255, 255, 255, 0.16),
       inset 0 -3px 5px rgba(0, 0, 0, 0.7);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  @media (max-width: 576px) {
-    .skeuo-card {
-      padding: 24px 20px;
-      border-radius: 20px;
-    }
   }
 
   .lead {
@@ -678,14 +654,6 @@
     align-items: center;
   }
 
-  @media (max-width: 576px) {
-    .tl-content {
-      padding: 20px 16px;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-  }
-
   .scratch-canvas {
     position: absolute;
     top: 0;
@@ -726,6 +694,7 @@
     justify-content: center;
     box-shadow: inset 0 3px 6px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.12);
     text-shadow: 0 0 10px rgba(255, 176, 32, 0.4);
+    flex-shrink: 0;
   }
 
   .tl-item h3 {
@@ -766,12 +735,6 @@
     gap: 20px;
   }
 
-  @media (max-width: 576px) {
-    .details-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .detail-card {
     position: relative;
     background: linear-gradient(145deg, #202734, #151a23);
@@ -786,7 +749,6 @@
     transition: transform 0.2s ease, border-color 0.2s ease;
   }
 
-  /* Dynamic Mouse Spotlight Glow Layer */
   .detail-card::before {
     content: "";
     position: absolute;
@@ -821,6 +783,7 @@
     font-size: 1.1rem;
     color: #ffffff;
     font-weight: 700;
+    word-break: break-word;
   }
 
   /* SECTION 4: Interactive Dynamic Register Section */
@@ -837,13 +800,6 @@
     max-width: 680px;
     transform-style: preserve-3d;
     transition: transform 0.15s ease-out;
-  }
-
-  @media (max-width: 576px) {
-    .register-box {
-      padding: 30px 20px;
-      border-radius: 22px;
-    }
   }
 
   .register-box p {
@@ -878,12 +834,6 @@
     justify-content: center;
   }
 
-  @media (max-width: 576px) {
-    .footer-bar {
-      gap: 12px;
-    }
-  }
-
   .footer-insta-btn {
     width: 44px;
     height: 44px;
@@ -900,6 +850,7 @@
       inset 0 1px 1px rgba(255, 255, 255, 0.2),
       inset 0 -2px 3px rgba(0, 0, 0, 0.7);
     transition: all 0.2s ease;
+    flex-shrink: 0;
   }
 
   .footer-insta-btn svg {
@@ -926,12 +877,6 @@
     box-shadow: 1px 0 0 rgba(0, 0, 0, 0.8);
   }
 
-  @media (max-width: 576px) {
-    .footer-divider {
-      display: none;
-    }
-  }
-
   .crafted-pill {
     display: inline-flex;
     align-items: center;
@@ -949,6 +894,8 @@
       0 10px 24px rgba(0, 0, 0, 0.6),
       inset 0 1px 1px rgba(255, 255, 255, 0.2),
       inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .crafted-pill .heart-icon {
@@ -1030,13 +977,6 @@
     transition: transform 0.25s ease;
   }
 
-  @media (max-width: 576px) {
-    .modal-box {
-      padding: 24px;
-      border-radius: 20px;
-    }
-  }
-
   .modal-overlay.active .modal-box {
     transform: translateY(0);
   }
@@ -1068,6 +1008,45 @@
     cursor: pointer;
     font-weight: 700;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+
+  /* Extra Responsive Adjustments for Mobile Views */
+  @media (max-width: 768px) {
+    .hero {
+      padding: 100px 16px 60px;
+      min-height: auto;
+    }
+    .hero-card {
+      padding: 32px 22px;
+      border-radius: 24px;
+    }
+    .skeuo-card, .register-box {
+      padding: 24px 20px;
+      border-radius: 20px;
+    }
+    .section {
+      padding: 60px 16px;
+    }
+    .tl-content {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 22px 20px;
+    }
+    .tl-num {
+      width: 48px;
+      height: 48px;
+      font-size: 1.4rem;
+      border-radius: 14px;
+    }
+    .footer-bar {
+      gap: 12px;
+    }
+    .footer-divider {
+      display: none;
+    }
+    .modal-box {
+      padding: 24px 20px;
+    }
   }
 </style>
 </head>
@@ -1391,7 +1370,7 @@
     }
     animateParticles();
 
-    // 2. Hero 3D Parallax Tilt Effect (Disabled cleanly on smaller touch devices via window check)
+    // 2. Hero 3D Parallax Tilt Effect (Disabled on small mobile screens to prevent jitter)
     const heroSection = document.getElementById("heroSection");
     const heroCard = document.getElementById("heroCard");
     const b1 = document.getElementById("bgBadge1");
@@ -1399,27 +1378,27 @@
     const b3 = document.getElementById("bgBadge3");
     const b4 = document.getElementById("bgBadge4");
 
-    if (window.innerWidth > 768) {
-      document.addEventListener("mousemove", (e) => {
-        const xAxis = (window.innerWidth / 2 - e.pageX) / 32;
-        const yAxis = (window.innerHeight / 2 - e.pageY) / 32;
+    document.addEventListener("mousemove", (e) => {
+      if (window.innerWidth <= 768) return;
+      const xAxis = (window.innerWidth / 2 - e.pageX) / 32;
+      const yAxis = (window.innerHeight / 2 - e.pageY) / 32;
 
-        if (heroCard) heroCard.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-        if (b1) b1.style.transform = `rotate(-14deg) translate(${xAxis * 1.6}px, ${yAxis * 1.6}px)`;
-        if (b2) b2.style.transform = `rotate(12deg) translate(${-xAxis * 1.3}px, ${-yAxis * 1.3}px)`;
-        if (b3) b3.style.transform = `rotate(18deg) translate(${xAxis * 1.8}px, ${yAxis * 1.8}px)`;
-        if (b4) b4.style.transform = `rotate(-10deg) translate(${-xAxis * 1.5}px, ${-yAxis * 1.5}px)`;
-      });
+      if (heroCard) heroCard.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+      if (b1) b1.style.transform = `rotate(-14deg) translate(${xAxis * 1.6}px, ${yAxis * 1.6}px)`;
+      if (b2) b2.style.transform = `rotate(12deg) translate(${-xAxis * 1.3}px, ${-yAxis * 1.3}px)`;
+      if (b3) b3.style.transform = `rotate(18deg) translate(${xAxis * 1.8}px, ${yAxis * 1.8}px)`;
+      if (b4) b4.style.transform = `rotate(-10deg) translate(${-xAxis * 1.5}px, ${-yAxis * 1.5}px)`;
+    });
 
-      heroSection.addEventListener("mouseleave", () => {
-        if (heroCard) heroCard.style.transform = `rotateY(0deg) rotateX(0deg)`;
-      });
-    }
+    heroSection.addEventListener("mouseleave", () => {
+      if (heroCard) heroCard.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
 
     // 3. Register Card Parallax Tilt
     const registerBox = document.getElementById("registerBox");
-    if (registerBox && window.innerWidth > 768) {
+    if (registerBox) {
       registerBox.parentElement.addEventListener("mousemove", (e) => {
+        if (window.innerWidth <= 768) return;
         const rect = registerBox.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
@@ -1444,6 +1423,9 @@
 
     // 5. Timeline HTML5 Scratch Card Canvas Logic
     initScratchCards();
+    window.addEventListener("resize", () => {
+      setTimeout(initScratchCards, 200);
+    });
 
     // 6. Navigation Active Link Observer
     const sections = document.querySelectorAll("#heroSection, #briefing, #format, #details, #register");
@@ -1470,7 +1452,7 @@
     });
   });
 
-  /* HTML5 Interactive Scratch Canvas Implementation with Mobile support */
+  /* HTML5 Interactive Scratch Canvas Implementation */
   function initScratchCards() {
     for (let i = 1; i <= 4; i++) {
       const canvas = document.getElementById(`canvas${i}`);
@@ -1512,12 +1494,12 @@
       }
 
       canvas.addEventListener('mousedown', () => isScratching = true);
-      window.addEventListener('mouseup', () => isScratching = false);
+      canvas.addEventListener('mouseup', () => isScratching = false);
       canvas.addEventListener('mousemove', scratch);
 
-      canvas.addEventListener('touchstart', (e) => { isScratching = true; scratch(e); });
-      window.addEventListener('touchend', () => isScratching = false);
-      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); scratch(e); }, { passive: false });
+      canvas.addEventListener('touchstart', () => isScratching = true);
+      canvas.addEventListener('touchend', () => isScratching = false);
+      canvas.addEventListener('touchmove', scratch);
     }
   }
 
