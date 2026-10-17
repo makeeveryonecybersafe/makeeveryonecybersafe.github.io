@@ -137,51 +137,20 @@
 
     <!-- Editable Backend & Dynamic Filter Script -->
     <script>
-        // =========================================================================
-        // EDITABLE BACKEND: Add, remove, or modify N number of students here easily!
-        // =========================================================================
         const ambassadorsData = [
             {
-                name: "Aarav Sharma",
+                name: "Carl Johnson",
                 college: "Sri Ramakrishna College of Arts & Science",
                 role: "Lead Campus Ambassador",
                 linkedin: "https://www.linkedin.com",
-                initials: "AS"
+                initials: "CJ"
             },
             {
                 name: "Ananya Patel",
-                college: "PSG College of Technology",
-                role: "Cyber Outreach Lead",
+                college: "Sri Ramakrishna College of Arts & Science",
+                role: "Lead Campus Ambassador",
                 linkedin: "https://www.linkedin.com",
                 initials: "AP"
-            },
-            {
-                name: "Karthik Kumar",
-                college: "Coimbatore Institute of Technology",
-                role: "Student Ambassador",
-                linkedin: "https://www.linkedin.com",
-                initials: "KK"
-            },
-            {
-                name: "Priya Sundaram",
-                college: "Amrita Vishwa Vidyapeetham",
-                role: "Event Coordinator & Ambassador",
-                linkedin: "https://www.linkedin.com",
-                initials: "PS"
-            },
-            {
-                name: "Rahul Nair",
-                college: "Government College of Technology, Coimbatore",
-                role: "Student Ambassador",
-                linkedin: "https://www.linkedin.com",
-                initials: "RN"
-            },
-            {
-                name: "Sneha Ramesh",
-                college: "Kumaraguru College of Technology",
-                role: "Media & Design Ambassador",
-                linkedin: "https://www.linkedin.com",
-                initials: "SR"
             }
         ];
 
