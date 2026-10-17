@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MECS Student Ambassadors Directory | MakeEveryoneCyberSafe</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        mecs: {
+                            bg: '#000000',
+                            primary: '#FF0055',
+                            premium: '#D4AF37', /* Gold Accent */
+                            gray: '#aaaaaa'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #000000;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1a1500 0%, transparent 70%),
+                linear-gradient(#151515 1px, transparent 1px),
+                linear-gradient(90deg, #151515 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            color: #ffffff;
+        }
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+        .premium-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+    <!-- Header Navigation -->
+    <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-mecs-premium/20">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-xl md:text-2xl font-black tracking-tighter uppercase text-white hover:text-mecs-premium transition-colors">
+                #MECS <span class="text-mecs-premium text-xs md:text-sm ml-1 md:ml-2 italic">DIRECTORY</span>
+            </a>
+            
+            <div class="flex items-center gap-4">
+                <nav class="hidden md:flex space-x-6 text-xs font-bold uppercase tracking-widest text-gray-300">
+                    <a href="ambassador.html" class="hover:text-mecs-premium transition-colors">Ambassador Program</a>
+                    <a href="index.html" class="hover:text-mecs-premium transition-colors">Home HQ</a>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none p-1">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Drawer -->
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-premium/30 backdrop-blur-md md:hidden animate__animated animate__fadeInDown">
+            <ul class="flex flex-col p-6 space-y-4 text-center">
+                <li><a href="ambassador.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-premium py-2 border-b border-white/10">Ambassador Program</a></li>
+                <li><a href="index.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-premium py-2">Home HQ</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-32 pb-20">
+        
+        <!-- Hero Section -->
+        <section class="container mx-auto px-6 mb-16">
+            <div class="max-w-4xl mx-auto text-center animate__animated animate__fadeIn">
+                <div class="inline-block px-4 py-1 border border-mecs-premium/50 bg-mecs-premium/10 text-mecs-premium text-[10px] font-bold uppercase tracking-[0.3em] mb-6 btn-clip">
+                    Active Student Representatives
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-6xl font-black uppercase mb-6 leading-tight">
+                    Meet Our <br> <span class="text-mecs-premium italic">Student Ambassadors</span>
+                </h1>
+                <p class="text-mecs-gray text-sm sm:text-base md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Explore the official roster of student leaders representing MakeEveryoneCyberSafe across different institutions and college campuses.
+                </p>
+
+                <!-- Search Input Bar -->
+                <div class="max-w-xl mx-auto relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-mecs-premium">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <input type="text" id="searchInput" onkeyup="filterAmbassadors()" placeholder="Search by student name or college name..." 
+                        class="w-full pl-11 pr-4 py-4 bg-white/5 border border-white/20 text-white placeholder-gray-500 text-xs sm:text-sm btn-clip focus:outline-none focus:border-mecs-premium transition-all">
+                </div>
+            </div>
+        </section>
+
+        <!-- Ambassadors Directory Grid -->
+        <section class="container mx-auto px-6 mb-24">
+            <div class="max-w-6xl mx-auto">
+                <div id="ambassadorsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards will be dynamically injected here via JavaScript -->
+                </div>
+
+                <!-- No Results State -->
+                <div id="noResults" class="hidden text-center py-16 bg-white/5 border border-white/10 btn-clip">
+                    <i class="fas fa-user-secret text-4xl text-mecs-premium mb-4"></i>
+                    <h3 class="text-lg font-bold uppercase text-white mb-2">No Ambassadors Found</h3>
+                    <p class="text-xs text-mecs-gray">Try searching with a different keyword or college name.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-black border-t border-mecs-premium/20 py-10">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-600 text-[10px] uppercase tracking-[0.2em]">
+                &copy; 2026 #MECS AMBASSADOR DIRECTORY | MAKEEVERYCYBERSAFE
+            </p>
+        </div>
+    </footer>
+
+    <!-- Editable Backend & Dynamic Filter Script -->
+    <script>
+        // =========================================================================
+        // EDITABLE BACKEND: Add, remove, or modify N number of students here easily!
+        // =========================================================================
+        const ambassadorsData = [
+            {
+                name: "Aarav Sharma",
+                college: "Sri Ramakrishna College of Arts & Science",
+                role: "Lead Campus Ambassador",
+                linkedin: "https://www.linkedin.com",
+                initials: "AS"
+            },
+            {
+                name: "Ananya Patel",
+                college: "PSG College of Technology",
+                role: "Cyber Outreach Lead",
+                linkedin: "https://www.linkedin.com",
+                initials: "AP"
+            },
+            {
+                name: "Karthik Kumar",
+                college: "Coimbatore Institute of Technology",
+                role: "Student Ambassador",
+                linkedin: "https://www.linkedin.com",
+                initials: "KK"
+            },
+            {
+                name: "Priya Sundaram",
+                college: "Amrita Vishwa Vidyapeetham",
+                role: "Event Coordinator & Ambassador",
+                linkedin: "https://www.linkedin.com",
+                initials: "PS"
+            },
+            {
+                name: "Rahul Nair",
+                college: "Government College of Technology, Coimbatore",
+                role: "Student Ambassador",
+                linkedin: "https://www.linkedin.com",
+                initials: "RN"
+            },
+            {
+                name: "Sneha Ramesh",
+                college: "Kumaraguru College of Technology",
+                role: "Media & Design Ambassador",
+                linkedin: "https://www.linkedin.com",
+                initials: "SR"
+            }
+        ];
+
+        // Function to render ambassador cards
+        function renderAmbassadors(data) {
+            const grid = document.getElementById('ambassadorsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            data.forEach(amb => {
+                const card = document.createElement('div');
+                card.className = "bg-white/5 border border-white/10 p-6 btn-clip flex flex-col justify-between group hover:border-mecs-premium transition-all";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-mecs-premium/10 border border-mecs-premium/30 text-mecs-premium font-mono font-bold flex items-center justify-center text-base btn-clip">
+                                ${amb.initials}
+                            </div>
+                            <span class="text-[10px] font-mono text-mecs-premium uppercase px-2 py-1 bg-mecs-premium/10 btn-clip">
+                                ${amb.role}
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold uppercase text-white mb-1 group-hover:text-mecs-premium transition-colors">${amb.name}</h3>
+                        <p class="text-xs text-mecs-gray mb-6 flex items-center gap-2">
+                            <i class="fas fa-university text-mecs-premium"></i> ${amb.college}
+                        </p>
+                    </div>
+                    <div>
+                        <a href="${amb.linkedin}" target="_blank" rel="noopener noreferrer" class="w-full py-3 bg-black/50 border border-white/20 text-white text-xs font-bold uppercase tracking-wider btn-clip flex items-center justify-center gap-2 hover:bg-mecs-premium hover:text-black hover:border-mecs-premium transition-all">
+                            <i class="fab fa-linkedin"></i> Connect Profile
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Search Filter Function for all items
+        function filterAmbassadors() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = ambassadorsData.filter(amb => 
+                amb.name.toLowerCase().includes(query) || 
+                amb.college.toLowerCase().includes(query) ||
+                amb.role.toLowerCase().includes(query)
+            );
+            renderAmbassadors(filtered);
+        }
+
+        // Mobile Menu Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileIcon.classList.remove('fa-times');
+                mobileIcon.classList.add('fa-bars');
+            } else {
+                mobileIcon.classList.remove('fa-bars');
+                mobileIcon.classList.add('fa-times');
+            }
+        });
+
+        // Initialize directory on load
+        window.onload = function() {
+            renderAmbassadors(ambassadorsData);
+        };
+    </script>
+</body>
+</html>
