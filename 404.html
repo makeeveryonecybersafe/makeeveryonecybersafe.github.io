@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Development in Progress | MECS</title>
+    <title>404 - Sector Not Found | MakeEveryoneCyberSafe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
@@ -22,21 +24,36 @@
                     },
                     colors: {
                         mecs: {
-                            bg: '#050505',
+                            bg: '#000000',
                             surface: '#0a0a0a',
-                            border: '#333333',
-                            accent: '#FFB800', // Construction Amber
-                            dim: '#666666'
+                            surfaceLight: '#111111',
+                            grid: '#151515',
+                            primary: '#FF0055',
+                            primaryHover: '#D40047',
+                            premium: '#FFD700',
+                            dark: '#990033',
+                            text: '#ffffff',
+                            gray: '#aaaaaa',
+                            alert: '#FF5F1F'
                         }
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'stripe-move': 'moveStripes 1s linear infinite',
+                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
-                        moveStripes: {
-                            '0%': { backgroundPosition: '0 0' },
-                            '100%': { backgroundPosition: '40px 0' }
+                        glitch: {
+                            '0%': { transform: 'translate(0)' },
+                            '20%': { transform: 'translate(-2px, 2px)' },
+                            '40%': { transform: 'translate(-2px, -2px)' },
+                            '60%': { transform: 'translate(2px, 2px)' },
+                            '80%': { transform: 'translate(2px, -2px)' },
+                            '100%': { transform: 'translate(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
                         }
                     }
                 }
@@ -44,114 +61,114 @@
         }
     </script>
     <style>
-        body { background-color: #050505; color: #e0e0e0; overflow: hidden; }
-        
-        .scanlines {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(255, 184, 0, 0.05) 50%, rgba(255, 184, 0, 0.05));
-            background-size: 100% 4px;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50;
+        body {
+            background-color: #000000;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1a050a 0%, transparent 70%),
+                linear-gradient(#151515 1px, transparent 1px),
+                linear-gradient(90deg, #151515 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            color: #ffffff;
         }
 
-        /* Construction Striped Bar */
-        .hazard-stripe {
-            background-image: linear-gradient(45deg, #FFB800 25%, #000 25%, #000 50%, #FFB800 50%, #FFB800 75%, #000 75%, #000);
-            background-size: 40px 40px;
+        .hover-glitch:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #FF0055;
+            text-shadow: 2px 2px #990033;
         }
 
-        /* Tech Box with Amber accents */
-        .tech-box {
-            position: relative;
+        .mecs-card {
             background: #0a0a0a;
-            border: 1px solid #333;
-            box-shadow: 0 0 30px rgba(255, 184, 0, 0.1);
-        }
-        .tech-box::before {
-            content: ''; position: absolute; top: -1px; left: -1px; 
-            width: 10px; height: 10px; border-top: 2px solid #FFB800; border-left: 2px solid #FFB800;
-        }
-        .tech-box::after {
-            content: ''; position: absolute; bottom: -1px; right: -1px; 
-            width: 10px; height: 10px; border-bottom: 2px solid #FFB800; border-right: 2px solid #FFB800;
+            border: 1px solid #222;
+            transition: all 0.3s ease;
         }
 
-        .typing-cursor::after {
-            content: '█';
-            animation: blink 1s step-end infinite;
-            margin-left: 2px;
-            color: #FFB800;
+        .mecs-card:hover {
+            border-color: #FF0055;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(255, 0, 85, 0.2);
         }
-        @keyframes blink { 50% { opacity: 0; } }
+
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF0055; }
     </style>
 </head>
-<body class="h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex flex-col justify-between font-sans overflow-x-hidden">
 
-    <div class="scanlines"></div>
-    
-    <div class="fixed inset-0 z-0 opacity-5" 
-         style="background-image: radial-gradient(#FFB800 1px, transparent 1px); background-size: 30px 30px;">
-    </div>
-
-    <div class="tech-box p-8 md:p-12 max-w-lg w-full z-10 text-center animate__animated animate__fadeInUp">
-        
-        <div class="h-2 w-full hazard-stripe animate-stripe-move mb-8 opacity-80 rounded"></div>
-
-        <div class="mb-6 relative inline-block">
-            <div class="absolute inset-0 bg-mecs-accent blur-xl opacity-20 rounded-full"></div>
-            <i class="fas fa-hammer text-5xl text-mecs-accent relative z-10"></i>
-        </div>
-
-        <h1 class="text-3xl md:text-4xl font-bold mb-2 uppercase tracking-tight text-white">
-            Under Construction
-        </h1>
-        
-        <p class="text-mecs-dim font-mono text-xs mb-8">
-            ERR_CODE: CONTENT_NOT_YET_COMPILED
-        </p>
-
-        <div class="bg-gray-900/50 border border-gray-800 p-6 rounded text-left mb-8 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-mecs-accent"></div>
-            
-            <div class="font-mono text-sm leading-relaxed text-gray-300 typing-cursor" id="typewriter-text">
-                </div>
-        </div>
-
-        <div class="mb-8">
-            <div class="flex justify-between text-[10px] font-mono text-mecs-accent mb-1">
-                <span>COMPILING MODULE...</span>
-                <span>64%</span>
-            </div>
-            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-800">
-                <div class="h-full bg-mecs-accent w-[64%] relative overflow-hidden">
-                    <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-3">
-            <a href="index.html" class="block w-full py-3 bg-white text-black font-bold uppercase hover:bg-mecs-accent hover:text-black transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                <i class="fas fa-arrow-left mr-2"></i> Return to Home
+    <!-- HEADER / NAVBAR -->
+    <header class="w-full bg-black/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-tighter uppercase hover-glitch text-white">
+                #MECS
+            </a>
+            <a href="index.html" class="text-xs font-bold uppercase tracking-widest text-mecs-gray hover:text-mecs-primary transition-colors flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Return Home
             </a>
         </div>
+    </header>
 
-        <div class="h-2 w-full hazard-stripe animate-stripe-move mt-8 opacity-80 rounded"></div>
-        
-    </div>
+    <!-- MAIN 404 CONTENT -->
+    <main class="container mx-auto px-4 sm:px-6 py-10 flex flex-col items-center justify-center text-center my-auto">
+        <div class="relative z-10 max-w-2xl w-full animate__animated animate__fadeIn">
+            
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 border border-red-500/50 bg-red-500/10 text-red-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-6">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                Error Code: 404_SEC_NOT_FOUND
+            </div>
+            
+            <!-- Big 404 Header -->
+            <h1 class="text-6xl sm:text-8xl md:text-9xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-400 to-mecs-primary font-mono select-none">
+                404
+            </h1>
+            
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-bold uppercase tracking-tight text-white mb-4">
+                You've wandered into an unmapped sector.
+            </h2>
+            
+            <p class="text-mecs-gray text-sm sm:text-base md:text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+                The link you followed may be broken, or the page has been removed from the server grid.
+            </p>
 
-    <script>
-        const textElement = document.getElementById('typewriter-text');
-        const textToType = "We understand you want to access this module, but our engineers are still building it. High-quality training takes time to compile. Please stand by for future updates.";
-        let i = 0;
+            <!-- Single Return Home Action Button -->
+            <div class="flex justify-center">
+                <a href="index.html" class="btn-clip bg-mecs-primary text-black px-8 py-4 w-full sm:w-auto font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <i class="fas fa-home"></i> Back to Safety
+                </a>
+            </div>
+        </div>
 
-        function typeWriter() {
-            if (i < textToType.length) {
-                textElement.innerHTML += textToType.charAt(i);
-                i++;
-                setTimeout(typeWriter, 30); // Speed of typing
-            }
-        }
+        <!-- Terminal Diagnostic Box -->
+        <div class="w-full max-w-lg mt-12 sm:mt-16 text-left animate__animated animate__fadeInUp">
+            <div class="bg-mecs-surface border border-white/10 p-2 btn-clip shadow-2xl font-mono text-xs">
+                <div class="bg-[#111] px-3 sm:px-4 py-2 flex items-center gap-2 border-b border-white/5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
+                    <div class="ml-auto text-[9px] text-gray-500 uppercase tracking-widest">diagnostic_node.sh</div>
+                </div>
+                <div class="p-3 sm:p-4 text-gray-400 space-y-1.5 overflow-x-auto">
+                    <div><span class="text-mecs-primary">sys@mecs:~$</span> trace_route --target current_path</div>
+                    <div class="text-red-400">> [ERROR] Target resource resolved to null.</div>
+                    <div class="text-gray-500">> Status: Connection Dropped / Packet Lost.</div>
+                    <div><span class="text-mecs-primary">sys@mecs:~$</span> <span class="animate-pulse">_</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-        // Delay start slightly for effect
-        setTimeout(typeWriter, 500);
-    </script>
+    <!-- FOOTER -->
+    <footer class="w-full bg-black border-t border-white/10 py-6 text-center">
+        <p class="text-gray-600 text-[10px] uppercase tracking-wider">
+            &copy; 2026 MakeEveryoneCyberSafe. #MECS. All rights reserved.
+        </p>
+    </footer>
+
 </body>
 </html>
