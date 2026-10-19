@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shadow Profile | MECS Playground</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* MECS palette: magenta on black. Swap these variables to fine-tune */
+:root{--bg:#050206;--card:#0f0a12;--line:#2b1a2e;--ink:#f4eaf3;--mute:#a58fa6;--hot:#ff8a3d;--safe:#ff2bd6;--cy:#e3a8ff;--hi:#ffd23f;
+--m:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;--r:8px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--m)}
+body{background-image:linear-gradient(rgba(255,43,214,.04) 1px,transparent 1px);background-size:100% 4px}
+[hidden]{display:none!important}
+a{color:var(--cy)}
+button{font-family:var(--m)}
+button:focus-visible,.row:focus-visible,a:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+/* landing */
+#land{min-height:100vh;display:flex;flex-direction:column;justify-content:center;max-width:640px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top,0px)) 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.prompt{color:var(--safe);font-size:13px}
+.prompt:after{content:"_";animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+h1{font:800 clamp(38px,11vw,64px)/1 var(--m);margin:14px 0 4px;letter-spacing:-.03em;color:var(--ink)}
+h1 span{color:var(--safe)}
+.sub{color:var(--cy);margin:0 0 18px}
+.lede{color:var(--mute);margin:0 0 20px;max-width:52ch}
+.how{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:12px 14px;margin:0 0 22px;color:var(--mute);font-size:13px}
+.how b{color:var(--ink);font-weight:500}.how div+div{margin-top:4px}
+.btn{min-height:52px;padding:0 24px;border-radius:var(--r);border:2px solid var(--safe);background:var(--safe);color:#0a0008;font:800 16px var(--m);cursor:pointer;letter-spacing:.02em}
+.btn:hover{background:#ff6be6}
+.btn.ghost{background:transparent;color:var(--safe)}
+.btn.ghost:hover{background:rgba(255,43,214,.12)}
+.back{margin-top:22px;font-size:13px}
+/* game */
+main{max-width:680px;margin:0 auto;padding:0 14px 110px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + env(safe-area-inset-top,0px)) 0 10px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.top b{font-weight:800;font-size:15px}.top b i{font-style:normal;color:var(--safe)}
+.who{color:var(--mute);font-size:12px}
+.meters{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:8px}
+.m label{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--mute)}
+.m strong{font:800 22px var(--m);color:var(--ink)}
+.bar{position:relative;height:12px;border-radius:3px;background:var(--line)}
+.bar i{display:block;height:100%;width:0;border-radius:3px;transition:width .35s,background .35s}
+.bar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--hi);text-decoration:none}
+.goal{font-size:12px;color:var(--hi);margin-top:6px}
+h2{font:800 17px var(--m);margin:6px 0 2px;color:var(--safe)}
+h2:before{content:"> "}
+.lead{margin:0 0 10px;color:var(--mute);font-size:13px}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;cursor:pointer}
+.row:hover{border-color:#5a2f5e}
+.tile{width:38px;height:38px;border-radius:6px;display:grid;place-items:center;font:800 16px var(--m);border:1px solid var(--cy);color:var(--cy)}
+.txt{min-width:0}.txt b{display:block;font-weight:500}
+.txt span{display:block;font-size:12px;color:var(--hot)}
+.row.ok .txt span{color:var(--safe)}
+.sw{min-width:96px;min-height:44px;border-radius:6px;border:2px solid var(--hot);background:transparent;color:var(--hot);font:700 12px var(--m);cursor:pointer}
+.row.ok .sw{background:var(--safe);border-color:var(--safe);color:#0a0008}
+.tip{grid-column:1/-1;margin:0;font-size:13px;border-top:1px dashed var(--line);padding-top:8px}
+.tip em{font-style:normal;color:var(--mute);display:block;margin-top:4px;font-size:12px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:6}
+nav div{display:flex;max-width:680px;margin:0 auto}
+nav button{flex:1;min-height:58px;border:0;background:none;color:var(--mute);font:500 12px var(--m);cursor:pointer;position:relative}
+nav button[aria-current=true]{color:var(--safe);font-weight:700;box-shadow:inset 0 3px 0 var(--safe)}
+nav .dot{position:absolute;top:6px;right:calc(50% - 30px);background:var(--hi);color:#000;border-radius:3px;font-size:10px;padding:0 4px;font-weight:700}
+.case{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;border-left:4px solid var(--line)}
+.case.live{border-left-color:var(--hot)}.case.cut{border-left-color:var(--safe)}
+.case h3{margin:0;font:700 15px var(--m)}.case p{margin:4px 0 0;font-size:13px;color:var(--mute)}
+.chip{font-size:12px;font-weight:700;color:var(--hot)}.cut .chip{color:var(--safe)}
+.threat{border:1px solid var(--hot);color:var(--hot);border-radius:var(--r);padding:8px 12px;font-size:13px;margin-bottom:10px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+#ov{position:fixed;inset:0;background:rgba(2,5,8,.82);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+#ov.on{display:flex}
+#ov .box{background:var(--card);border:1px solid var(--safe);max-width:480px;width:100%;border-radius:var(--r);padding:20px;max-height:90vh;overflow:auto}
+#ov h2{font-size:20px;margin:0 0 8px}
+#ov p{margin:8px 0}
+#ov .k{color:var(--mute)}#ov .v{color:var(--ink)}
+#toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:var(--hi);color:#111;padding:8px 14px;border-radius:6px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9;max-width:92vw;text-align:center}
+#toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.row.un{border-style:dashed}.row.un .txt span{color:var(--mute)}
+.sw.in{border-color:var(--cy);color:var(--cy)}
+.ec{font-size:11px;color:var(--hi);margin-left:6px}
+.lvl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 8px}
+.lvl button{min-height:48px;border:1px solid var(--line);background:var(--card);color:var(--mute);border-radius:var(--r);font:700 13px var(--m);cursor:pointer}
+.lvl button[aria-pressed=true]{border-color:var(--safe);color:var(--safe);background:rgba(255,43,214,.1)}
+.ld{color:var(--mute);font-size:12px;margin:0 0 18px;min-height:2.6em}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.stats div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;font-size:12px;color:var(--mute)}
+.stats strong{display:block;font:800 20px var(--m);color:var(--ink)}
+.verdict{border:1px solid var(--hot);border-radius:var(--r);padding:10px 12px}.verdict.ok{border-color:var(--safe)}
+.verdict b{font-size:16px}
+.rep p{margin:6px 0;color:var(--ink)}.rep p b{color:var(--cy);font-weight:500}
+.bd{font-size:12px;color:var(--mute);margin:10px 0 0}
+.take{border:1px solid var(--cy);border-radius:var(--r);padding:10px 12px;margin-top:12px}
+</style>
+</head>
+<body>
+
+<section id="land">
+ <div class="prompt">guest@mecs-node:~$ ./shadow_profile --new-target</div>
+ <h1>Shadow<span>Profile</span></h1>
+ <p class="sub">Digital Doppelgänger · MECS Playground</p>
+ <p class="lede">One fictional life. Dozens of harmless-looking clues. Shrink their digital footprint before a stranger pieces it together, without making everyday life impossible.</p>
+ <div class="how">
+  <div><b>Investigate</b> each clue first. You can’t protect what you haven’t inspected.</div>
+  <div><b>Protect</b> what matters. Every choice moves a live exposure meter.</div>
+  <div><b>Reveal:</b> a Shadow Report shows what a stranger could infer, and what your choices broke.</div>
+  <div><b>New target every time:</b> a different person, threat and goal on each visit.</div>
+ </div>
+ <div class="lvl" role="group" aria-label="Difficulty"><button data-lv="b" aria-pressed="false">Beginner</button><button data-lv="a" aria-pressed="true">Analyst</button><button data-lv="x" aria-pressed="false">Expert</button></div>
+ <p class="ld" id="ld"></p>
+ <div><button class="btn" data-act="start">START GAME</button></div>
+ <div class="back"><a href="https://makeeveryonecybersafe.github.io/playground.html">&lt; Back to the Playground</a></div>
+</section>
+
+<main id="game" hidden>
+<header>
+ <div class="top"><b>SHADOW<i>PROFILE</i></b><span class="who" id="who"></span></div>
+ <div class="meters">
+  <div class="m"><label>Exposure <strong id="ev">100%</strong></label><div class="bar"><i id="eb"></i><u id="et" title="Goal"></u></div></div>
+  <div class="m"><label>Daily life <strong id="lv">100</strong></label><div class="bar"><i id="lb"></i><u id="lt" title="Minimum"></u></div></div>
+ </div>
+ <div class="goal" id="goal"></div>
+</header>
+<section id="view"></section>
+</main>
+<nav id="nav" hidden><div id="tabs"></div></nav>
+<div id="toast" role="status"></div>
+<div id="ov"><div class="box" id="box"></div></div>
+
+<script>
+const POOL=[
+{id:"maps",t:"a",k:"M",n:"Maps",on:"Location: always",off:"Location: only while using",e:12,c:6,ev:"Timeline: gym 06:10, office 08:45, home 19:20, nearly every weekday.",tip:"Always-on tracking logs where {n} sleeps, works and shops. Each ping is harmless; the pattern isn’t.",tr:"Directions still work. Background features like parked-car reminders stop."},
+{id:"fit",t:"a",k:"S",n:"StrideTrack",on:"Public {nn}s, start at home",off:"Private, start zone hidden",e:10,c:5,ev:"Public {nn} map: starts and ends at the same house around 06:15.",tip:"A repeated start point is effectively a home address plus a schedule.",tr:"You still log workouts. Friends just can’t see exact routes."},
+{id:"flash",t:"a",k:"B",n:"Bright Torch",on:"Contacts and mic allowed",off:"No permissions",e:6,c:0,ev:"Permission list: contacts, microphone, precise location.",tip:"A flashlight needs a bulb, not an address book. Permission is access; what the app then keeps is up to the developer.",tr:"No real loss. The torch works without any permissions."},
+{id:"weather",t:"a",k:"W",n:"SkyNow",on:"Precise location",off:"Approximate location",e:4,c:2,ev:"Forecast requests sent with street-level coordinates.",tip:"A forecast only needs the city, not the street.",tr:"Same forecast. Hyper-local rain alerts get fuzzier."},
+{id:"social",t:"a",k:"C",n:"Chirp",on:"Contacts synced",off:"Contacts not synced",e:5,c:4,ev:"214 contacts uploaded, including family and {co} colleagues.",tip:"Uploading contacts maps everyone {n} knows, not just {n}.",tr:"Friend suggestions get worse; finding people takes manual search."},
+{id:"camera",t:"a",k:"O",n:"Camera",on:"Geotag photos",off:"Geotagging off",e:8,c:2,ev:"Photo details: GPS coordinates accurate to a few metres, taken at home.",tip:"Photo files can carry GPS data, and not every site strips it when you share.",tr:"You lose the map view of your photos. Little else changes."},
+{id:"ride",t:"a",k:"H",n:"HopRide",on:"Background location",off:"Only during trips",e:6,c:5,ev:"Trip log: late-night drop-off at the same address, again.",tip:"Between trips it can still record where {n} waits and arrives.",tr:"Pickups work, but surprise ETA and nearby-driver alerts stop."},
+{id:"door",t:"p",k:"P",n:"Photo: {pet} at the front door",on:"Public",off:"Friends only",e:7,c:3,ev:"Caption: “{pet} guarding number {hn} again.” The door number is visible.",tip:"One photo gives an address clue and the pet’s name.",tr:"Fewer strangers see it. Friends still do."},
+{id:"bday",t:"p",k:"P",n:"Post: “{age} today!”",on:"Public, full birthday date",off:"Friends only",e:6,c:2,ev:"Post: “{age} today! Thanks for all the birthday wishes.”",tip:"Name plus full birth date is a core identity-theft ingredient.",tr:"Friends still see it. Public birthday wishes fade a little."},
+{id:"board",t:"p",k:"P",n:"Photo: boarding pass",on:"Public",off:"Deleted",e:9,c:4,ev:"Photo shows name, booking code, barcode and outbound date.",tip:"The barcode can expose booking details, and the post announces an empty home.",tr:"Share the trip photos after you’re back instead."},
+{id:"badge",t:"p",k:"P",n:"Selfie wearing {co} badge",on:"Public",off:"Deleted",e:8,c:2,ev:"Selfie: lanyard reads “{co}”, with name and photo ID visible.",tip:"Shows the employer, a name and the layout of a real ID.",tr:"Crop or repost without the badge."},
+{id:"plate",t:"p",k:"P",n:"Throwback: first car",on:"Public, plate readable",off:"Plate blurred",e:5,c:1,ev:"Photo of a hatchback with a readable number plate.",tip:"A readable plate can be linked to ownership and parking records.",tr:"Blurring keeps the nostalgia."},
+{id:"secq",t:"k",k:"A",n:"Security question: pet’s name",on:"Answer: {pet}",off:"Random made-up answer",e:10,c:3,ev:"Recovery question: “First pet’s name?” Answer on file: {pet}.",tip:"Anyone who has seen {n}’s posts already knows this answer.",tr:"A random answer is safe but must be saved in a password manager."},
+{id:"rec",t:"k",k:"A",n:"Recovery email",on:"Old public @{dom} address",off:"Private backup inbox",e:7,c:2,ev:"Recovery address: {n}’s work email, listed on the {co} website.",tip:"A recovery address that anyone can find is a way in.",tr:"Needs a new inbox and a few minutes to update."},
+{id:"sms",t:"k",k:"A",n:"Two-step login",on:"Text message codes",off:"Authenticator app",e:8,c:4,ev:"Codes go by text to a number listed on {n}’s profile.",tip:"Texts can be hijacked through SIM-swap fraud. An app is stronger, though SMS still beats no second step.",tr:"Setup takes a few minutes, and you need a backup plan if the phone is lost."},
+{id:"reuse",t:"k",k:"A",n:"Passwords",on:"Same one on 6 sites",off:"Unique ones in a manager",e:10,c:5,ev:"Breach notice lists {n}’s email. One password is used on six sites.",tip:"One leaked site unlocks the other five. Unique passwords stop that chain.",tr:"You remember one strong master password. Setup takes effort."},
+{id:"phone",t:"k",k:"A",n:"Profile phone number",on:"Visible to everyone",off:"Hidden",e:6,c:3,ev:"Profile shows {n}’s mobile number to everyone.",tip:"A public number tells attackers which line to target.",tr:"Friends have to ask rather than look it up."},
+{id:"cookies",t:"b",k:"F",n:"Third-party cookies",on:"Allowed",off:"Blocked",e:5,c:3,ev:"37 trackers followed {n} across three shopping sites this week.",tip:"Trackers follow {n} across unrelated sites. Blocking cuts many, not all.",tr:"Some embedded logins and carts may break."},
+{id:"hist",t:"b",k:"F",n:"Search history",on:"Saved and synced",off:"Off",e:4,c:3,ev:"Synced searches: “clinic near me”, “cheap flights”, “{co} salary”.",tip:"Searches reveal worries and plans. Turning history off won’t erase what sites and providers already keep.",tr:"Autocomplete and “resume where I left off” get less helpful."},
+{id:"auto",t:"b",k:"F",n:"Autofill address and card",on:"Synced to cloud",off:"Stays on device",e:3,c:5,ev:"Saved address and card are available on every signed-in device.",tip:"Convenient, and one more place full details live.",tr:"Checkout is slower because you retype details."},
+{id:"ext",t:"b",k:"F",n:"Coupon extension",on:"Reads every page",off:"Removed",e:4,c:3,ev:"Extension permission: “read and change all data on all websites”.",tip:"Free tools often pay for themselves by selling browsing data.",tr:"You lose a few coupon codes."}
+];
+const COMBOS=[
+{id:"home",n:"Home address pinned",r:["door","fit","camera"],b:10,x:"The door number, GPS tags and the {nn} start point all agree. A stranger can name {n}’s front door."},
+{id:"routine",n:"Daily schedule mapped",r:["maps","fit","ride"],b:8,x:"Three location trails show when {n} leaves, where they go and when the house is empty."},
+{id:"take",n:"Account takeover kit",r:["secq","door","bday"],b:12,x:"Pet name and birth date answer common security questions. {n}’s own posts supplied both."},
+{id:"swap",n:"SIM-swap target",r:["sms","phone","rec"],b:10,x:"A public number, texted codes and a findable recovery email make an easy hijack."},
+{id:"away",n:"Empty house alert",r:["board","maps","door"],b:7,x:"The boarding pass says when {n} is away and the photos say where home is."},
+{id:"work",n:"Workplace and commute",r:["badge","plate","fit"],b:6,x:"Employer, car and a regular route to the office. Enough to follow {n} or impersonate a colleague."},
+{id:"broker",n:"Data broker file",r:["cookies","hist","ext","weather"],b:6,x:"Browsing, searches and rough location combine into an ad profile anyone can buy."},
+{id:"stuff",n:"Credential stuffing",r:["reuse","rec"],b:8,x:"A reused password plus a known email lets attackers try breached logins everywhere."}
+];
+const THREATS=[
+{t:"a burglar scouting {n}’s neighbourhood",cb:["home","away","routine"],tk:"Before you post a photo, check it for house numbers and turn off location tags. Share trips after you’re home."},
+{t:"a scammer hunting for a way into {n}’s accounts",cb:["take","swap","stuff"],tk:"Use a unique password for every account, add an authenticator app where you can, and keep recovery details off public profiles."},
+{t:"someone obsessed with following {n}",cb:["home","routine","work"],tk:"Hide the start and end of your fitness routes, and check what your apps share in the background."},
+{t:"a data broker building a sellable profile of {n}",cb:["broker","work","stuff"],tk:"Block third-party cookies, remove extensions you don’t use, and audit which apps get precise location."}
+];
+const DIFF={
+b:{d:"Gentler goals and a bigger budget. Hints show where to look.",marg:[12,16],minL:[45],cost:[50,60],hint:1},
+a:{d:"Overlapping risks and real trade-offs.",marg:[6,12],minL:[50,55,60],cost:[60,75],hint:1},
+x:{d:"Tight budget, goals near the best possible, and no hints.",marg:[2,5],minL:[60],cost:[70,84],hint:0}};
+const NAMES=["Jordan","Priya","Mateo","Amara","Kenji","Sofia","Liam","Nadia","Omar","Elena","Arjun","Chloe","Zara","Tobias","Meera","Diego"];
+const JOBS=[["product designer","Lumen Studio","lumenstudio.com"],["nurse","Northfield Clinic","northfieldclinic.org"],["teacher","Brightpath School","brightpath.edu"],["accountant","Kestrel & Co","kestrelco.com"],["software tester","Pylon Labs","pylonlabs.io"],["marketing manager","Orbit Retail","orbitretail.com"],["electrician","Voltway Services","voltway.net"],["student and barista","Daybreak Cafe","daybreakcafe.com"]];
+const PETS=["Biscuit","Mango","Pixel","Luna","Rocky","Cocoa","Bruno","Nala","Pepper","Ziggy"];
+const ACTS=[["runs","run"],["cycles","ride"]];
+const TABS=[["a","Apps","App permissions","Inspect each app first. Permission is access; what the app keeps is another question."],["p","Posts","Social feed","Inspect each post, then decide what stays public."],["k","Accounts","Account security","Review recovery and login settings."],["b","Browser","Browser privacy","Trim what the browser remembers and shares."],["d","Dossier","Stranger’s dossier","Inspect every clue in a case to unlock it. Submit when you’re ready."]];
+const tabName={a:"Apps",p:"Posts",k:"Accounts",b:"Browser"};
+
+const $=s=>document.querySelector(s);
+const rnd=n=>Math.random()*n|0;
+const pick=a=>a[rnd(a.length)];
+const between=([a,b])=>a+rnd(b-a+1);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+let G,S,open=null,LV="a",lastFocus=null;
+
+function gen(lv){
+ const D=DIFF[lv];let last=null;
+ for(let tries=0;tries<80;tries++){
+  const all=tries>=60; // bounded fallback: use every setting so all 8 cases exist
+  const [job,co,dom]=pick(JOBS),[verb,nn]=pick(ACTS);
+  const P={n:pick(NAMES),age:22+rnd(24),job,co,dom,pet:pick(PETS),verb,nn,hn:10+rnd(90),id:1000+rnd(9000)};
+  const fill=s=>s.replace(/\{(\w+)\}/g,(_,k)=>P[k]);
+  const want=all?{a:7,p:5,k:5,b:4}:{a:5+rnd(2),p:4,k:4,b:3};
+  let items=[];
+  for(const t in want)items.push(...shuffle(POOL.filter(i=>i.t===t)).slice(0,want[t]));
+  items.sort((a,b)=>POOL.indexOf(a)-POOL.indexOf(b));
+  items=items.map(i=>({...i,e:Math.max(1,i.e+rnd(5)-2),c:i.c?Math.max(1,i.c+rnd(3)-1):0}));
+  const tot=items.reduce((a,i)=>a+i.c,0),f=between(D.cost)/tot;
+  items.forEach(i=>{i.c=i.c?Math.max(1,Math.round(i.c*f)):0;["n","on","off","tip","ev","tr"].forEach(k=>i[k]=fill(i[k]))});
+  const ids=items.map(i=>i.id),th=pick(THREATS);
+  const combos=COMBOS.filter(c=>c.r.every(r=>ids.includes(r))).map(c=>({...c,b:th.cb.includes(c.id)?Math.round(c.b*1.6):c.b,x:fill(c.x),hot:th.cb.includes(c.id)}));
+  if(combos.length<3)continue;
+  const MAX=items.reduce((a,i)=>a+i.e,0)+combos.reduce((a,c)=>a+c.b,0);
+  const minL=pick(D.minL),n=items.length,N=1<<n;
+  const cost=new Int16Array(N),pe=new Int16Array(N);
+  const cm=combos.map(c=>c.r.reduce((m,r)=>m|1<<ids.indexOf(r),0));
+  const totE=items.reduce((a,i)=>a+i.e,0);
+  for(let m=1;m<N;m++){const lb=31-Math.clz32(m&-m),p=m&(m-1);cost[m]=cost[p]+items[lb].c;pe[m]=pe[p]+items[lb].e}
+  let best=1e9;
+  for(let m=0;m<N;m++){
+   if(cost[m]>100-minL)continue;
+   let raw=totE-pe[m];
+   for(let k=0;k<cm.length;k++)if((m&cm[k])===0)raw+=combos[k].b;
+   if(raw<best)best=raw;
+  }
+  const bestPct=best/MAX*100,goalE=Math.min(95,Math.ceil(bestPct)+between(D.marg));
+  last={P,items,combos,MAX,minL,goalE,bestPct:Math.round(bestPct),threat:fill(th.t),tk:fill(th.tk),job:`${P.job} at ${P.co}`,lv};
+  if(combos.length>=4&&goalE<=55)return last;
+ }
+ return last;
+}
+
+const live=c=>c.r.every(id=>!S.p[id]);
+const found=c=>c.r.every(id=>S.s[id]);
+const byId=id=>G.items.find(i=>i.id===id);
+const pts=()=>[G.items.reduce((a,i)=>a+(S.p[i.id]?0:i.e),0),G.combos.reduce((a,c)=>a+(live(c)?c.b:0),0)];
+const expo=()=>Math.round(pts().reduce((a,b)=>a+b)/G.MAX*100);
+const life=()=>100-G.items.reduce((a,i)=>a+(S.p[i.id]?i.c:0),0);
+const nSeen=()=>G.items.filter(i=>S.s[i.id]).length;
+
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2600)}
+function see(id){const before=G.combos.filter(found);S.s[id]=1;G.combos.filter(c=>found(c)&&!before.includes(c)).forEach(c=>toast("Discovery: "+c.n))}
+
+function meters(){
+ const e=expo(),l=life();
+ $("#ev").textContent=e+"%";$("#lv").textContent=l;
+ $("#eb").style.width=e+"%";$("#eb").style.background=e<=G.goalE?"var(--safe)":e<=G.goalE+20?"var(--hi)":"var(--hot)";
+ $("#lb").style.width=Math.max(l,0)+"%";$("#lb").style.background=l>=G.minL?"var(--cy)":"var(--hot)";
+ $("#et").style.left=G.goalE+"%";$("#lt").style.left=G.minL+"%";
+ $("#goal").innerHTML=`<span style="color:var(--mute)">Threat: ${G.threat}</span><br>Goal: exposure ${G.goalE}% or less, daily life ${G.minL}+ · Inspected ${nSeen()}/${G.items.length}`;
+}
+function tabs(){
+ const n=G.combos.filter(found).length;
+ $("#tabs").innerHTML=TABS.map(t=>`<button data-tab="${t[0]}" aria-current="${S.tab===t[0]&&!S.rep}">${t[1]}${t[0]==="d"&&n?`<span class="dot">${n}/${G.combos.length}</span>`:""}</button>`).join("");
+}
+function row(i){
+ const ok=S.p[i.id],sn=S.s[i.id],ec=G.combos.filter(c=>found(c)&&c.r.includes(i.id)).length;
+ return `<li class="row ${ok?"ok":""} ${sn?"":"un"}" data-id="${i.id}" tabindex="0"><div class="tile">${i.k}</div><div class="txt"><b>${i.n}${ec?`<span class="ec">evidence in ${ec}</span>`:""}</b><span>${!sn?"Not inspected":ok?i.off:i.on}</span></div>
+ <button class="sw ${sn?"":"in"}" data-tg="${i.id}" aria-pressed="${sn?!!ok:"mixed"}">${!sn?"Inspect":ok?"Protected":"Exposed"}</button>
+ ${open===i.id?`<p class="tip"><b>What a stranger sees:</b> ${i.ev}<br><b>Why it matters:</b> ${i.tip}<em>Protect it: exposure −${i.e}, daily life −${i.c}. Trade-off: ${i.tr}</em></p>`:""}</li>`;
+}
+function view(){
+ if(S.rep){$("#view").innerHTML=report();return}
+ const t=TABS.find(x=>x[0]===S.tab);
+ let h=`<h2>${t[2]}</h2><p class="lead">${t[3]}</p>`;
+ if(S.tab!=="d"){h+="<ul>"+G.items.filter(i=>i.t===S.tab).map(row).join("")+"</ul>"}
+ else{
+  const [ie,ce]=pts();
+  h+=`<div class="threat">Active threat: ${G.threat}. Cases marked ▲ are worth extra to them.</div><ul>`+G.combos.map(c=>{
+   if(!found(c)){const n=c.r.filter(id=>S.s[id]).length,w=[...new Set(c.r.filter(id=>!S.s[id]).map(id=>tabName[byId(id).t]))].join(", ");
+    return `<li class="case"><h3>Locked case</h3><p>${n} of ${c.r.length} clues inspected.${DIFF[G.lv].hint?" Keep looking in: "+w+".":" Keep investigating."}</p></li>`}
+   const lv=live(c);
+   return `<li class="case ${lv?"live":"cut"}"><h3>${c.hot?"▲ ":""}${c.n}</h3><span class="chip">${lv?"Still exposed, adds "+c.b+" points":"Broken, you cut a link"}</span><p>${c.x}</p></li>`}).join("")+"</ul>";
+  h+=`<p class="bd">Why ${expo()}%? Exposed settings ${ie} + active cases ${ce} = ${ie+ce} of ${G.MAX} points.</p><div class="acts"><button class="btn" data-act="done">SUBMIT CASE</button><button class="btn ghost" data-act="new">NEW TARGET</button></div>`;
+ }
+ $("#view").innerHTML=h;
+}
+function report(){
+ const e=expo(),l=life(),win=e<=G.goalE&&l>=G.minL,P=G.P;
+ const broken=G.combos.filter(c=>!live(c)).length,miss=G.items.length-nSeen();
+ const li=G.combos.map(c=>{
+  const its=c.r.map(byId),ex=its.filter(i=>!S.p[i.id]),pr=its.filter(i=>S.p[i.id]),lv=ex.length===its.length;
+  const conf=lv?"High. The chain is intact.":pr.length===1&&its.length>2?"Moderate. One clue is missing, and a determined stranger might guess it.":"Low. Too many gaps to connect with confidence.";
+  const cheap=[...ex].sort((a,b)=>a.c-b.c)[0];
+  return `<li class="case ${lv?"live":"cut"}"><h3>${c.hot?"▲ ":""}${c.n}</h3>
+  <p><b>Before your changes:</b> High confidence. ${c.x}</p>
+  <p><b>Evidence chain:</b> ${its.map(i=>`${i.n} (${S.p[i.id]?"protected":"still exposed"})`).join("; ")}.</p>
+  <p><b>Now:</b> ${conf}</p>
+  <p>${lv?`<b>Cheapest fix:</b> ${cheap.n}, daily life −${cheap.c}.`:`<b>Broken by:</b> ${pr.map(i=>i.n).join(", ")}. <b>Still uncertain:</b> a stranger would have to guess ${pr.length>1?"those details":"that detail"}.`}${found(c)?"":" You never discovered this one."}</p></li>`}).join("");
+ return `<div class="rep"><h2>Shadow report: ${P.n}</h2>
+ <div class="verdict ${win?"ok":"no"}"><b>${win?"Mission complete":"Mission incomplete"}</b><p>${win?`${P.n} is hard to profile and still gets through the day.`:e>G.goalE?"Too much is still exposed. Look for one setting that breaks several cases.":`${P.n} is private but can barely use their phone. Re-open cheap, low-value protections.`} Best possible here was about ${G.bestPct}%.</p></div>
+ <div class="stats"><div>Exposure (goal ${G.goalE}%)<strong>${e}%</strong></div><div>Daily life (min ${G.minL})<strong>${l}</strong></div><div>Chains broken<strong>${broken} of ${G.combos.length}</strong></div><div>Clues inspected<strong>${nSeen()} of ${G.items.length}</strong></div></div>
+ ${miss?`<p class="bd">${miss} setting${miss>1?"s":""} never inspected, so you made those choices blind.</p>`:""}
+ <ul style="margin-top:10px">${li}</ul>
+ <div class="take"><b>Do this in real life</b><p>${G.tk}</p></div>
+ <div class="acts"><button class="btn ghost" data-act="back">BACK TO THE CASE</button><button class="btn" data-act="new">NEW TARGET</button></div></div>`;
+}
+function render(){meters();tabs();$("#view").innerHTML="";view()}
+
+const bg=()=>["land","game","nav"].forEach(i=>{$("#"+i).inert=$("#ov").classList.contains("on")});
+function modal(h){if(!$("#ov").classList.contains("on"))lastFocus=document.activeElement;$("#box").innerHTML=h;$("#ov").classList.add("on");bg();const b=$("#box button");b&&b.focus()}
+function closeOv(){$("#ov").classList.remove("on");bg();if(lastFocus&&lastFocus.isConnected&&lastFocus.offsetParent)lastFocus.focus();lastFocus=null}
+function brief(){
+ const P=G.P;
+ modal(`<h2>Target acquired</h2>
+ <p><span class="k">File</span> <span class="v">#${P.id} · ${DIFF[G.lv]===DIFF.b?"Beginner":DIFF[G.lv]===DIFF.x?"Expert":"Analyst"}</span><br><span class="k">Name</span> <span class="v">${P.n}, ${P.age}</span><br><span class="k">Works</span> <span class="v">${G.job}</span><br><span class="k">Lives with</span> <span class="v">${P.pet}, and ${P.verb} most mornings</span></p>
+ <p>${P.n} shares casually. Nothing looks dangerous alone. The watcher this time is <b>${G.threat}</b>.</p>
+ <p><b>Mission:</b> investigate every clue, then get exposure to <b>${G.goalE}% or less</b> while keeping daily life at <b>${G.minL} or more</b>. Protecting everything breaks ${P.n}’s routine, so choose your trades.</p>
+ <div class="acts"><button class="btn" data-act="begin">BEGIN</button></div>`);
+}
+function newGame(){
+ G=gen(LV);S={p:{},s:{},tab:"a",rep:0};open=null;
+ $("#who").textContent=`#${G.P.id} · ${G.P.n}`;
+ $("#land").hidden=true;$("#game").hidden=false;$("#nav").hidden=false;
+ render();scrollTo(0,0);brief();
+}
+function setLv(l){LV=l;document.querySelectorAll("[data-lv]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lv===l));$("#ld").textContent=DIFF[l].d}
+
+document.addEventListener("click",ev=>{
+ const lv=ev.target.closest("[data-lv]");
+ if(lv){setLv(lv.dataset.lv);return}
+ const g=ev.target.closest("[data-tg]");
+ if(g){const id=g.dataset.tg,i=byId(id);
+  if(!S.s[id]){see(id);open=id;render();toast("Inspected: "+i.n+". Now you can protect it.");}
+  else{S.p[id]=!S.p[id];open=id;render();toast((S.p[id]?"Protected: ":"Exposed again: ")+i.n+` (exposure ${expo()}%)`)}
+  return}
+ const r=ev.target.closest(".row");
+ if(r){const id=r.dataset.id;open=open===id?null:id;if(open)see(id);render();return}
+ const t=ev.target.closest("[data-tab]");
+ if(t){S.tab=t.dataset.tab;S.rep=0;open=null;render();scrollTo(0,0);return}
+ const a=ev.target.closest("[data-act]");
+ if(a){const k=a.dataset.act;
+  if(k==="start"||k==="new"){lastFocus=null;closeOv();newGame()}
+  if(k==="begin"||k==="close")closeOv();
+  if(k==="done"){S.rep=1;render();scrollTo(0,0)}
+  if(k==="back"){S.rep=0;render();scrollTo(0,0)}}
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&$("#ov").classList.contains("on")){closeOv();return}
+ if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("row")){e.preventDefault();e.target.click()}});
+setLv("a");
+</script>
+</body>
+</html>
