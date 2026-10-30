@@ -1,316 +1,168 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#000000">
-    <title>MECS - Playground & Labs</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Space Grotesk"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        mecs: {
-                            bg: '#000000',
-                            surface: '#0a0a0a',
-                            surfaceLight: '#111111',
-                            grid: '#151515',
-                            primary: '#FF0055',
-                            primaryHover: '#D40047',
-                            dark: '#990033',
-                            text: '#ffffff',
-                            gray: '#aaaaaa',
-                            neonGreen: '#00ff41'
-                        }
-                    },
-                    animation: {
-                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #000000;
-            background-image: 
-                linear-gradient(#151515 1px, transparent 1px),
-                linear-gradient(90deg, #151515 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: #ffffff;
-        }
-
-        .hover-glitch:hover {
-            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-            color: #FF0055;
-            text-shadow: 2px 2px #990033;
-        }
-
-        .mecs-card {
-            background: #0a0a0a;
-            border: 1px solid #222;
-            transition: all 0.3s ease;
-        }
-
-        .mecs-card:hover {
-            border-color: #FF0055;
-            box-shadow: 0 10px 30px -10px rgba(255, 0, 85, 0.2);
-        }
-        @media (hover: hover) {
-            .mecs-card:hover { transform: translateY(-5px); }
-        }
-
-        .card-header-gradient {
-            background: linear-gradient(135deg, #111 0%, #1a050a 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-clip {
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-        }
-        
-        .status-dot {
-            height: 8px; width: 8px; border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px currentColor;
-        }
-        
-        @media (max-width: 768px) {
-            .hero-text { font-size: 2.5rem !important; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08030b">
+<title>Playground | MakeEveryoneCyberSafe</title>
+<style>@view-transition{navigation:auto}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--ink:#08030b;--ink2:#14081c;--mag:#ff2da0;--blush:#ffd9ee;--tx:#fff3fa;--mute:#cdb0c3;--line:rgba(255,217,238,.14);--d:"Bricolage Grotesque","Trebuchet MS",sans-serif;--b:"Instrument Sans",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--ink);color:var(--tx);font:400 1.0625rem/1.6 var(--b);overflow-x:hidden}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blush);outline-offset:3px;border-radius:6px}
+h1,h2{font-family:var(--d);line-height:1.02;letter-spacing:-.02em;font-weight:800}
+.wrap{width:min(1120px,100% - 2.5rem);margin-inline:auto}
+header{position:fixed;inset:0 0 auto;z-index:50;padding:.9rem 0;background:linear-gradient(var(--ink),transparent)}
+header .wrap{display:flex;align-items:center;justify-content:space-between}
+.logo{font:800 1.5rem var(--d);letter-spacing:-.04em;view-transition-name:logo}
+.logo i{color:var(--mag);font-style:normal}
+nav{display:flex;gap:.4rem}
+nav a{padding:.6rem .95rem;border-radius:99px;font-weight:500;font-size:.95rem}
+nav a:hover{background:rgba(255,45,160,.18)}
+nav .cta{background:var(--mag);color:var(--ink);font-weight:600}
+@media(max-width:700px){nav a:not(.cta){display:none}}
+.stage{position:relative;height:100vh;height:100svh;min-height:680px;overflow:hidden;background:radial-gradient(70% 60% at 50% 38%,#3a0a2b 0%,var(--ink) 72%)}
+#gl{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+.intro{position:absolute;left:max(1.25rem,calc((100% - 1120px)/2));top:5.8rem;max-width:32rem;pointer-events:none}
+.intro h1{font-size:clamp(2.1rem,4.6vw,3.8rem);margin-bottom:.6rem}
+.intro p{color:var(--mute)}
+#fb{display:none;position:absolute;left:50%;top:44%;translate:-50% -50%}
+.lite #fb{display:grid;place-items:center;width:min(240px,60vw);aspect-ratio:5/7;border-radius:18px;background:linear-gradient(160deg,var(--ink2),#08030b);border:2px solid var(--mag);box-shadow:0 0 50px rgba(255,45,160,.45);font:800 1.8rem var(--d);text-align:center;padding:1rem}
+.lite #gl{display:none}
+.panel{position:absolute;left:50%;bottom:4.6rem;translate:-50% 0;width:min(46rem,calc(100% - 2.5rem));padding:1.5rem 1.7rem;border-radius:26px;border:1px solid var(--line);background:rgba(20,8,28,.74);backdrop-filter:blur(14px);display:grid;grid-template-columns:1fr auto;gap:.3rem 1.5rem;align-items:end;transition:opacity .35s,filter .35s,transform .35s}
+.panel.swap{opacity:0;filter:blur(10px);transform:translateY(12px)}
+.pill{grid-column:1/-1;font-size:.9rem;font-weight:600;color:var(--blush)}
+.pill b{background:var(--mag);color:var(--ink);border-radius:99px;padding:.1rem .7rem;margin-right:.5rem}
+.panel h2{font-size:clamp(1.7rem,3.2vw,2.5rem)}
+.hook{grid-column:1/-1;color:var(--blush);font-weight:500}
+.learn{grid-column:1/-1;color:var(--mute);margin:.2rem 0 .6rem}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.2rem;color:var(--mute);font-size:.92rem}
+.pips{display:inline-flex;gap:4px;margin-right:.5rem;vertical-align:middle}
+.pips i{width:16px;height:7px;border-radius:9px;background:var(--line)}.pips i.on{background:var(--mag)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:.8rem 2rem;border-radius:99px;font-weight:600;background:var(--mag);color:var(--ink);border:0;transition:transform .2s,background .2s;grid-row:2;grid-column:2}
+.btn:hover{background:var(--blush);transform:translateY(-2px)}
+@media(max-width:700px){.panel{grid-template-columns:1fr;bottom:4.2rem;padding:1.1rem}.learn{display:none}.btn{grid-column:1;grid-row:auto;margin-top:.6rem}.hook{font-size:.95rem}}
+.ctrl{position:absolute;left:50%;bottom:1rem;translate:-50% 0;display:flex;align-items:center;gap:.6rem}
+.ctrl button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(20,8,28,.7);font-size:1.3rem}
+.ctrl button:hover{border-color:var(--mag)}
+.dots{display:flex}.dots button{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;border-radius:6px}
+.dots button::after{content:"";width:10px;height:10px;border-radius:99px;background:var(--line);transition:.3s}
+.dots button[aria-current=true]::after{width:26px;background:var(--mag)}
+#flash{position:fixed;inset:0;background:radial-gradient(circle,#fff 0,var(--mag) 40%,var(--ink) 100%);opacity:0;pointer-events:none;z-index:99;transition:opacity .5s .15s}
+#flash.on{opacity:1}
+footer{padding:2.5rem 0;border-top:1px solid var(--line);text-align:center;color:var(--mute)}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
+<body>
+<header><div class="wrap"><a class="logo" href="index.html" aria-label="MECS home">#MECS<i>.</i></a><nav aria-label="Main"><a href="resources.html">Resources</a><a href="index.html">Home</a><a class="cta" href="#stage">Play</a></nav></div></header>
+<main>
+<section class="stage" id="stage" aria-label="Labs">
+ <canvas id="gl" aria-hidden="true"></canvas>
+ <div id="fb" aria-hidden="true"></div>
+ <div class="intro"><h1>Learn by playing.</h1><p>Four hands-on labs that run right in your browser. Pick a cartridge, then press play.</p></div>
+ <div class="panel" id="panel" aria-live="polite"></div>
+ <div class="ctrl"><button id="prev" aria-label="Previous lab">&lsaquo;</button><div class="dots" id="dots"></div><button id="next" aria-label="Next lab">&rsaquo;</button></div>
+</section>
+</main>
+<footer><div class="wrap"><small>&copy; 2026 MECS Labs. #MakeEveryoneCyberSafe</small></div></footer>
+<div id="flash"></div>
 
-    <header class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-        <div class="container mx-auto px-6 py-4 relative">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="group flex items-center gap-2">
-                    <div class="w-8 h-8 bg-mecs-primary flex items-center justify-center btn-clip group-hover:animate-pulse">
-                        <i class="fas fa-microchip text-black text-sm"></i>
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter uppercase">
-                        #MECS</span>
-                </a>
+<script>
+/* =====================================================================
+   LABS: edit or add a lab here. Order = order on screen.
+   pips: difficulty 1 to 4.  col: cartridge color.  icon: ring | eye | term | target
+   ===================================================================== */
+const LABS=[
+ {name:"Shadow Profile",href:"ShadowProfile.html",icon:"ring",col:"#ff2da0",level:"Easy to medium",pips:2,tags:"#Privacy #DigitalFootprint",
+  hook:"Your bottle has a label, and strangers can read it.",
+  learn:"Look through a made-up person’s apps, posts and accounts. Cut the links that let a stranger piece their life together, without breaking their day."},
+ {name:"OSINT Hunter",href:"OSINT.html",icon:"eye",col:"#ff7ac8",level:"Beginner",pips:1,tags:"#SocialMedia #Metadata",
+  hook:"Someone is studying your bottle from across the street.",
+  learn:"Use public information and social media clues to find hidden flags, and see how much anyone can learn about you."},
+ {name:"The Drill",href:"TheDrill.html",icon:"term",col:"#ff9a5a",level:"Intermediate",pips:3,tags:"#LinuxCLI #LogAnalysis",
+  hook:"The bottle spilled. Who did it, and how?",
+  learn:"Explore a hacked system, follow the attacker’s steps through the logs, and lock everything back down."},
+ {name:"The Operator",href:"M3.html",icon:"target",col:"#ff2d55",level:"Advanced",pips:4,tags:"#SpearPhishing #PrivEsc",
+  hook:"Play the person who poisons the water.",
+  learn:"Walk through a full attack, from research and phishing to taking over a server and locking files, so you know exactly what to defend."}
+];
+/* ===================================================================== */
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let idx=0,going=false,tx=0,ty=0,mx=0,my=0,ok=false,tex=[];
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-                <nav class="hidden md:block">
-                    <ul class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
-                        <li><a href="resources.html" class="hover:text-mecs-primary transition-colors">Resources</a></li>
-                        <li><a href="playground.html" class="text-mecs-primary transition-colors">Explore Labs</a></li>
-                    </ul>
-                </nav>
-                
-                <button id="mobile-menu-btn" class="md:hidden text-white text-xl focus:outline-none w-11 h-11 -mr-2 flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
+function render(){const l=LABS[idx];$('#panel').innerHTML=
+ `<span class="pill">${idx===0?'<b>Start here</b>':''}Lab ${idx+1} of ${LABS.length}</span><h2>${esc(l.name)}</h2><p class="hook">${esc(l.hook)}</p><p class="learn">${esc(l.learn)}</p><div class="meta"><span><span class="pips">${[1,2,3,4].map(n=>`<i class="${n<=l.pips?'on':''}"></i>`).join('')}</span>${esc(l.level)}</span><span>${esc(l.tags)}</span></div><button class="btn" id="play">Play ${esc(l.name)}</button>`;
+ $('#play').onclick=play;$('#fb').textContent=l.name;
+ [...$('#dots').children].forEach((b,i)=>b.setAttribute('aria-current',i===idx))}
+function select(i){const j=Math.max(0,Math.min(LABS.length-1,i));if(j===idx&&$('#panel').innerHTML||going)return;idx=j;const p=$('#panel');p.classList.add('swap');setTimeout(()=>{render();p.classList.remove('swap')},240)}
+function play(){if(going)return;going=true;const url=LABS[idx].href;if(reduce){location.href=url;return}$('#flash').classList.add('on');setTimeout(()=>location.href=url,ok?750:450)}
+$('#dots').innerHTML=LABS.map((l,i)=>`<button aria-label="${esc(l.name)}" onclick="select(${i})"></button>`).join('');
+$('#prev').onclick=()=>select(idx-1);$('#next').onclick=()=>select(idx+1);
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')select(idx-1);if(e.key==='ArrowRight')select(idx+1)});
+addEventListener('pageshow',e=>{if(e.persisted){going=false;$('#flash').classList.remove('on')}});
+render();
 
-        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-black/95 border-b border-mecs-primary backdrop-blur-md md:hidden animate__animated animate__fadeInDown">
-            <ul class="flex flex-col p-6 space-y-6 text-center">
-                <li><a href="resources.html" class="block text-sm font-bold uppercase tracking-widest text-white hover:text-mecs-primary transition-colors py-2 border-b border-white/10">Resources</a></li>
-                <li><a href="playground.html" class="block text-sm font-bold uppercase tracking-widest text-mecs-primary transition-colors py-2">Explore Labs</a></li>
-            </ul>
-        </div>
-    </header>
-
-    <main class="flex-grow pt-28 px-4 container mx-auto mb-20">
-        
-        <div class="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8">
-            <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 border border-mecs-primary/50 bg-mecs-primary/10 text-mecs-primary text-[10px] font-bold uppercase tracking-widest mb-4">
-                    <i class="fas fa-flask"></i> Simulation Environment
-                </div>
-                <h1 class="text-4xl md:text-6xl font-black uppercase mb-4 hero-text">THE <span class="text-mecs-primary">Playground</span></h1>
-                <p class="text-mecs-gray max-w-xl text-lg">
-                    Execute real-world scenarios in isolated sandboxes. Test your skills against active targets.
-                </p>
-            </div>
-            
-            <div class="flex gap-8 text-left md:text-right w-full md:w-auto justify-start md:justify-end">
-                <div>
-                    <div class="text-2xl font-black text-white">04</div>
-                    <div class="text-[10px] uppercase text-mecs-gray tracking-widest">Active Labs</div>
-                </div>
-                <div>
-                    <div class="text-2xl font-black text-white">100%</div>
-                    <div class="text-[10px] uppercase text-mecs-gray tracking-widest">Uptime</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 md:gap-8">
-
-            <div class="mecs-card group relative flex flex-col h-full animate__animated animate__fadeInUp">
-                <div class="absolute top-4 right-4 z-10 flex gap-2">
-                    <span class="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Reconnaissance</span>
-                    <span class="bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Beginner</span>
-                </div>
-                <div class="card-header-gradient h-40 sm:h-48 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
-                    <div class="absolute inset-0 opacity-10 font-mono text-[10px] p-2 leading-none text-mecs-primary select-none overflow-hidden">
-                        45 6x 22 9a bc ... searching ... 01010101 ... target_acquired ...
-                    </div>
-                    <i class="fas fa-crosshairs text-7xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300 relative z-10"></i>
-                </div>
-                <div class="p-6 sm:p-8 flex flex-col flex-grow">
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-mecs-primary font-mono text-xs font-bold">MODULE_01</span>
-                        <div class="h-px bg-white/10 flex-grow"></div>
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-black uppercase mb-4 group-hover:text-mecs-primary transition-colors">OSINT Hunter</h2>
-                    <p class="text-mecs-gray text-sm mb-6 leading-relaxed">
-                        <strong>Open Source Intelligence Trainer.</strong> Utilize public databases and social media correlation to find hidden flags representing compromising information.
-                    </p>
-                    <div class="mt-auto space-y-4">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#SocialMedia</span>
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#Metadata</span>
-                        </div>
-                        <a href="OSINT.html" class="w-full flex items-center justify-center gap-2 btn-clip bg-white text-black py-4 min-h-[52px] font-bold uppercase tracking-wider hover:bg-mecs-primary hover:text-white transition-all group-hover:shadow-[0_0_20px_rgba(255,0,85,0.4)]">
-                            <i class="fas fa-play text-xs"></i> Initialize Simulation
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mecs-card group relative flex flex-col h-full animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-                 <div class="absolute top-4 right-4 z-10 flex gap-2">
-                    <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Forensics</span>
-                    <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Intermediate</span>
-                </div>
-                <div class="card-header-gradient h-40 sm:h-48 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
-                    <div class="absolute inset-0 opacity-10 font-mono text-[10px] p-2 leading-none text-white select-none overflow-hidden">
-                        > sudo su ... root access denied ... /var/log/auth.log ... 
-                    </div>
-                    <i class="fas fa-terminal text-7xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300 relative z-10"></i>
-                </div>
-                <div class="p-6 sm:p-8 flex flex-col flex-grow">
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-mecs-primary font-mono text-xs font-bold">MODULE_02</span>
-                        <div class="h-px bg-white/10 flex-grow"></div>
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-black uppercase mb-4 group-hover:text-mecs-primary transition-colors">The Drill</h2>
-                    <p class="text-mecs-gray text-sm mb-6 leading-relaxed">
-                        <strong>Incident Response Sandbox.</strong> Navigate a compromised file system and trace an attacker's steps to secure the system.
-                    </p>
-                    <div class="mt-auto space-y-4">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#LinuxCLI</span>
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#LogAnalysis</span>
-                        </div>
-                        <a href="TheDrill.html" class="w-full flex items-center justify-center gap-2 btn-clip bg-white text-black py-4 min-h-[52px] font-bold uppercase tracking-wider hover:bg-mecs-primary hover:text-white transition-all group-hover:shadow-[0_0_20px_rgba(255,0,85,0.4)]">
-                            <i class="fas fa-terminal text-xs"></i> Connect to Terminal
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mecs-card group relative flex flex-col h-full animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-                <div class="absolute top-4 right-4 z-10 flex gap-2">
-                    <span class="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Red Team</span>
-                    <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Advanced</span>
-                </div>
-                <div class="card-header-gradient h-40 sm:h-48 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
-                    <div class="absolute inset-0 opacity-10 font-mono text-[10px] p-2 leading-none text-mecs-primary select-none overflow-hidden">
-                        > SpearPhish delivered ... access_granted ... deploying_payload ...
-                    </div>
-                    <i class="fas fa-user-secret text-7xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300 relative z-10"></i>
-                </div>
-                <div class="p-6 sm:p-8 flex flex-col flex-grow">
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-mecs-primary font-mono text-xs font-bold">MODULE_03</span>
-                        <div class="h-px bg-white/10 flex-grow"></div>
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-black uppercase mb-4 group-hover:text-mecs-primary transition-colors">The Operator</h2>
-                    <p class="text-mecs-gray text-sm mb-6 leading-relaxed">
-                        <strong>Advanced Red Team Simulation.</strong> Experience a full attack chain: OSINT, precision phishing, server escalation, and ransomware deployment.
-                    </p>
-                    <div class="mt-auto space-y-4">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#SpearPhishing</span>
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#PrivEsc</span>
-                        </div>
-                        <a href="M3.html" class="w-full flex items-center justify-center gap-2 btn-clip bg-white text-black py-4 min-h-[52px] font-bold uppercase tracking-wider hover:bg-mecs-primary hover:text-white transition-all group-hover:shadow-[0_0_20px_rgba(255,0,85,0.4)]">
-                            <i class="fas fa-skull text-xs"></i> Initialize Operation
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="mecs-card group relative flex flex-col h-full animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-                <div class="absolute top-4 right-4 z-10 flex gap-2">
-                    <span class="bg-pink-500/20 text-pink-400 border border-pink-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Privacy</span>
-                    <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 text-[10px] font-bold uppercase">Easy-Medium</span>
-                </div>
-                <div class="card-header-gradient h-40 sm:h-48 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
-                    <div class="absolute inset-0 opacity-10 font-mono text-[10px] p-2 leading-none text-mecs-primary select-none overflow-hidden">
-                        > location=always ... geotag=on ... pet_name=exposed ... profile_assembled ...
-                    </div>
-                    <i class="fas fa-fingerprint text-7xl text-white/20 group-hover:text-mecs-primary group-hover:scale-110 transition-all duration-300 relative z-10"></i>
-                </div>
-                <div class="p-6 sm:p-8 flex flex-col flex-grow">
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-mecs-primary font-mono text-xs font-bold">MODULE_04</span>
-                        <div class="h-px bg-white/10 flex-grow"></div>
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-black uppercase mb-4 group-hover:text-mecs-primary transition-colors">Shadow Profile</h2>
-                    <p class="text-mecs-gray text-sm mb-6 leading-relaxed">
-                        <strong>Digital Footprint Investigator.</strong> Inspect a fictional person's apps, posts and accounts, then cut the links that let a stranger piece their life together, without breaking their day. A new target every time.
-                    </p>
-                    <div class="mt-auto space-y-4">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#Privacy</span>
-                            <span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1">#DigitalFootprint</span>
-                        </div>
-                        <a href="ShadowProfile.html" class="w-full flex items-center justify-center gap-2 btn-clip bg-white text-black py-4 min-h-[52px] font-bold uppercase tracking-wider hover:bg-mecs-primary hover:text-white transition-all group-hover:shadow-[0_0_20px_rgba(255,0,85,0.4)]">
-                            <i class="fas fa-folder-open text-xs"></i> Open Case File
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="bg-black border-t border-mecs-primary py-12 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-mecs-primary to-transparent opacity-50"></div>
-        <div class="container mx-auto px-6 text-center">
-            <p class="text-gray-600 text-[10px] uppercase tracking-wider">
-                &copy; 2026 MECS Labs. #MakeEveryoneCyberSafe.
-            </p>
-        </div>
-    </footer>
-
-    <script>
-        const mobileBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileIcon = mobileBtn.querySelector('i');
-
-        mobileBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            mobileBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileIcon.classList.replace('fa-times', 'fa-bars');
-            } else {
-                mobileIcon.classList.replace('fa-bars', 'fa-times');
-            }
-        });
-    </script>
+/* ---- 3D cartridges ---- */
+function label(l,n){const c=document.createElement('canvas');c.width=512;c.height=720;const x=c.getContext('2d');
+ const g=x.createLinearGradient(0,0,0,720);g.addColorStop(0,'#1d0b28');g.addColorStop(1,'#08030b');x.fillStyle=g;x.fillRect(0,0,512,720);
+ x.strokeStyle=l.col;x.lineWidth=6;x.strokeRect(14,14,484,692);
+ x.fillStyle=l.col;x.font='600 30px "Instrument Sans",sans-serif';x.fillText('LAB '+(n+1),44,78);
+ x.save();x.translate(256,270);x.lineWidth=10;x.strokeStyle=l.col;x.fillStyle=l.col;
+ if(l.icon==='ring'){for(let r=30;r<=120;r+=30){x.beginPath();x.arc(0,0,r,Math.PI*.9,Math.PI*2.1);x.stroke()}}
+ else if(l.icon==='eye'){x.beginPath();x.ellipse(0,0,130,70,0,0,7);x.stroke();x.beginPath();x.arc(0,0,38,0,7);x.fill()}
+ else if(l.icon==='term'){x.beginPath();x.moveTo(-100,-60);x.lineTo(-20,0);x.lineTo(-100,60);x.stroke();x.beginPath();x.moveTo(10,64);x.lineTo(110,64);x.stroke()}
+ else{x.beginPath();x.arc(0,0,100,0,7);x.stroke();x.beginPath();x.arc(0,0,50,0,7);x.stroke();x.beginPath();x.moveTo(-140,0);x.lineTo(140,0);x.moveTo(0,-140);x.lineTo(0,140);x.stroke()}
+ x.restore();
+ x.fillStyle='#fff3fa';x.font='800 64px "Bricolage Grotesque",sans-serif';const w=l.name.split(' ');let y=520;w.forEach(t=>{x.fillText(t,44,y);y+=66});
+ for(let i=0;i<4;i++){x.fillStyle=i<l.pips?l.col:'rgba(255,217,238,.18)';x.fillRect(44+i*50,672,40,12)}
+ const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
+function init3d(){
+ const R=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,1.75));
+ const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(35,1,.1,80);C.position.set(0,0,11);
+ S.add(new THREE.AmbientLight(0xffffff,.7));const L1=new THREE.PointLight(0xff2da0,2.2,40);L1.position.set(-4,4,6);S.add(L1);const L2=new THREE.PointLight(0xffd9ee,1.2,40);L2.position.set(5,2,8);S.add(L2);
+ const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'#fff');gr.addColorStop(.4,'rgba(255,255,255,.5)');gr.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);const sp=new THREE.CanvasTexture(cv);
+ const root=new THREE.Group();S.add(root);
+ const bodyG=new THREE.BoxGeometry(1.6,2.3,.3),edgeG=new THREE.EdgesGeometry(bodyG),plugG=new THREE.BoxGeometry(1.1,.24,.2),planeG=new THREE.PlaneGeometry(1.42,1.99);
+ const carts=LABS.map((l,i)=>{const g=new THREE.Group(),col=new THREE.Color(l.col);
+  g.add(new THREE.Mesh(bodyG,new THREE.MeshStandardMaterial({color:0x1a0a24,metalness:.4,roughness:.45})));
+  const lab=new THREE.Mesh(planeG,new THREE.MeshBasicMaterial({map:label(l,i)}));lab.position.z=.152;g.add(lab);
+  g.add(new THREE.LineSegments(edgeG,new THREE.LineBasicMaterial({color:col})));
+  const plug=new THREE.Mesh(plugG,new THREE.MeshStandardMaterial({color:col,metalness:.7,roughness:.3,emissive:col,emissiveIntensity:.35}));plug.position.y=-1.26;g.add(plug);
+  const h=new THREE.Sprite(new THREE.SpriteMaterial({map:sp,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0}));h.scale.set(5,5,1);h.position.z=-.6;g.add(h);
+  g.userData={h,i};root.add(g);return g});
+ /* drifting dust */
+ const N=160,pa=new Float32Array(N*3);for(let i=0;i<N;i++)pa.set([(Math.random()-.5)*18,(Math.random()-.5)*9,-Math.random()*6],i*3);
+ const dg=new THREE.BufferGeometry();dg.setAttribute('position',new THREE.BufferAttribute(pa,3));
+ S.add(new THREE.Points(dg,new THREE.PointsMaterial({map:sp,color:0xff2da0,size:.14,transparent:true,opacity:.6,depthWrite:false,blending:THREE.AdditiveBlending})));
+ let spread=2.1;
+ function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix();spread=w>860?2.15:w>520?1.7:1.35;root.position.y=w>700?.55:1.05;root.scale.setScalar(w>700?1:.9)}
+ size();addEventListener('resize',size);
+ addEventListener('pointermove',e=>{tx=e.clientX/innerWidth*2-1;ty=e.clientY/innerHeight*2-1},{passive:true});
+ const ray=new THREE.Raycaster(),m=new THREE.Vector2();
+ $('#gl').addEventListener('click',e=>{if(going)return;m.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(m,C);
+  const hit=ray.intersectObjects(carts,true)[0];if(hit){let o=hit.object;while(o.parent&&o.parent!==root)o=o.parent;if(o.userData.i===idx)play();else select(o.userData.i)}});
+ const stage=$('#stage');
+ function frame(ms){requestAnimationFrame(frame);const r=stage.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const t=ms/1000;
+  mx+=(tx-mx)*.06;my+=(ty-my)*.06;C.position.x=mx*.9;C.position.y=-my*.5;C.lookAt(0,0,0);
+  carts.forEach((g,i)=>{const d=i-idx,sel=d===0,a=Math.abs(d);
+   let X=d*spread,Y=sel?Math.sin(t*1.4)*.1:0,Z=-a*1.1,RY=-d*.38+(sel?mx*.45:0),RX=sel?-my*.3:0,SC=sel?1.15:.8;
+   if(going){if(sel){Z=7;SC=2.2;Y=.3;RY=0;RX=0}else{Y=-7}}
+   const k=going&&sel?.12:.09;g.position.x+=(X-g.position.x)*k;g.position.y+=(Y-g.position.y)*k;g.position.z+=(Z-g.position.z)*k;
+   g.rotation.y+=(RY-g.rotation.y)*.1;g.rotation.x+=(RX-g.rotation.x)*.1;g.scale.setScalar(g.scale.x+(SC-g.scale.x)*k);
+   g.userData.h.material.opacity+=((sel?.55+Math.sin(t*2)*.08:.06)-g.userData.h.material.opacity)*.1});
+  R.render(S,C)}
+ requestAnimationFrame(frame);
+}
+if(!reduce&&window.THREE&&(navigator.hardwareConcurrency||8)>2){try{(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>{try{init3d();ok=true}catch(e){document.body.classList.add('lite')}})}catch(e){document.body.classList.add('lite')}}
+else document.body.classList.add('lite');
+</script>
 </body>
 </html>

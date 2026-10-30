@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Events | MakeEveryoneCyberSafe</title>
+<style>@view-transition{navigation:auto}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--ink:#08030b;--ink2:#14081c;--mag:#ff2da0;--blush:#ffd9ee;--tx:#fff3fa;--mute:#cdb0c3;--alert:#ff6a2b;--line:rgba(255,217,238,.14);--d:"Bricolage Grotesque","Trebuchet MS",sans-serif;--b:"Instrument Sans",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--ink);color:var(--tx);font:400 1.0625rem/1.6 var(--b);overflow-x:hidden}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blush);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:var(--d);line-height:1.02;letter-spacing:-.02em;font-weight:800}
+.wrap{width:min(1120px,100% - 2.5rem);margin-inline:auto}
+header{position:fixed;inset:0 0 auto;z-index:50;padding:.9rem 0;background:linear-gradient(var(--ink),transparent)}
+header .wrap{display:flex;align-items:center;justify-content:space-between}
+.logo{font:800 1.5rem var(--d);letter-spacing:-.04em;view-transition-name:logo}
+.logo i{color:var(--mag);font-style:normal}
+nav{display:flex;gap:.4rem;align-items:center}
+nav a{padding:.6rem .95rem;border-radius:99px;font-weight:500;font-size:.95rem}
+nav a:hover{background:rgba(255,45,160,.18)}
+nav .cta{background:var(--mag);color:var(--ink);font-weight:600}
+@media(max-width:700px){nav a:not(.cta){display:none}}
+.stage{position:relative;height:100vh;height:100svh;min-height:640px;overflow:hidden;background:radial-gradient(60% 70% at 68% 50%,#3a0a2b 0%,var(--ink) 70%)}
+#gl{position:absolute;inset:0;width:100%;height:100%}
+#fb{display:none;position:absolute;right:18%;top:50%;translate:0 -50%;height:55vh}
+.lite #fb{display:block}.lite #gl{display:none}
+.intro{position:absolute;left:max(1.25rem,calc((100% - 1120px)/2));top:6.5rem;max-width:30rem}
+.intro h1{font-size:clamp(2.2rem,5vw,4.2rem);margin-bottom:.8rem}
+.intro p{color:var(--mute)}
+.panel{position:absolute;left:max(1.25rem,calc((100% - 1120px)/2));bottom:5.5rem;width:min(30rem,calc(100% - 2.5rem));padding:1.6rem;border-radius:26px;border:1px solid var(--line);background:rgba(20,8,28,.72);backdrop-filter:blur(14px);transition:opacity .35s,filter .35s,transform .35s}
+.panel.swap{opacity:0;filter:blur(10px);transform:translateY(12px)}
+.pill{display:inline-flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:600;margin-bottom:.7rem}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--mag);box-shadow:0 0 12px var(--mag)}
+.live .dot{animation:pulse 1.4s infinite}.done .dot{background:#8f6c80;box-shadow:none}
+@keyframes pulse{50%{transform:scale(1.6);opacity:.5}}
+.panel h2{font-size:clamp(1.7rem,3vw,2.3rem);margin-bottom:.5rem}
+.panel .when{color:var(--blush);font-weight:600;font-size:.95rem}
+.panel p.d{color:var(--mute);margin:.6rem 0 1.1rem}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:.8rem 1.5rem;border-radius:99px;font-weight:600;background:var(--mag);color:var(--ink);transition:transform .2s,background .2s;border:0}
+.btn:hover{background:var(--blush);transform:translateY(-2px)}
+.btn[aria-disabled=true]{background:transparent;border:1px solid var(--line);color:var(--mute);pointer-events:none}
+.ctrl{position:absolute;left:50%;bottom:1.3rem;translate:-50% 0;display:flex;align-items:center;gap:.8rem}
+.ctrl button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(20,8,28,.7);font-size:1.3rem}
+.ctrl button:hover{border-color:var(--mag)}
+.dots{display:flex}
+.dots button{width:44px;height:44px;border:0;background:none;display:grid;place-items:center}
+.dots button::after{content:"";width:10px;height:10px;border-radius:99px;background:var(--line);transition:.3s}
+.dots button[aria-current=true]::after{width:26px;background:var(--mag)}
+@media(max-width:860px){.intro{top:5.2rem}.panel{bottom:4.6rem;padding:1.2rem}.panel p.d{display:none}}
+.list{padding:clamp(4rem,9vw,7rem) 0}
+.list h2{font-size:clamp(2rem,4.4vw,3.4rem);margin-bottom:2rem}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:1.2rem;align-items:center;width:100%;text-align:left;padding:1.3rem .6rem;border:0;border-top:1px solid var(--line);background:none;position:relative;isolation:isolate;overflow:hidden;transition:color .3s,padding .3s}
+.row:last-child{border-bottom:1px solid var(--line)}
+.row::before{content:"";position:absolute;inset:0;background:var(--mag);transform:scaleY(0);transform-origin:bottom;transition:transform .4s cubic-bezier(.7,0,.2,1);z-index:-1}
+.row:hover,.row:focus-visible{color:var(--ink);padding-inline:1.4rem}
+.row:hover::before,.row:focus-visible::before{transform:scaleY(1)}
+.row:hover .dot{background:var(--ink);box-shadow:none}
+.row h3{font-size:clamp(1.2rem,2.4vw,1.7rem)}
+.row small{display:block;color:var(--mute);font-size:.9rem;transition:color .3s}.row:hover small{color:var(--ink)}
+.row em{font-style:normal;font-weight:600;font-size:.9rem}
+.empty{text-align:center;padding:4rem 1rem;color:var(--mute)}
+footer{padding:3rem 0;border-top:1px solid var(--line);text-align:center;color:var(--mute)}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="index.html" aria-label="MECS home">#MECS<i>.</i></a><nav aria-label="Main"><a href="playground.html">Playground</a><a href="mirror.html">Digital Mirror</a><a href="image.html">FaceTrace</a><a class="cta" href="index.html">Back to home</a></nav></div></header>
+
+<main>
+<section class="stage" id="stage" aria-label="Events">
+ <canvas id="gl" aria-hidden="true"></canvas>
+ <svg id="fb" viewBox="0 0 120 260" aria-hidden="true"><defs><clipPath id="cp"><path d="M44 8h32v34c0 14 30 26 30 52v146c0 8-6 14-14 14H28c-8 0-14-6-14-14V94c0-26 30-38 30-52z"/></clipPath></defs><g clip-path="url(#cp)"><rect id="fw" x="0" y="80" width="120" height="200" fill="#ff2da0"/></g><path d="M44 8h32v34c0 14 30 26 30 52v146c0 8-6 14-14 14H28c-8 0-14-6-14-14V94c0-26 30-38 30-52z" fill="none" stroke="#ffd9ee" stroke-width="2"/></svg>
+ <div class="intro"><h1>Learn with us, live.</h1><p>Live sessions, workshops and challenges. A full bottle means it’s open to join. An empty one means it’s over.</p></div>
+ <div class="panel" id="panel" aria-live="polite"></div>
+ <div class="ctrl"><button id="prev" aria-label="Previous event">&lsaquo;</button><div class="dots" id="dots"></div><button id="next" aria-label="Next event">&rsaquo;</button></div>
+</section>
+<section class="list wrap"><h2>All sessions</h2><div id="list"></div></section>
+</main>
+<footer><div class="wrap"><p>A public awareness initiative making cybersecurity accessible to all.</p><small>&copy; 2025 MakeEveryoneCyberSafe. #MECS</small></div></footer>
+
+<script>
+/* =====================================================================
+   ADD NEW EVENTS HERE. This is the only place you need to edit.
+   Copy one block, then change the fields:
+     title   : event name
+     desc    : one or two sentences
+     start   : date and time, e.g. "2026-12-05T10:00:00+05:30"  (+05:30 = IST)
+     hours   : how long it runs (default 2). Used to switch it from Live to Done
+     forever : true for something that is always open (no start needed)
+     link    : button link (optional). Leave out if there is none yet
+     btn     : button label (optional)
+   Status (Upcoming, Live, Completed) updates itself from the date.
+   ===================================================================== */
+const EVENTS=[
+ {title:"TRACE: A 72 Hours OSINT Challenge",desc:"Everything you’re looking for is already available.",forever:true,link:"CTF.html",btn:"Start challenge"},
+ {title:"Cyber Metaphors",desc:"A triple collab with MECS x APEX x Mr3DBlender, to promote cyber education in a unique way.",start:"2026-03-10T09:00:00+05:30",hours:2,link:"files/metaphors.pdf",btn:"Get the PDF"},
+ {title:"MECS Self-Audit Challenge 2K26",desc:"See yourself like a hacker would.",start:"2026-02-22T09:00:00+05:30"},
+ {title:"Decoding Modern Cyber Myths",desc:"An interactive session breaking modern cyber myths and exposing how everyday online habits quietly compromise security.",start:"2025-12-26T10:00:00+05:30"}
+];
+/* ===================================================================== */
+
+const $=s=>document.querySelector(s),cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const now=()=>Date.now();
+const status=e=>{if(e.forever)return'live';const s=+new Date(e.start),en=s+(e.hours||2)*36e5,n=now();return n<s?'up':n<=en?'live':'done'};
+const fmt=e=>e.forever?'Always open':new Date(e.start).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',timeZone:'Asia/Kolkata'})+' IST';
+const rank={live:0,up:1,done:2};
+const list=EVENTS.map(e=>({...e,st:status(e)})).sort((a,b)=>rank[a.st]-rank[b.st]||(a.st==='done'?+new Date(b.start)-+new Date(a.start):a.forever?-1:+new Date(a.start)-+new Date(b.start)));
+const label={live:'Live now',up:'Upcoming',done:'Completed'};
+const hasLink=e=>e.link&&e.link!=='#';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let idx=0,cdT;
+
+function countdown(e){if(e.st!=='up')return e.st==='live'?(e.forever?'Open any time':'Happening now'):'';let d=+new Date(e.start)-now();if(d<=0)return'Starting now';const D=Math.floor(d/864e5),H=Math.floor(d%864e5/36e5),M=Math.floor(d%36e5/6e4);return'Starts in '+(D?D+'d ':'')+H+'h '+M+'m'}
+function render(){const e=list[idx],p=$('#panel');p.className='panel '+e.st;
+ const btn=hasLink(e)?`<a class="btn" href="${esc(e.link)}">${esc(e.btn||(e.st==='up'?'Register':'Open'))}</a>`:`<span class="btn" aria-disabled="true">${e.st==='done'?'Session ended':'Link coming soon'}</span>`;
+ p.innerHTML=`<span class="pill"><i class="dot"></i>${label[e.st]}</span><h2>${esc(e.title)}</h2><div class="when">${fmt(e)}<span id="cd"> · ${countdown(e)}</span></div><p class="d">${esc(e.desc)}</p>${btn}`;
+ clearInterval(cdT);if(e.st==='up')cdT=setInterval(()=>{const c=$('#cd');if(c)c.textContent=' · '+countdown(e)},3e4);
+ if(e.st==='done'&&!e.forever)$('#cd').textContent='';
+ [...$('#dots').children].forEach((b,i)=>b.setAttribute('aria-current',i===idx));
+ $('#fw').setAttribute('y',e.st==='done'?225:40)}
+function select(i,scroll){const n=list.length;if(!n)return;const j=(i+n)%n;if(j===idx&&$('#panel').innerHTML)return;idx=j;const p=$('#panel');p.classList.add('swap');setTimeout(()=>{render();p.classList.remove('swap')},260);if(scroll)$('#stage').scrollIntoView({behavior:'smooth'})}
+
+if(!list.length){$('#stage').innerHTML='<div class="empty" style="padding-top:30vh"><h1>No sessions planned yet</h1><p>Follow us on <a href="https://instagram.com/makeeveryonecybersafe" style="color:var(--mag)">Instagram</a> to hear first.</p></div>'}
+else{
+ $('#dots').innerHTML=list.map((e,i)=>`<button aria-label="${esc(e.title)}" onclick="select(${i})"></button>`).join('');
+ $('#list').innerHTML=list.map((e,i)=>`<button class="row ${e.st}" onclick="select(${i},true)"><i class="dot"></i><div><h3>${esc(e.title)}</h3><small>${fmt(e)}</small></div><em>${label[e.st]}</em></button>`).join('');
+ $('#prev').onclick=()=>select(idx-1);$('#next').onclick=()=>select(idx+1);
+ addEventListener('keydown',e=>{if(e.key==='ArrowLeft')select(idx-1);if(e.key==='ArrowRight')select(idx+1)});
+ render();
+}
+
+/* ---- 3D bottle carousel ---- */
+let tx=0,ty=0,mx=0,my=0,ok=false;
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function init3d(){
+ const R=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,1.75));R.localClippingEnabled=true;
+ const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(35,1,.1,80);C.position.set(0,0,13);
+ S.add(new THREE.AmbientLight(0xffffff,.55));
+ const L1=new THREE.PointLight(0xff2da0,2.4,40);L1.position.set(-4,4,6);S.add(L1);const L2=new THREE.PointLight(0xffd9ee,1.2,40);L2.position.set(5,2,8);S.add(L2);
+ const root=new THREE.Group(),ring=new THREE.Group();S.add(root);root.add(ring);
+ const V=a=>a.map(q=>new THREE.Vector2(q[0],q[1]));
+ const gG=new THREE.LatheGeometry(V([[0,0],[.8,0],[1.05,.15],[1.1,.5],[1.1,2.5],[1.02,3],[.75,3.45],[.5,3.75],[.46,4.35],[.5,4.4]]),48);
+ const wG=new THREE.LatheGeometry(V([[0,.06],[.96,.08],[1.01,.2],[1.04,.55],[1.04,2.5],[.97,2.95]]),40);
+ const cG=new THREE.CylinderGeometry(.56,.56,.44,32),dG=new THREE.CircleGeometry(1,32);
+ const gM=new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color(0xff2da0)}},transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
+  vertexShader:'varying vec3 n;varying vec3 v;void main(){n=normalize(normalMatrix*normal);v=normalize(-(modelViewMatrix*vec4(position,1.)).xyz);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 uC;varying vec3 n;varying vec3 v;void main(){float f=pow(1.-abs(dot(n,v)),2.2);gl_FragColor=vec4(uC*f*1.7+vec3(.05),f*.9+.07);}'});
+ const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'#fff');g.addColorStop(.4,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
+ const tex=new THREE.CanvasTexture(cv);
+ const N=list.length,step=Math.PI*2/N,RAD=N>1?3.4:0,SC=.62,cols={live:[0xff4fb8,0xff2da0,.55,.95],up:[0xffa6d9,0xff2da0,.3,.9],done:[0x7a4a66,0x2a0d20,.08,.12]};
+ const bots=list.map((e,i)=>{const grp=new THREE.Group(),B=new THREE.Group(),a=i*step;grp.position.set(Math.sin(a)*RAD,0,Math.cos(a)*RAD);grp.scale.setScalar(SC);B.position.y=-2.25;grp.add(B);ring.add(grp);
+  B.add(new THREE.Mesh(gG,gM));const pl=new THREE.Plane(new THREE.Vector3(0,-1,0),0),c=cols[e.st];
+  const wm=new THREE.MeshStandardMaterial({color:c[0],emissive:c[1],emissiveIntensity:c[2],transparent:true,opacity:.85,side:THREE.DoubleSide,roughness:.2,clippingPlanes:[pl]});
+  B.add(new THREE.Mesh(wG,wm));const sm=new THREE.MeshBasicMaterial({color:c[0],transparent:true,opacity:.9}),su=new THREE.Mesh(dG,sm);su.rotation.x=-Math.PI/2;B.add(su);
+  const cap=new THREE.Mesh(cG,new THREE.MeshStandardMaterial({color:e.st==='done'?0x7a4a66:0xff2da0,metalness:.6,roughness:.3,emissive:e.st==='done'?0x1a0814:0x550030}));cap.position.y=4.62;B.add(cap);
+  return{grp,B,pl,su,wm,tgt:c[3],lvl:0,st:e.st}});
+ const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,color:0xff2da0,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));halo.scale.set(11,11,1);halo.position.set(0,0,-.5);root.add(halo);
+ ring.position.z=-RAD;
+ function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix();if(w>860){root.position.set(3,0,0);root.scale.setScalar(1.1)}else{root.position.set(0,.9,0);root.scale.setScalar(.8)}}
+ size();addEventListener('resize',size);addEventListener('pointermove',e=>{tx=e.clientX/innerWidth*2-1;ty=e.clientY/innerHeight*2-1},{passive:true});
+ const stage=$('#stage');
+ function frame(ms){requestAnimationFrame(frame);const r=stage.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const t=ms/1000;
+  mx+=(tx-mx)*.06;my+=(ty-my)*.06;C.position.set(mx*1.4,-my*.7,13);C.lookAt(root.position.x*.4,0,0);
+  let d=-idx*step-ring.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));ring.rotation.y+=d*.07;
+  bots.forEach((b,i)=>{b.lvl+=(b.tgt-b.lvl)*.04;const L=.1+2.85*b.lvl,wy=root.position.y+root.scale.y*SC*(-2.25+L);b.pl.constant=wy;b.su.position.y=L;
+   const front=i===idx;b.grp.rotation.y=-ring.rotation.y+t*.25*(front?1:.4);b.grp.position.y=front?Math.sin(t*1.3)*.1:0;
+   if(b.st!=='done')b.wm.emissiveIntensity=(b.st==='live'?.55:.3)+Math.sin(t*2+i)*.1});
+  const cur=bots[idx];halo.material.opacity=cur&&cur.st!=='done'?.5+Math.sin(t*1.5)*.08:.12;
+  R.render(S,C)}
+ requestAnimationFrame(frame);
+}
+if(list.length&&!reduce&&window.THREE&&(navigator.hardwareConcurrency||8)>2){try{init3d();ok=true}catch(e){ok=false}}
+if(list.length&&!ok)document.body.classList.add('lite');
+</script>
+</body>
+</html>
