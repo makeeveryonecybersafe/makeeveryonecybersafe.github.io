@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#08030b">
+<title>Page not found | MakeEveryoneCyberSafe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--ink:#08030b;--ink2:#14081c;--mag:#ff2da0;--blush:#ffd9ee;--tx:#fff3fa;--mute:#cdb0c3;--line:rgba(255,217,238,.14);--d:"Bricolage Grotesque","Trebuchet MS",sans-serif;--b:"Instrument Sans",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--ink);color:var(--tx);font:400 1.0625rem/1.6 var(--b);overflow-x:hidden}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blush);outline-offset:3px;border-radius:6px}
+h1{font-family:var(--d);line-height:1;letter-spacing:-.02em;font-weight:800}
+header{position:fixed;inset:0 0 auto;z-index:20;padding:1rem clamp(1.25rem,4vw,3rem)}
+.logo{font:800 1.5rem var(--d);letter-spacing:-.04em}.logo i{color:var(--mag);font-style:normal}
+.stage{position:relative;min-height:100vh;min-height:100svh;overflow:hidden;background:radial-gradient(55% 65% at 70% 48%,#3a0a2b 0%,var(--ink) 72%);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.big{position:absolute;inset:0;display:grid;place-items:center;font:800 clamp(11rem,34vw,30rem)/1 var(--d);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:2px rgba(255,45,160,.22);pointer-events:none;translate:12% 0}
+#gl{position:absolute;inset:0;width:100%;height:100%}
+#fb{display:none;position:absolute;right:16%;top:50%;translate:0 -50%;height:62vh;filter:drop-shadow(0 0 40px rgba(255,45,160,.5))}
+.lite #fb{display:block}.lite #gl{display:none}
+.copy{position:absolute;left:clamp(1.25rem,6vw,5rem);top:50%;translate:0 -50%;width:min(31rem,calc(100% - 2.5rem));z-index:5}
+.copy h1{font-size:clamp(2.4rem,5.4vw,4.6rem);margin-bottom:1rem}
+.copy p.lead{color:var(--mute);margin-bottom:1rem;max-width:28rem}
+.path{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font:500 .9rem ui-monospace,Menlo,Consolas,monospace;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--line);background:rgba(20,8,28,.7);color:var(--blush);margin-bottom:1.4rem}
+.pour{display:flex;align-items:center;gap:1rem;margin-bottom:1.3rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;min-height:52px;padding:.8rem 1.6rem;border-radius:99px;font-weight:600;border:0;background:var(--mag);color:var(--ink);transition:transform .2s,background .2s,box-shadow .3s}
+.btn:hover{background:var(--blush);transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--mag)}
+.btn.ghost:hover{background:var(--mag);color:var(--ink)}
+#pourBtn{touch-action:none}
+#pourBtn[aria-pressed=true]{background:var(--blush);transform:scale(.97)}
+.meter{flex:1;min-width:9rem}
+.meter div{height:8px;border-radius:9px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:calc(var(--lv,0)*100%);background:linear-gradient(90deg,var(--mag),var(--blush))}
+.meter small{display:block;margin-top:.3rem;color:var(--mute);font-size:.9rem}
+.done #home{animation:glow 1.6s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 10px rgba(255,45,160,.25),0 0 36px var(--mag)}}
+.links{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem}
+.links a{padding:.55rem 1rem;min-height:44px;display:inline-flex;align-items:center;border-radius:99px;border:1px solid var(--line);font-size:.95rem;transition:border-color .2s,background .2s}
+.links a:hover{border-color:var(--mag);background:rgba(255,45,160,.15)}
+.tip{max-width:28rem;font-size:.92rem;color:var(--mute);border-left:3px solid var(--mag);padding-left:1rem}
+.tip b{color:var(--blush)}
+@media(max-width:860px){.copy{top:auto;bottom:1.25rem;translate:none;padding:1.1rem;border-radius:24px;background:linear-gradient(transparent,rgba(8,3,11,.9) 28%)}
+ .copy h1{font-size:2.2rem}.copy p.lead,.tip{display:none}#fb{right:50%;translate:50% -75%;height:36vh}.big{translate:0 -15%}}
+@media(max-height:700px){.tip{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="/" aria-label="MECS home">#MECS<i>.</i></a></header>
+<main class="stage" id="stage">
+ <div class="big" aria-hidden="true">404</div>
+ <canvas id="gl" aria-hidden="true"></canvas>
+ <svg id="fb" viewBox="0 0 120 260" aria-hidden="true"><defs><clipPath id="cp"><path d="M44 8h32v34c0 14 30 26 30 52v146c0 8-6 14-14 14H28c-8 0-14-6-14-14V94c0-26 30-38 30-52z"/></clipPath></defs><g clip-path="url(#cp)"><rect id="fw" x="0" y="240" width="120" height="200" fill="#ff2da0"/></g><path d="M44 8h32v34c0 14 30 26 30 52v146c0 8-6 14-14 14H28c-8 0-14-6-14-14V94c0-26 30-38 30-52z" fill="none" stroke="#ffd9ee" stroke-width="2"/><rect id="fc" x="40" y="-30" width="40" height="14" rx="4" fill="#ff2da0"/></svg>
+ <div class="copy" id="copy">
+  <h1 id="title">This page leaked away.</h1>
+  <p class="lead" id="lead">The link may be broken, or the address may have a typo. Refill the bottle and we’ll point you home.</p>
+  <span class="path" id="path" title="The address you tried"></span>
+  <div class="pour">
+   <button class="btn" id="pourBtn" aria-pressed="false" aria-describedby="msg">Hold to pour</button>
+   <div class="meter"><div><i></i></div><small id="msg" aria-live="polite">The bottle is almost empty.</small></div>
+  </div>
+  <div class="links"><a class="btn" id="home" href="/">Take me home</a><a href="/playground.html">Playground</a><a href="/events.html">Events</a><a href="/resources.html">Resources</a><a href="/mirror.html">Digital Mirror</a></div>
+  <p class="tip"><b>Quick tip:</b> mistyped web addresses are a favourite scam trick. If a link takes you somewhere unexpected, check the address before you type any password.</p>
+ </div>
+</main>
+<script>
+const $=s=>document.querySelector(s),cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+$('#path').textContent=decodeURIComponent(location.pathname+location.search).slice(0,120)||'/';
+const stage=$('#stage'),btn=$('#pourBtn'),msg=$('#msg');
+let pour=false,level=.06,sealed=false,tx=0,ty=0,mx=0,my=0,ok=false,last=performance.now();
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function setPour(v){if(sealed)v=false;pour=v;btn.setAttribute('aria-pressed',v)}
+btn.addEventListener('pointerdown',e=>{e.preventDefault();btn.setPointerCapture(e.pointerId);setPour(true)});
+['pointerup','pointercancel'].forEach(ev=>btn.addEventListener(ev,()=>setPour(false)));
+btn.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();setPour(true)}});
+btn.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')setPour(false)});
+btn.addEventListener('blur',()=>setPour(false));
+stage.addEventListener('pointerdown',e=>{if(e.target.closest('a,button,.copy'))return;setPour(true)});
+addEventListener('pointerup',()=>{if(document.activeElement!==btn)setPour(false)});
+addEventListener('pointermove',e=>{tx=e.clientX/innerWidth*2-1;ty=e.clientY/innerHeight*2-1},{passive:true});
+
+function tick(dt){
+ if(sealed)return;
+ level=cl(level+(pour?.24:-.03)*dt,.06,1);
+ if(level>=.985){sealed=true;pour=false;btn.setAttribute('aria-pressed',false);btn.disabled=true;btn.textContent='Sealed';stage.classList.add('done');
+  $('#title').textContent='Safe and sealed.';$('#lead').textContent='Nice work. Now let’s get you somewhere that exists.';msg.textContent='The bottle is full and sealed.'}
+ else msg.textContent=pour?'Pouring… '+Math.round(level*100)+'%':level>.1?'Don’t stop. It’s leaking again.':'The bottle is almost empty.';
+ stage.style.setProperty('--lv',level);$('.meter').style.setProperty('--lv',level)}
+
+/* ---- 3D ---- */
+function init3d(){
+ const R=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,1.75));R.localClippingEnabled=true;
+ const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(35,1,.1,60);C.position.z=12;
+ S.add(new THREE.AmbientLight(0xffffff,.55));const L1=new THREE.PointLight(0xff2da0,2.4,40);L1.position.set(-4,4,6);S.add(L1);const L2=new THREE.PointLight(0xffd9ee,1.2,40);L2.position.set(5,2,8);S.add(L2);
+ const G=new THREE.Group(),B=new THREE.Group();G.add(B);S.add(G);B.position.y=-2.25;
+ const V=a=>a.map(q=>new THREE.Vector2(q[0],q[1]));
+ const gm=new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color(0xff2da0)}},transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
+  vertexShader:'varying vec3 n;varying vec3 v;void main(){n=normalize(normalMatrix*normal);v=normalize(-(modelViewMatrix*vec4(position,1.)).xyz);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 uC;varying vec3 n;varying vec3 v;void main(){float f=pow(1.-abs(dot(n,v)),2.2);gl_FragColor=vec4(uC*f*1.7+vec3(.05),f*.9+.07);}'});
+ B.add(new THREE.Mesh(new THREE.LatheGeometry(V([[0,0],[.8,0],[1.05,.15],[1.1,.5],[1.1,2.5],[1.02,3],[.75,3.45],[.5,3.75],[.46,4.35],[.5,4.4]]),56),gm));
+ const pl=new THREE.Plane(new THREE.Vector3(0,-1,0),0);
+ const wm=new THREE.MeshStandardMaterial({color:0xff4fb8,emissive:0xff2da0,emissiveIntensity:.35,transparent:true,opacity:.84,side:THREE.DoubleSide,roughness:.2,clippingPlanes:[pl]});
+ B.add(new THREE.Mesh(new THREE.LatheGeometry(V([[0,.06],[.96,.08],[1.01,.2],[1.04,.55],[1.04,2.5],[.97,2.95]]),48),wm));
+ const su=new THREE.Mesh(new THREE.CircleGeometry(1,40),new THREE.MeshBasicMaterial({color:0xffb0e0,transparent:true,opacity:.9}));su.rotation.x=-Math.PI/2;B.add(su);
+ const cap=new THREE.Mesh(new THREE.CylinderGeometry(.56,.56,.44,40),new THREE.MeshStandardMaterial({color:0xff2da0,metalness:.6,roughness:.3,emissive:0x550030}));B.add(cap);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(.64,.03,12,64),new THREE.MeshBasicMaterial({color:0xffd9ee}));ring.rotation.x=Math.PI/2;ring.position.y=4.28;ring.scale.setScalar(.001);B.add(ring);
+ const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'#fff');gr.addColorStop(.4,'rgba(255,255,255,.5)');gr.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);const tex=new THREE.CanvasTexture(cv);
+ const M=110,dg=new THREE.BufferGeometry();dg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(M*3),3));
+ const drops=new THREE.Points(dg,new THREE.PointsMaterial({map:tex,color:0xffb0e0,size:.22,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0}));drops.frustumCulled=false;B.add(drops);
+ const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,color:0xff2da0,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.1}));halo.scale.set(13,13,1);halo.position.z=-2;G.add(halo);
+ const wh=new THREE.Color(0xffd9ee),mg=new THREE.Color(0xff2da0);
+ function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix();if(w>860){G.position.set(2.9,0,0);G.scale.setScalar(1.05)}else{G.position.set(0,1.3,0);G.scale.setScalar(.62)}}
+ size();addEventListener('resize',size);
+ let done=0,seal=0;
+ function frame(ms){requestAnimationFrame(frame);const now=ms,dt=Math.min(.05,(now-last)/1000);last=now;const t=ms/1000;tick(dt);
+  mx+=(tx-mx)*.06;my+=(ty-my)*.06;
+  const sc=G.scale.x,L=.1+2.85*(level*.95);pl.constant=G.position.y+sc*(-2.25+L);su.position.y=L;su.scale.setScalar(.97+level*.07);
+  seal+=((sealed?1:0)-seal)*.06;
+  cap.position.set((1-seal)*1.1,4.62+(1-seal)*2.8+Math.sin(t*2)*.05*(1-seal),0);cap.rotation.z=(1-seal)*.6;
+  ring.scale.setScalar(Math.max(.001,seal));ring.rotation.z=t;
+  B.rotation.y=t*(.25+seal*.5)+mx*.6;G.rotation.x=my*.2;G.position.y+=((innerWidth>860?0:1.3)+Math.sin(t*1.2)*.07-G.position.y)*.1;
+  /* tilt toward the pour */
+  G.rotation.z=(pour?-.12:0)*(1-seal)+(G.rotation.z)*0;
+  wm.emissiveIntensity=.35+seal*.6;gm.uniforms.uC.value.copy(mg).lerp(wh,seal*.6);halo.material.opacity=.1+level*.3+seal*.3;L1.intensity=2.4+seal*2;
+  const dp=dg.attributes.position.array;for(let i=0;i<M;i++){const f=(t*1.7+i/M)%1;dp.set([Math.sin(i*5)*.09,8.5-f*(8.5-L),Math.cos(i*3)*.09],i*3)}dg.attributes.position.needsUpdate=true;
+  drops.material.opacity+=((pour?.95:0)-drops.material.opacity)*.2;
+  R.render(S,C)}
+ requestAnimationFrame(frame);
+}
+function liteLoop(ms){requestAnimationFrame(liteLoop);const dt=Math.min(.05,(ms-last)/1000);last=ms;tick(dt);
+ $('#fw').setAttribute('y',250-200*level);$('#fc').setAttribute('y',sealed?-4:-30)}
+if(!reduce&&window.THREE&&(navigator.hardwareConcurrency||8)>2){try{init3d();ok=true}catch(e){ok=false}}
+if(!ok){document.body.classList.add('lite');requestAnimationFrame(liteLoop)}
+</script>
+</body>
+</html>
